@@ -66,6 +66,14 @@ DFM  <- dfm(toks)
 DFM[,c("fight")] %>% sum()
 DFM[,c("defeat")] %>% sum()
 DFM[,c("destroy")] %>% sum()
+DFM[,c("destroying")] %>% sum()
+
+# As of Apr. 23, 2021:
+# 187,425 ads in the Actblue file/dataset
+# 5,809,543 tokens
+# 26,909 occurrences of the word “fight”
+# 4,302 occurrences of the word “defeat”
+# 374 occurrences of the word “destroy”
 
 # To consider: compress rows by entities....
 # corp_ent <- corpus(tcf, text_field = "contribution_blurb", groups="display_name")
