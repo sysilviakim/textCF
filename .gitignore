@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Ignore JPG files
+*.JPG
+
+# Ignore data/raw files for now
+data/raw/*
