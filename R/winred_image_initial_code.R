@@ -1,4 +1,5 @@
 source(here::here("R", "utilities.R"))
+load(here("data", "raw", "2022", "winred", "winred_text_scraped.Rda"))
 
 ##### Foreword #####
 
