@@ -24,10 +24,9 @@ image_download_logo_updated(logo_dat, image = "logo", name = "name_clean")
 
 # bgimg oownloads ==============================================================
 
-bg_dat <- as.data.frame(cbind(winred_dat$name_clean, winred_dat$bgimg))
-names(bg_dat) <- c("name_clean", "bgimg")
-bg_dat[bg_dat==""] <- NA
-bg_dat_naomit <- na.omit(bg_dat)
+bg_dat <- winred_dat %>%
+  select(name_clean, bgimg) %>%
+  filter(!is.na(bgimg) & !(bgimg == ""))
 
 image_download_bgimg_updated <- function(dat, image, name) {
   for (i in 1:nrow(dat)) {
