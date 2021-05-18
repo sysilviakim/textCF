@@ -1,3 +1,5 @@
+source(here::here("R", "utilities.R"))
+
 ##### Foreword #####
 
 # Most of the code here is identical to code from an earlier R script entitled 
@@ -8,14 +10,6 @@
 # of the script, I have replaced that section of trial-and-error with a section 
 # detailing the approach I took, why it works, and why previous versions 
 # did not work.
-
-##### Setup #####
-
-library(renv)
-renv::init()
-library(here)
-
-here::here()
 
 ##### Loading Data #####
 
@@ -29,8 +23,6 @@ winred_dat <- winred_text
 summary(winred_dat)
 # The images we need are linked in the following columns: logo and bgimg
 ## NOT og_image and twitter_image
-
-library(utils)
 
 ##### Explanation of Procedure, and of Trial-and-Error #####
 
