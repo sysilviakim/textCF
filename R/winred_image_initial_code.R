@@ -2,26 +2,9 @@ source(here::here("R", "utilities.R"))
 winred_dat <- 
   loadRData(here("data", "raw", "2022", "winred", "winred_text_scraped.Rda"))
 
-##### Foreword #####
-
-# Most of the code here is identical to code from an earlier R script entitled 
-# winred_images, which I am retaining for my records.
-# winred_images features 99 lines of code that constitute my initial attempts
-# to craft a function to download images in bulk, with my own rather rambling 
-# comments interspersed throughout. For the purposes of clarity, in this version 
-# of the script, I have replaced that section of trial-and-error with a section 
-# detailing the approach I took, why it works, and why previous versions 
-# did not work.
-
-##### Loading Data #####
-
-# I used the git clone procedure to get this into a Dropbox folder, so there 
-# should not be any way for me to overwrite the data here.
-# But just in case, I'm creating a copy of the data - there's no way I can
-# overwrite the original data from this. 
-# (I think and hope, at least. At times like these, fortune favors the careful.)
 summary(winred_dat)
-# The images we need are linked in the following columns: logo and bgimg
+
+## The images we need are linked in the following columns: logo and bgimg
 ## NOT og_image and twitter_image
 
 ##### Explanation of Procedure, and of Trial-and-Error #####
@@ -67,30 +50,12 @@ summary(winred_dat)
 
 ##### Logo Downloads #####
 
-logo_dat <- as.data.frame(cbind(winred_dat$name_clean, winred_dat$logo))
-names(logo_dat) <- c("name_clean", "logo")
-# There are some cases where there is no Logo url. I don't want to have to deal
-# with those - I imagine they'll mess up my code halfway through.
-#logo_no_blanks <- logo_dat[!apply(logo_dat$logo == "", 1, all),]
-# This wasn't working...but there's a straightforward fix, as all the name_clean
-# items are complete.
-logo_dat[logo_dat==""] <- NA
-logo_dat_naomit <- na.omit(logo_dat)
+logo_dat <- winred_dat %>%
+  select(name_clean, logo) %>%
+  filter(!is.na(logo) & !(logo == ""))
 
-image_download_logo_updated <- function(dat, image, name) {
-  for (i in 1:nrow(dat)) {
-    filepath[i] <- paste("C:/Users/15167/Dropbox/campaign_contribution_prompts/
-                         winred_images/logo_images/",
-                         name[i],"_logo.jpg", 
-                         sep="")
-    download.file(url = image[i],
-                  destfile = filepath[i],
-                  method = "curl")
-  }
-}
-
-image_download_logo_updated(logo_dat_naomit, logo_dat_naomit$logo, 
-                            logo_dat_naomit$name_clean)
+image_download_logo_updated(logo_dat, logo_dat$logo, 
+                            logo_dat$name_clean)
 
 # These are all the logos downloaded.
 
