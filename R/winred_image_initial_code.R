@@ -1,6 +1,10 @@
 source(here::here("R", "utilities.R"))
-winred_dat <- 
-  loadRData(here("data", "raw", "2022", "winred", "winred_text_scraped.Rda"))
+winred_dat <- loadRData(
+  here("data", "raw", "2022", "winred", "winred_text_scraped.Rda")
+) %>%
+  mutate(
+    name_clean = gsub("_{1,}$", "", gsub("_{2,}", "_", trimws(name_clean)))
+  )
 
 summary(winred_dat)
 
@@ -54,8 +58,8 @@ logo_dat <- winred_dat %>%
   select(name_clean, logo) %>%
   filter(!is.na(logo) & !(logo == ""))
 
-image_download_logo_updated(logo_dat, logo_dat$logo, 
-                            logo_dat$name_clean)
+assert_that(!any(duplicated(logo_dat$name_clean)))
+image_download_logo_updated(logo_dat, image = "logo", name = "name_clean")
 
 # These are all the logos downloaded.
 

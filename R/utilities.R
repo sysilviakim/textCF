@@ -22,14 +22,19 @@ image_download_logo_updated <- function(dat, image, name) {
   if (!dir.exists(path)) dir.create(path)
 
   for (i in 1:nrow(dat)) {
-    filepath[i] <- file.path(path, paste0(name[i], "_logo.jpg"))
     download.file(
-      url = image[i],
-      destfile = filepath[i],
+      url = dat[[image]][i],
+      destfile = file.path(
+        path,
+        paste0(
+          gsub("_{1,}$", "", gsub("_{2,}", "_", trimws(dat[[name]][i]))),
+          "_logo_", format(Sys.Date(), "%Y%m%d"), ".jpg"
+        )
+      ),
       method = "curl"
     )
+    Sys.sleep(3)
   }
 }
-
 
 # Other options ================================================================
