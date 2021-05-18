@@ -22,26 +22,13 @@ logo_dat <- winred_dat %>%
 assert_that(!any(duplicated(logo_dat$name_clean)))
 image_download_logo_updated(logo_dat, image = "logo", name = "name_clean")
 
-# bgimg oownloads ==============================================================
+# bgimg downloads ==============================================================
 
 bg_dat <- winred_dat %>%
   select(name_clean, bgimg) %>%
   filter(!is.na(bgimg) & !(bgimg == ""))
 
-image_download_bgimg_updated <- function(dat, image, name) {
-  for (i in 1:nrow(dat)) {
-    filepath[i] <- paste("C:/Users/15167/Dropbox/campaign_contribution_prompts/
-                         winred_images/bgimg_images/",
-                         name[i],"_bgimg.jpg", 
-                         sep="")
-    download.file(url = image[i],
-                  destfile = filepath[i],
-                  method = "curl")
-  }
-}
-
-image_download_bgimg_updated(bg_dat_naomit, bg_dat_naomit$bgimg, 
-                             bg_dat_naomit$name_clean)
+image_download_bgimg_updated(bg_dat, image = "bgimg", name = "name_clean")
 
 ##### Other Notes #####
 # Going forward, one of the big things I need to tackle is sorting out how to
