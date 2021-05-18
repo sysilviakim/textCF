@@ -1,5 +1,6 @@
 source(here::here("R", "utilities.R"))
-load(here("data", "raw", "2022", "winred", "winred_text_scraped.Rda"))
+winred_dat <- 
+  loadRData(here("data", "raw", "2022", "winred", "winred_text_scraped.Rda"))
 
 ##### Foreword #####
 
@@ -13,8 +14,6 @@ load(here("data", "raw", "2022", "winred", "winred_text_scraped.Rda"))
 # did not work.
 
 ##### Loading Data #####
-
-winred_dat <- winred_text
 
 # I used the git clone procedure to get this into a Dropbox folder, so there 
 # should not be any way for me to overwrite the data here.
