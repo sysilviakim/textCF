@@ -57,4 +57,24 @@ image_download_bgimg_updated <- function(dat, image, name) {
   }
 }
 
+image_download <- function(dat, image, name, pathway) {
+  path <- here(pathway)
+  if (!dir.exists(path)) dir.create(path)
+  
+  for (i in 1:nrow(dat)) {
+    download.file(
+      url = dat[[image]][i],
+      destfile = file.path(
+        path,
+        paste0(
+          gsub("_{1,}$", "", gsub("_{2,}", "_", trimws(dat[[name]][i]))),
+          "_bgimg_", format(Sys.Date(), "%Y%m%d"), ".jpg"
+        )
+      ),
+      method = "curl"
+    )
+    Sys.sleep(3)
+  }
+}
+
 # Other options ================================================================
