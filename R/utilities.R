@@ -17,6 +17,33 @@ library(assertthat)
 library(Kmisc)
 
 # Functions ====================================================================
+nested_df <- function(df, var = NULL) {
+  ## broad applications of tidyr::unnest can be problematic
+  if (length(var) > 1) {
+    stop("Specify one variable at each run.")
+  }
+  if (!is.null(var)) {
+    temp <- df[[var]]
+    if (nrow(temp) == nrow(df)) {
+      return(bind_cols(df %>% select(-!!as.name(var)), temp))
+    } else {
+      message(paste0("Number of rows do not match for variable ", var))
+    }
+  } else {
+    var_list <- df %>% map_chr(class) %>% {which(. == "data.frame")} %>% names()
+    for (var in var_list) {
+      temp <- df[[var]]
+      if (nrow(temp) == nrow(df)) {
+        df <- bind_cols(df %>% select(-!!as.name(var)), temp)
+        message(paste0("Successfully unnested variable ", var))
+      } else {
+        message(paste0("Number of rows do not match for variable ", var))
+      }
+    }
+    return(df)
+  }
+}
+
 image_download_logo_updated <- function(dat, image, name) {
   path <- here("data/raw/2022/winred/logo")
   if (!dir.exists(path)) dir.create(path)
