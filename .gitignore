@@ -42,4 +42,7 @@ vignettes/*.pdf
 *.JPG
 
 # Ignore data/raw files for now
-data/raw/*
+data/raw/*.Rda
+data/raw/*.RData
+data/raw/fb/*.Rda
+data/raw/fb/*.RData
