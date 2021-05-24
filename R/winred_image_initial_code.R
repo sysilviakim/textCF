@@ -28,7 +28,9 @@ bg_dat <- winred_dat %>%
   select(name_clean, bgimg) %>%
   filter(!is.na(bgimg) & !(bgimg == ""))
 
-image_download_bgimg_updated(bg_dat, image = "bgimg", name = "name_clean")
+assert_that(!any(duplicated(bg_dat$name_clean)))
+image_download(dat = bg_dat, image = "bgimg", name = "name_clean", 
+               pathway = "data/raw/2022/winred/bgimg")
 
 ##### Other Notes #####
 # Going forward, one of the big things I need to tackle is sorting out how to
