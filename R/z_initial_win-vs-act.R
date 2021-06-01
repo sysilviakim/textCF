@@ -1,0 +1,70 @@
+library(tidyverse)
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+# https://muellerstefan.net/files/quanteda-cheatsheet.pdf
+
+load("data/raw/2022/actblue/actblue_js_scraped.Rda")
+load("data/raw/2022/winred/winred_text_scraped.Rda")
+
+#load("data/raw/2022/house/actblue_js_scraped.Rda")
+#load("data/raw/2022/house/anedot_text_scraped.Rda")
+#load("data/raw/2022/house/winred_text_scraped.Rda")
+
+names(actblue_js_full)
+names(winred_text)
+
+
+act_blurb <- actblue_js_full$js_rest$contribution_blurb
+
+# Clear some memory
+rm(actblue_js_full)
+
+
+# Get text from ActBlue
+c1 <- corpus(act_blurb)
+
+# Get text and other data from WinRed
+c2 <- corpus(winred_text %>% select(description, 
+                                    short_text = text, 
+                                    name, 
+                                    og_description,
+                                    text_field = "description")
+              )
+
+c1$platform <- "ActBlue"
+c2$platform <- "WinRed"
+
+# Documents also need distinct names
+docnames(c2) <- paste0("winred",seq(1:length(c2)))
+
+corp <- c1 + c2
+
+
+
+toks <- corp %>% 
+  tokens(remove_url = TRUE,
+         remove_punct=TRUE) %>% 
+  tokens_remove(stopwords("english")) %>% 
+  tokens_remove(c("rt","amp","u8","<p>","<",">","div","img","alt","br",
+                  "text-align","li","=","b","nbsp","style",
+                  "em","p","strong",
+                  "center","u",
+                  "href","rel")) %>%
+  tokens_tolower()
+
+# Document feature matrix:
+DFM  <- dfm(toks)
+
+DFM[,c("democrat")] %>% sum()
+DFM[,c("fight")] %>% sum()
+DFM[,c("trump")] %>% sum()
+DFM[,c("blm")] %>% sum()
+DFM[,c("antifa")] %>% sum()
+
+# topF <- textstat_frequency(DFM, n = 25, groups = "platform")
+
+winred_text %>% filter(!is.na(name)) %>% group_by(name) %>% tally() %>% 
+  arrange(n) %>% slice(1:50)
+
+

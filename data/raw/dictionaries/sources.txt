@@ -1,0 +1,9 @@
+sources.txt
+
+Moral Foundations Dictionary:
+https://osf.io/ezn37/
+
+
+NRC Word-Emotion Association Lexicon (aka EmoLex)
+https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm
+https://arxiv.org/pdf/1308.6297.pdf
