@@ -1,8 +1,0 @@
-source.txt	
-
-The data was downloaded from 538 on 5/18/21.
-
-https://github.com/fivethirtyeight/data/tree/master/congress-trump-score
-
-It appears to be somewhat of date;
-the last updat was on March 14, 2018.
