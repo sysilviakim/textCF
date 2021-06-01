@@ -25,7 +25,7 @@ docnames(c2) <- paste0("winred",seq(1:length(c2)))
 
 c2$platform <- "WinRed"
 
-# TO DO: READ IN ACTBLUE
+# TO DO: READ IN ACTBLUE [but where exactly is the text field?]
 # act_blurb <- actblue_federal$js_rest$contribution_blurb
 
 # Get text from ActBlue
@@ -116,10 +116,14 @@ DFM_trimmed <- dfm_trim(DFM, min_termfreq = 10)
 # Make an FCM:
 FCmat_trimmed <- fcm(DFM_trimmed)
 
+
+# [This part is experimental]
+# Matching tokens to dictionaries AFTER pre-processing:
 dfmat_lookup1 <- dfm_lookup(DFM, dictionary = data_dictionary_AFINN)
 dfmat_lookup2 <- dfm_lookup(DFM, dictionary = data_dictionary_NRC)
 
 
+# Count the number of word occurences:
 DFM[,c("democrat")] %>% sum()
 DFM[,c("fight")] %>% sum()
 DFM[,c("trump")] %>% sum()
@@ -128,15 +132,9 @@ DFM[,c("antifa")] %>% sum()
 
 # topF <- textstat_frequency(DFM, n = 25, groups = "platform")
 
-winred_text %>% filter(!is.na(name)) %>% group_by(name) %>% tally() %>% 
-  arrange(n) %>% slice(1:50)
-
-
 
 # Keyword in context:
-
 kwic(c2, pattern="trump")
-
 
 # FCM NETWORK PLOT
 
