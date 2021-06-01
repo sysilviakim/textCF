@@ -74,6 +74,26 @@ winred_Lexicoder %>%
   knitr::kable()
 
 
+#############################################
+# HEATMAP BASED ON THE NRC DICTIONARY
+#############################################
+winred_Lexicoder %>% 
+  filter(Dic > 0) %>%
+  mutate(index = row_number()) %>%
+  select(index, Dic, anger, anticipation, disgust, fear, joy, negative, positive, sadness, surprise, trust) %>%
+  mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
+  select(index, anger, disgust, fear, negative, positive) %>%
+  mutate(other = 100 - anger - disgust - fear - negative - positive) %>%
+  pivot_longer(cols = anger:other) %>%
+  ggplot(aes(y = factor(index), x = value, color = name, fill = name)) +
+  geom_col() +
+  jcolors::scale_fill_jcolors(palette = "pal4") +
+  jcolors::scale_color_jcolors(palette = "pal4") +
+  labs(x="Proportion of (classified) words", y = "", subtitle = "Language analysis summary of over 170 WinRed ads",
+       color = "", fill = "") +
+  theme(axis.text.y=element_blank())
+
+
 ####################################
 # Tokenize the corpus
 ####################################
@@ -111,6 +131,9 @@ DFM[,c("antifa")] %>% sum()
 winred_text %>% filter(!is.na(name)) %>% group_by(name) %>% tally() %>% 
   arrange(n) %>% slice(1:50)
 
+
+
+# Keyword in context:
 
 kwic(c2, pattern="trump")
 
