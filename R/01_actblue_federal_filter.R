@@ -11,11 +11,21 @@ post_donation_upsells <- actblue_js_full$post_donation_upsells %>% bind_rows()
 # Federal candidates ===========================================================
 df <- actblue_js_full %>%
   select(-js_rest, -eligibility_values_es, -post_donation_upsells) %>%
-  unnest(cols = c(entities)) %>%
+  bind_cols(., js_rest) %>%
+  clean_names() %>%
+  rename(id_main = id, kind_main = kind) %>%
+  unnest(cols = c(entities), names_repair = "unique") %>%
   filter(kind == "candidate" & `federal?` == TRUE) %>%
   clean_names() %>%
   dedup() %>%
-  select(-displayname_with_article, -contribution_blurb_bottom) %>%
+  select(
+    -displayname_with_article,
+    -contains("contribution_blurb_bottom"),
+    -contains("eligibility_values"),
+    -contains("_es$"),
+    -contains("disclaimer_flags"),
+    -contains("radio_amounts")
+  ) %>%
   rowwise() %>%
   filter(!is.null(managing_entity)) %>%
   mutate(
@@ -32,7 +42,8 @@ df <- actblue_js_full %>%
   select(-name_diff) %>%
   select(-managing_entity) %>%
   rename(id_x = id, display_name_x = display_name) %>%
-  unnest(cols = c(brandings)) %>%
+  unnest(cols = c(brandings), names_repair = "unique") %>%
+  clean_names() %>%
   dedup() %>%
   rename(
     id_brandings = id, display_name_brandings = display_name,
@@ -96,8 +107,21 @@ actblue_federal <- actblue_federal %>%
   mutate(contribution_limit = contribution_limit / 100) %>%
   select(
     -contains("background_image_url"), -header_image_url,
-    -acceptable_card_types, -ticket_types, 
+    -acceptable_card_types, -ticket_types,
     everything()
+  )
+
+# Delete unnecessary phrases from candidate name ===============================
+actblue_federal <- actblue_federal %>%
+  filter(!grepl("2016|Marijuana Reform Party PAC", display_name)) %>%
+  rowwise() %>%
+  mutate(
+    display_name = gsub(" for Congress$| - Federal$", "", display_name),
+    display_name = gsub("\\(MA 04\\)| \\(\\)", "", display_name),
+    display_name = gsub("^Friends of ", "", display_name),
+    display_name = trimws(
+      stringi::stri_trans_general(display_name, "latin-ascii")
+    )
   )
 
 save(actblue_federal, file = here("data/tidy/actblue_federal_2022.Rda"))
