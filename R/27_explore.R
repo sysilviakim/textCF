@@ -3,6 +3,10 @@ library(quanteda)
 library(quanteda.textplots)
 library(quanteda.textstats)
 
+# Want access to Silvia's sweet package? RUN also: 
+# library(devtools) 
+# install_github("sysilviakim/Kmisc")
+
 
 load("data/raw/2022/actblue/actblue_js_scraped.Rda")
 
