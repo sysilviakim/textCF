@@ -2,6 +2,7 @@ source(here::here("R", "utilities.R"))
 token <- readline() ## FB Access Token; do not store
 
 # Import data for FB IDs =======================================================
+## MIT elections data (general candidates) + FB ad manual additions (RA)
 congress_fb <- c(senate = "senate", house = "house") %>%
   imap(
     ~ here("data", "raw", "fb", paste0("fb-", .x, ".csv")) %>%
