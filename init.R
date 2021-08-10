@@ -15,5 +15,12 @@ install.packages("lubridate")
 install.packages("here")
 install.packages("assertthat")
 install.packages("styler")
+install.packages("janitor")
+
+install.packages("quanteda")
+install.packages("quanteda.textplots")
+install.packages("quanteda.textstats")
+
+devtools::install_github("facebookresearch/Radlibrary")
 
 renv::snapshot()
