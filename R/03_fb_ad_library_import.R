@@ -1,6 +1,7 @@
 source(here::here("R", "utilities.R"))
 token <- readline() ## FB Access Token; do not store
 
+# Import data for FB IDs =======================================================
 congress_fb <- c(senate = "senate", house = "house") %>%
   imap(
     ~ here("data", "raw", "fb", paste0("fb-", .x, ".csv")) %>%
@@ -13,6 +14,7 @@ congress_fb <- c(senate = "senate", house = "house") %>%
       )
   )
 
+# Delete no-variation data =====================================================
 congress_fb <- c(senate = "senate", house = "house") %>%
   map(
     ~ congress_fb[[.x]] %>%
@@ -26,3 +28,33 @@ congress_fb <- c(senate = "senate", house = "house") %>%
       )
   )
 
+# Senate query =================================================================
+## Loop, so that it won't be lost
+query_senate_2020 <- vector("list", length = nrow(congress_fb$senate))
+names(query_senate_2020) <- congress_fb$senate$fb_ad_library_id
+for (idx in congress_fb$senate$fb_ad_library_id) {
+  ## Build list
+  query_senate_2020[[idx]] <- list(ad = NA, demo = NA, region = NA)
+  
+  ## Build first query: ad
+  query <- fb_query_short(idx, fields = "ad_data")
+  response <- adlib_get(params = query, token = token)
+  query_senate_2020[[idx]]$ad <- as_tibble(response, type = "ad")
+  
+  ## Build first query: demo
+  query <- fb_query_short(idx, fields = "demographic_data")
+  response <- adlib_get(params = query, token = token)
+  query_senate_2020[[idx]]$demo <- as_tibble(response, type = "ad")
+  
+  ## Build first query: ad
+  query <- fb_query_short(idx, fields = "region_data")
+  response <- adlib_get(params = query, token = token)
+  query_senate_2020[[idx]]$region <- as_tibble(response, type = "ad")
+}
+
+# Check why adlib_get_paginated =/= adlib_get
+result_paginated <- adlib_get_paginated(query, max_gets = 1e8, token = token)
+assert_that(!result_paginated$has_next)
+
+df_paginated <- as_tibble(result_paginated, type = "ad")
+dim(df_paginated)

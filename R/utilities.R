@@ -104,4 +104,35 @@ image_download <- function(dat, image, name, pathway) {
   }
 }
 
+fb_query_short <- function(idx, 
+                           fields = "ad_data",
+                           ad_delivery_date_max = "2020-11-30",
+                           limit = 1e7) {
+  query <- adlib_build_query(
+    ad_reached_countries = 'US', 
+    ad_active_status = 'ALL',
+    ad_type = "POLITICAL_AND_ISSUE_ADS",
+    ## Notice that for list creation purposes, idx is still character
+    search_page_ids = as.numeric(idx),
+    fields = fields,
+    ad_delivery_date_max = ad_delivery_date_max,
+    limit = limit
+  )
+}
+
 # Other options ================================================================
+fb_fields <- c(
+  # "ad_data", "demographic_data", "region_data", 
+  "ad_creation_time", "ad_creative_body", "ad_creative_link_caption",
+  "ad_creative_link_description", "ad_creative_link_title",
+  "ad_delivery_start_time", "ad_delivery_stop_time",
+  "ad_snapshot_url", "currency", "demographic_distribution", "funding_entity",
+  "impressions", "page_id", "page_name", "potential_reach", 
+  "publisher_platforms", "region_distribution", "spend"
+)
+
+## https://facebookresearch.github.io/Radlibrary/index.html
+## See also
+## https://disinfo.quaidorsay.fr/en/facebook-ads-library-assessment
+
+
