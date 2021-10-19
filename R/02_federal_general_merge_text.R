@@ -44,6 +44,7 @@ senate <- cong_filtered$senate %>%
 
 ## 38.7% missing. Ouch!
 sum(is.na(senate$text)) / nrow(senate) * 100 
+save(senate, here("data", "tidy", "senate-2020-matched.Rda"))
 
 # Check for missing instances: House ===========================================
 temp <- bind_rows(
@@ -60,7 +61,4 @@ house <- cong_filtered$house %>%
 
 ## 79.0% missing. Yikes!
 sum(is.na(house$text)) / nrow(house) * 100 
-
-
-
-
+save(house, here("data", "tidy", "house-2020-matched.Rda"))
