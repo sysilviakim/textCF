@@ -1,5 +1,4 @@
 source(here::here("R", "utilities.R"))
-library(stringdist)
 
 # Load ActBlue JS scrape results ===============================================
 load(here("data/raw/2022/actblue/actblue_js_scraped.Rda"))

@@ -12,6 +12,7 @@ library(quanteda.textstats)
 library(here)
 library(janitor)
 library(assertthat)
+library(stringdist)
 
 # Non-CRAN packages ============================================================
 library(Kmisc)
