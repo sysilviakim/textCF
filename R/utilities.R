@@ -272,7 +272,7 @@ actblue_select_text <- function(input) {
     select(-names(df)[nearZeroVar(df, freqCut = 99.5 / 0.5)]) %>%
     select(
       display_name, url, fec_id_cand, first_name, last_name,
-      title, contribution_blurb
+      title, text = contribution_blurb
     )
 }
 
@@ -291,10 +291,10 @@ winred_select_text <- function(input) {
   # [19] "year"                            "party"
   
   df %>%
-    mutate(contribution_blurb = paste(text, og_description, sep = " \n ")) %>%
+    mutate(text = paste(text, og_description, sep = " \n ")) %>%
     select(
       display_name = description, url = og_url, fec_id_cand = FEC_ID_cand,
-      first_name, last_name,  title = og_title, contribution_blurb
+      first_name, last_name,  title = og_title, text
     )
   
   ## Note that unlike ActBlue, WinRed same-link *did* change content!!

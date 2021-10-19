@@ -26,15 +26,41 @@ cong_text <- c(house = "house", senate = "senate") %>%
 # names(cong_text$house$anedot)
 # names(cong_text$house$winred)
 
-# Wrangling data ===============================================================
 ## Extremely different data scraped from three domains
 ## Filter only what I need
 
 # Check for missing instances: Senate ==========================================
+temp <- bind_rows(
+  actblue_select_text(cong_text$senate$actblue),
+  winred_select_text(cong_text$senate$winred)
+) %>%
+  mutate(
+    last_name = tolower(trimws(last_name)),
+    first_name = tolower(trimws(first_name))
+  )
+
 senate <- cong_filtered$senate %>%
-  left_join(., actblue_select_text(cong_text$senate$actblue))
+  left_join(., temp)
+
+## 38.7% missing. Ouch!
+sum(is.na(senate$text)) / nrow(senate) * 100 
 
 # Check for missing instances: House ===========================================
+temp <- bind_rows(
+  actblue_select_text(cong_text$house$actblue),
+  winred_select_text(cong_text$house$winred)
+) %>%
+  mutate(
+    last_name = tolower(trimws(last_name)),
+    first_name = tolower(trimws(first_name))
+  )
+
+house <- cong_filtered$house %>%
+  left_join(., temp)
+
+## 79.0% missing. Yikes!
+sum(is.na(house$text)) / nrow(house) * 100 
+
 
 
 
