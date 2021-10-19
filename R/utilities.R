@@ -276,6 +276,31 @@ actblue_select_text <- function(input) {
     )
 }
 
+winred_select_text <- function(input) {
+  df <- cong_text$senate$winred
+  names(df)[nearZeroVar(df, freqCut = 99.5 / 0.5)]
+  #  [1] "organization_revv_uid"           "viewport"                       
+  #  [3] "stripe_publishable_key"          "update_cart_domain"             
+  #  [5] "preview_new_proration_domain"    "preview_change_proration_domain"
+  #  [7] "revv_api_domain"                 "page_donor_buckets_enabled"     
+  #  [9] "organization_uid"                "organization_name"              
+  # [11] "og_site_name"                    "og_locale"                      
+  # [13] "og_type"                         "twitter_card"                   
+  # [15] "og_image_width"                  "og_image_height"                
+  # [17] "csrf_param"                      "date"                           
+  # [19] "year"                            "party"
+  
+  df %>%
+    mutate(contribution_blurb = paste(text, og_description, sep = " \n ")) %>%
+    select(
+      display_name = description, url = og_url, fec_id_cand = FEC_ID_cand,
+      first_name, last_name,  title = og_title, contribution_blurb
+    )
+  
+  ## Note that unlike ActBlue, WinRed same-link *did* change content!!
+  ## https://secure.winred.com/marco-rubio-for-senate/website
+}
+
 # Other options ================================================================
 fb_fields <- c(
   # "ad_data", "demographic_data", "region_data", 
