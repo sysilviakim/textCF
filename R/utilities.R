@@ -225,8 +225,8 @@ actblue_wrangle <- function(input) {
     clean_names() %>%
     mutate(contribution_limit = contribution_limit / 100) %>%
     select(
-      -contains("background_image_url"), -header_image_url,
-      -acceptable_card_types, -ticket_types,
+      -contains("background_image_url"), -contains("header_image_url"),
+      -contains("acceptable_card_types"), -contains("ticket_types"),
       everything()
     )
   
@@ -244,6 +244,36 @@ actblue_wrangle <- function(input) {
     )
   
   return(actblue_federal)
+}
+
+actblue_select_text <- function(input) {
+  df <- input %>%
+    actblue_wrangle() %>%
+    ## Some important variables, but not for this project
+    ## df %>% map(class) %>% {. == "list"} %>% which() %>% names()
+    select(-where(is.list))
+  
+  names(df)[nearZeroVar(df, freqCut = 99.5 / 0.5)]
+  #  [1] "date"                              "donate"                           
+  #  [3] "full_background"                   "year"                             
+  #  [5] "party"                             "recurring_interval"               
+  #  [7] "deleted"                           "merchandise"                      
+  #  [9] "apple_pay_merchant_identifier"     "tip_variant"                      
+  # [11] "single_paypal_account"             "single_paypal_account_with_tip"   
+  # [13] "show_tip_ask"                      "requires_employer"                
+  # [15] "requires_employer_address"         "requires_eligibility_confirmation"
+  # [17] "requires_cvv"                      "entry_mode"                       
+  # [19] "locale"                            "accepts_paypal"                   
+  # [21] "self_match_enabled"                "limited_info_available"           
+  # [23] "political_2"                       "embedded_form"                    
+  # [25] "allow_contact_sharing_opt_out"     "background_image_url_17"
+  
+  df %>%
+    select(-names(df)[nearZeroVar(df, freqCut = 99.5 / 0.5)]) %>%
+    select(
+      display_name, url, fec_id_cand, first_name, last_name,
+      title, contribution_blurb
+    )
 }
 
 # Other options ================================================================

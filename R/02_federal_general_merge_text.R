@@ -4,7 +4,7 @@ source(here::here("R", "utilities.R"))
 ## Set of general election candidates that should be in the data
 load(here("data", "raw", "cong-filtered.Rda"))
 
-# Match to federal candidate data scraped in Feb 2021 ==========================
+# Read candidate-level text data scraped in Feb 2021 ===========================
 cong_text <- c(house = "house", senate = "senate") %>%
   map(
     function(x) c("actblue", "anedot", "winred") %>%
@@ -21,4 +21,20 @@ cong_text <- c(house = "house", senate = "senate") %>%
         )
       )
   )
-  
+
+# names(cong_text$house$actblue)
+# names(cong_text$house$anedot)
+# names(cong_text$house$winred)
+
+# Wrangling data ===============================================================
+## Extremely different data scraped from three domains
+## Filter only what I need
+
+# Check for missing instances: Senate ==========================================
+senate <- cong_filtered$senate %>%
+  left_join(., actblue_select_text(cong_text$senate$actblue))
+
+# Check for missing instances: House ===========================================
+
+
+
