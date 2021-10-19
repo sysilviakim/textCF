@@ -243,7 +243,7 @@ actblue_wrangle <- function(input) {
       )
     )
   
-  out(actblue_federal)
+  return(actblue_federal)
 }
 
 # Other options ================================================================

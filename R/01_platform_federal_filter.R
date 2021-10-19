@@ -8,7 +8,8 @@ actblue_federal <-
 save(actblue_federal, file = here("data/tidy/actblue_federal_2022.Rda"))
 
 # Load Anedot scrape results ===================================================
-load(here("data/raw/2022/rightus/anedot_text_scraped.Rda"))
+## Embedded null in string; will check later
+## load(here("data/raw/2022/rightus/anedot_text_scraped.Rda"))
 
 # Load WinRed scrape results ===================================================
 load(here("data/raw/2022/winred/winred_text_scraped.Rda"))
