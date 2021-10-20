@@ -15,6 +15,9 @@ library(assertthat)
 library(stringdist)
 library(caret)
 
+## devtools::install_github("hrbrmstr/wayback")
+library(wayback)
+
 # Non-CRAN packages ============================================================
 library(Kmisc)
 
@@ -299,6 +302,176 @@ winred_select_text <- function(input) {
   
   ## Note that unlike ActBlue, WinRed same-link *did* change content!!
   ## https://secure.winred.com/marco-rubio-for-senate/website
+}
+
+# Wayback-specific Functions ===================================================
+wayback_memento <- function(files) {
+  files %>%
+    map_dfr(
+      ~ tryCatch(
+        {
+          read.table(.x, sep = ";", fill = TRUE, as.is = TRUE)
+        },
+        error = function(e) {
+          NULL
+        }
+      )
+    ) %>%
+    select(-V4) %>%
+    rename(link = V1, rel = V2, dt = V3) %>%
+    mutate(
+      ## referenced wayback::get_mementos
+      link = stringi::stri_replace_all_regex(trimws(link), "^<|>$", ""),
+      rel = stringi::stri_replace_all_regex(trimws(rel), "^rel=|,", ""),
+      dt = parse_date_time(
+        stringi::stri_replace_all_regex(trimws(dt), "^datetime=|,| GMT", ""),
+        orders = "adbyHMS"
+      )
+    ) %>%
+    filter(rel == "first memento" | rel == "memento")
+}
+
+wayback_timemap <- function(df, i, var = "campaign_website") {
+  paste0(
+    "http://web.archive.org/web/timemap/link/",
+    df[[var]][i]
+  )
+}
+
+file_pattern <- function(df, i, var = "campaign_website") {
+  if (!("state_cd" %in% names(df))) {
+    # Senate
+    out <- paste0(
+      df$state[i], "-SEN_",
+      trimws(tolower(df$first_name[i])), "_",
+      trimws(tolower(df$last_name[i]))
+    )
+  } else {
+    # House
+    out <- paste0(
+      df$state_cd[i], "_",
+      trimws(tolower(df$first_name[i])), "_",
+      trimws(tolower(df$last_name[i]))
+    )
+  }
+  if (var != "campaign_website") {
+    out <- paste0(out, "_", trimws(tolower(df$url_end[i])))
+    out <- out %>%
+      gsub("?iframe=true", "", .)
+  }
+  out <- out %>%
+    gsub("\\s+", "_", .) %>%
+    gsub("_+", "_", .) %>%
+    gsub("[^[:alnum:]_-]", "", .)
+  
+  return(out)
+}
+
+wayback_std <- function(df, var = "campaign_website") {
+  df %>%
+    ungroup() %>%
+    mutate(
+      !!as.name(var) :=
+        trimws(tolower(gsub("http://", "https://", !!as.name(var)))),
+      !!as.name(var) := gsub(
+        paste0(
+          "\\.$|\\./$|:80$|:80/$|:80/\\?$||:443$|:443/$|:443/\\?$|\\?$|",
+          "#$|:80/home$|:443/home|:80/home/$|:443/home/|/%252f$|",
+          "/home$|/home/$|:80|",
+          "https://web.archive.org/screenshot/"
+        ),
+        "", !!as.name(var)
+      ),
+      !!as.name(var) := gsub("/{2,}", "/", !!as.name(var)),
+      !!as.name(var) := gsub("https:/", "https://", !!as.name(var)),
+      ## beckwith for congress
+      !!as.name(var) := gsub("^ttps://", "https://www", !!as.name(var)),
+      !!as.name(var) := gsub("^ttps:/p", "https://www.p", !!as.name(var)),
+      !!as.name(var) := gsub("https://wwwwww", "https://www", !!as.name(var)),
+      !!as.name(var) := gsub("/+$", "", !!as.name(var))
+    ) %>%
+    rowwise() %>%
+    mutate(
+      !!as.name(var) := ifelse(
+        grepl("www", !!as.name(var)),
+        !!as.name(var),
+        gsub("://", "://www.", !!as.name(var))
+      ),
+      !!as.name(var) := ifelse(
+        !grepl("https://", !!as.name(var)) & grepl("^www", !!as.name(var)),
+        paste0("https://", !!as.name(var)),
+        !!as.name(var)
+      )
+    ) %>%
+    ungroup()
+}
+
+wayback_merge <- function(df, campaigns, var) {
+  df %>%
+    mutate(date = as_date(dt)) %>%
+    rowwise() %>%
+    # Initial dataframe will always have the following columns:
+    # link, rel, dt
+    mutate(!!as.name(var) := str_match(link, pattern = "/(http.*)$")[1, 2]) %>%
+    wayback_std(., var = var) %>%
+    wayback_std(., var = var) %>%
+    group_by(!!as.name(var), date) %>%
+    slice(1) %>%
+    ungroup() %>%
+    mutate(year = year(date)) %>%
+    filter(!grepl("@", !!as.name(var))) %>%
+    filter(year >= 2019) %>%
+    left_join(
+      .,
+      campaigns %>%
+        select(-year) %>%
+        wayback_std(., var = var) %>%
+        wayback_std(., var = var) %>%
+        select(!!as.name(var), everything())
+    )
+}
+
+wayback_msg <- function(df, i) {
+  paste0(
+    i, "-th row (", file_pattern(df, i), ", ", df$dt[i], ") completed."
+  )
+}
+
+wayback_stamp_html <- function(df, i, fp) {
+  type <- ifelse(grepl("/front/", fp), "front", "donation")
+  here(
+    gsub("timestamp", "html", fp),
+    paste0(
+      file_pattern(
+        df, i,
+        var = ifelse(type == "donation", "url", "campaign_website")
+      ), "_",
+      format(df$dt[i], "%Y%m%d%H%M%S"), "_", type, ".html"
+    )
+  )
+}
+
+wayback_timemap_exceptions <- function(campaigns, fp,
+                                       var = "campaign_website") {
+  setdiff(
+    seq(nrow(campaigns)) %>%
+      map(
+        ~ here(
+          fp,
+          paste0(
+            "wayback_timemap_",
+            file_pattern(campaigns, .x, var = var), ".txt"
+          )
+        )
+      ) %>%
+      unlist(),
+    list.files(here(fp), pattern = ".txt", full.names = TRUE)
+  ) %>%
+    map(
+      ~ gsub(c(here(), fp) %>% paste(collapse = "|"), "", .x) %>%
+        gsub("//", "", .)
+    ) %>%
+    unlist()
 }
 
 # Other options ================================================================
