@@ -2,6 +2,7 @@
 library(plyr)
 library(tidyverse)
 library(lubridate)
+library(rvest)
 
 # Text analysis packages =======================================================
 library(quanteda)
@@ -13,6 +14,7 @@ library(here)
 library(janitor)
 library(assertthat)
 library(stringdist)
+library(xml2)
 library(caret)
 
 ## devtools::install_github("hrbrmstr/wayback")
@@ -338,8 +340,8 @@ wayback_timemap <- function(df, i, var = "url") {
   )
 }
 
-file_pattern <- function(df, i, var = "url") {
-  if (!("state_cd" %in% names(df))) {
+file_pattern <- function(df, i, var = "url", senate = FALSE) {
+  if (!("state_cd" %in% names(df)) | senate == TRUE) {
     # Senate
     out <- paste0(
       df$state[i], "-SEN_",
@@ -355,7 +357,7 @@ file_pattern <- function(df, i, var = "url") {
     )
   }
   if (var != "campaign_website") {
-    out <- paste0(out, "_", trimws(tolower(df$url_end[i])))
+    ## out <- paste0(out, "_", trimws(tolower(df$url_end[i])))
     out <- out %>%
       gsub("?iframe=true", "", .)
   }
@@ -424,23 +426,23 @@ wayback_merge <- function(df, campaigns, var) {
     left_join(
       .,
       campaigns %>%
-        select(-year) %>%
+        ## select(-year) %>%
         wayback_std(., var = var) %>%
         wayback_std(., var = var) %>%
         select(!!as.name(var), everything())
     )
 }
 
-wayback_msg <- function(df, i) {
+wayback_msg <- function(df, i, ...) {
   paste0(
-    i, "-th row (", file_pattern(df, i), ", ", df$dt[i], ") completed."
+    i, "-th row (", file_pattern(df, i, ...), ", ", df$dt[i], ") completed."
   )
 }
 
 wayback_stamp_html <- function(df, i, fp) {
-  type <- ifelse(grepl("/front/", fp), "front", "donation")
+  type <- ifelse(grepl("front", fp), "front", "donation")
   here(
-    gsub("timestamp", "html", fp),
+    gsub("timestamp_donation", "html", fp),
     paste0(
       file_pattern(
         df, i,
@@ -451,8 +453,7 @@ wayback_stamp_html <- function(df, i, fp) {
   )
 }
 
-wayback_timemap_exceptions <- function(campaigns, fp,
-                                       var = "url") {
+wayback_timemap_exceptions <- function(campaigns, fp, var = "url", ...) {
   setdiff(
     seq(nrow(campaigns)) %>%
       map(
@@ -460,7 +461,7 @@ wayback_timemap_exceptions <- function(campaigns, fp,
           fp,
           paste0(
             "wayback_timemap_",
-            file_pattern(campaigns, .x, var = var), ".txt"
+            file_pattern(campaigns, .x, var = var, ...), ".txt"
           )
         )
       ) %>%
