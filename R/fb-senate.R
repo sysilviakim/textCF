@@ -47,4 +47,4 @@ sen.tibble1 <- as_tibble(sen.response1, type = "ad")
 
 # Perhaps splitting further, or else having multiple queries for each group
 # arranging by date? I think splitting further would run the lowest amount of
-# risk...
+# risk...we don't want duplicated ads in our final sample.
