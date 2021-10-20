@@ -331,26 +331,26 @@ wayback_memento <- function(files) {
     filter(rel == "first memento" | rel == "memento")
 }
 
-wayback_timemap <- function(df, i, var = "campaign_website") {
+wayback_timemap <- function(df, i, var = "url") {
   paste0(
     "http://web.archive.org/web/timemap/link/",
     df[[var]][i]
   )
 }
 
-file_pattern <- function(df, i, var = "campaign_website") {
+file_pattern <- function(df, i, var = "url") {
   if (!("state_cd" %in% names(df))) {
     # Senate
     out <- paste0(
       df$state[i], "-SEN_",
-      trimws(tolower(df$first_name[i])), "_",
+      ## trimws(tolower(df$first_name[i])), "_",
       trimws(tolower(df$last_name[i]))
     )
   } else {
     # House
     out <- paste0(
       df$state_cd[i], "_",
-      trimws(tolower(df$first_name[i])), "_",
+      ## trimws(tolower(df$first_name[i])), "_",
       trimws(tolower(df$last_name[i]))
     )
   }
@@ -367,7 +367,7 @@ file_pattern <- function(df, i, var = "campaign_website") {
   return(out)
 }
 
-wayback_std <- function(df, var = "campaign_website") {
+wayback_std <- function(df, var = "url") {
   df %>%
     ungroup() %>%
     mutate(
@@ -452,7 +452,7 @@ wayback_stamp_html <- function(df, i, fp) {
 }
 
 wayback_timemap_exceptions <- function(campaigns, fp,
-                                       var = "campaign_website") {
+                                       var = "url") {
   setdiff(
     seq(nrow(campaigns)) %>%
       map(
