@@ -5,7 +5,7 @@
 ## Download and load any necessary packages
 #install.packages("devtools")
 #devtools::install_github("facebookresearch/Radlibrary")
-# library(Radlibrary)
+#library(Radlibrary)
 
 # Setup ========================================================================
 
@@ -58,13 +58,15 @@ query2 <- adlib_build_query(ad_reached_countries = 'US',
                            ad_delivery_date_max = '2021-01-03',
                            ad_delivery_date_min = '2020-01-01',
                            delivery_by_region = states,
+                           limit = 5000,
                            fields = "ad_data")
 response2 <- adlib_get(params = query2, token = token)
-results.tibble <- as_tibble(response2, type = "ad")
+results.tibble2 <- as_tibble(response2, type = "ad")
 #save(results.tibble, file = "ad_library_ossoff_perdue_2.rda")
 # Not actually saving this, but this is how we might do so.
 # This data provides all ads that aired in the eight specified states between
 # January 1st, 2020, and January 3rd, 2021. 
+# Specifying a higher upper 'limit' argument got us all the ads in this range.
 
 # This is better, but it still leaves much to be desired.
 # When we browse the Facebook Ad Library, we can see the breakdown of where an
@@ -98,24 +100,24 @@ houseframes[["29"]]$id
 # Let's figure out what states...
 houseframes[["29"]]$state # Kansas and Kentucky... maybe we should sort these
 ## by state?
+## Or maybe it would be best to do this for each candidate, one at a time?
 
 states2 <- c('Kansas', 'Kentucky')
 house29ids <- as.vector(houseframes[["29"]]$id)
 
-library(Radlibrary)
 query3 <- adlib_build_query(ad_reached_countries = 'US', 
                             ad_active_status = 'ALL',
                             search_page_ids = house29ids,
                             ad_delivery_date_max = '2020-11-03',
                             ad_delivery_date_min = '2020-01-01',
                             delivery_by_region = states2,
+                            limit = 10000,
                             fields = "ad_data")
 response3 <- adlib_get(params = query3, token = token)
-results.tibble <- as_tibble(response3, type = "ad")
-# Not sure what the issue is...I can't load Facebook on any browser right now...
-# Or on my phone for that matter. My token expired, and I can't generate a new
-# one.
-# "Request failed [503]"...I think this is a server issue.
+results.tibble3 <- as_tibble(response3, type = "ad")
+# This initially failed, because Facebook was down - now it works.
+# results.tibble3 contains all the ads that aired in either Kansas or Kentucky
+# for the ten candidates in this range
 
 # Senate Candidate IDs =========================================================
 fb_senate <- read.csv("data/raw/fb/fb-senate.csv")
@@ -125,3 +127,21 @@ colnames(senatedat) <- c("candidate", "state", "id")
 senatedat$id <- as.numeric(senatedat$id)
 senatedat <- senatedat[!is.na(senatedat$id),] # Takes us from 75 to 72
 senateframes <- split(senatedat,rep(1:8,each=10))
+
+# Main Concerns ================================================================
+
+# When we go to the main Facebook Ad Library and inspect an individual ad, it'll
+# tell us where the ad was shown and provide some limited demographic data on
+# the audience it reaches. The regions part is more important for our purposes.
+# But I can't figure out how to get Radlibrary to return this.
+
+#adsregions <- c('ad_data', 'region_distribution')
+# This doesn't work - Fields has to be exactly one of the set fields
+
+#regions.query <- adlib_build_query(ad_reached_countries = 'US', 
+#                           ad_active_status = 'ALL',
+#                           search_page_ids = id_vector,
+#                           fields = 'region_data')
+
+#regions.response <- adlib_get(params = regions.query, token = token)
+#regions.tibble <- as_tibble(regions.response, type = "ad")
