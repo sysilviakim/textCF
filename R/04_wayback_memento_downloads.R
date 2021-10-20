@@ -45,7 +45,7 @@ for (x in c("house", "senate")) {
   print(
     wayback_timemap_exceptions(
       cong[[x]], c("data", "raw", "wayback", x, "timestamp_donation") %>%
-        paste(collapse = "/"), var = "url", senate = (x == "senate")
+        paste(collapse = "/"), var = "url"
     )
   )
 }
@@ -68,10 +68,14 @@ for (x in c("house", "senate")) {
   
   ## Merge candidate data with WayBack timestamps, 2019+
   merged_df <- wayback_merge(wayback_donate, cong[[x]],  var = "url") %>%
-    arrange(state, last_name, first_name, date)
+    arrange(state, last_name, first_name, date) %>%
+    dedup()
   assert_that(sum(is.na(merged_df$year)) == 0)
   
   ## Save
+  fp_out <- here("data", "tidy", "wayback", x)
+  if (!dir.exists(fp_out)) dir.create(fp_out, recursive = TRUE)
+  
   save(
     merged_df,
     file = here(
@@ -91,4 +95,3 @@ for (x in c("house", "senate")) {
     Sys.sleep(5)
   }
 }
-

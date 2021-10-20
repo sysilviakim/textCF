@@ -453,7 +453,7 @@ wayback_stamp_html <- function(df, i, fp) {
   )
 }
 
-wayback_timemap_exceptions <- function(campaigns, fp, var = "url", ...) {
+wayback_timemap_exceptions <- function(campaigns, fp, var = "url") {
   setdiff(
     seq(nrow(campaigns)) %>%
       map(
@@ -461,7 +461,7 @@ wayback_timemap_exceptions <- function(campaigns, fp, var = "url", ...) {
           fp,
           paste0(
             "wayback_timemap_",
-            file_pattern(campaigns, .x, var = var, ...), ".txt"
+            file_pattern(campaigns, .x, var = var), ".txt"
           )
         )
       ) %>%
