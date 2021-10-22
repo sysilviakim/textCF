@@ -36,7 +36,9 @@ cong %>%
         full_js <- out <- NA
         
         tryCatch({
-          full_js <- actblue_js(wayback_stamp_html(df, x, fp))
+          full_js <- actblue_js(wayback_stamp_html(df, x, fp)) %>%
+            mutate(file = url) %>%
+            mutate(url = df$url[x])
         }, error = function(e) {
           message(e)
         })
@@ -64,4 +66,21 @@ cong %>%
       }
     }
   )
+
+actblue <- c(senate = "senate", house = "house") %>%
+  map(
+    ~ loadRData(
+      here("data", "raw",  paste0("actblue_js_", .x, "_list.Rda"))
+    ) %>%
+      bind_rows() %>%
+      actblue_wrangle()
+  )
+
+# WinRed text ==================================================================
+
+
+# Anedot text ==================================================================
+
+# Misc. text ===================================================================
+
 
