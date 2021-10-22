@@ -34,6 +34,23 @@ cong <- c(senate = "senate", house = "house") %>%
 cong %>% map_dbl(nrow)
 
 # Check missing files ==========================================================
+raw <- list(
+  senate = loadRData(here("data", "tidy", "senate-2020-matched.Rda")) %>%
+    mutate(state_cd = paste0(state, "-0")),
+  house = loadRData(here("data", "tidy", "house-2020-matched.Rda")) %>%
+    ## manual fix
+    mutate(
+      url = case_when(
+        last_name == "swisher" & grepl("mostpeople", url) ~ 
+          "https://secure.ngpvan.com/v1/Forms/WuiklsKYhk223Z9Pkldcyg2",
+        TRUE ~ url
+      )
+    )
+) %>%
+  map(~ .x %>% group_by(url) %>% slice(1))
+
+View(anti_join(wayback_std(raw$senate), wayback_std(cong$senate), by = "url"))
+View(anti_join(wayback_std(raw$house), wayback_std(cong$house), by = "url"))
 
 # ActBlue text =================================================================
 cong %>%
