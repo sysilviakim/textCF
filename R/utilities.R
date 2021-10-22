@@ -14,6 +14,7 @@ library(here)
 library(janitor)
 library(assertthat)
 library(stringdist)
+library(jsonlite)
 library(xml2)
 library(caret)
 
@@ -474,6 +475,207 @@ wayback_timemap_exceptions <- function(campaigns, fp, var = "url") {
         gsub("//", "", .)
     ) %>%
     unlist()
+}
+
+actblue_js <- function(url) {
+  x <- read_html(url) %>%
+    html_nodes(xpath = '//*[@type="text/javascript"]') %>%
+    html_text()
+  
+  temp <- x %>%
+    map(
+      ~ {
+        temp <- str_match_all(.x, "window.indigoListResponse = (\\{.*\\})")
+        if (!is.null(temp)) {
+          temp[[1]][,2]
+        }
+      }
+    ) %>%
+    unlist() %>%
+    fromJSON()
+  
+  # temp$entities
+  # temp three types: vector, dataframe, value
+  temp_df <- temp %>%
+    map(is.data.frame) %>%
+    unlist() %>%
+    which() %>%
+    names()
+  
+  temp_vc <- temp %>%
+    map(~ length(.x) > 1 & !is.data.frame(.x)) %>%
+    unlist() %>%
+    which() %>%
+    names()
+  
+  json_rest <- names(temp) %>% 
+    map(
+      ~ {
+        if (
+          !is.null(temp[[.x]]) &
+          !(
+            .x %in% c(
+              # "entities", "post_donation_upsells", "brandings",
+              temp_df,
+              # "relevant_surrogate_keys", "share_content", "radio_amounts",
+              # "eligibility_values", "eligibility_values_es",
+              # "list_disclaimer_policy", "acceptable_card_types",
+              # "managing_entity", "fundraising_video", "custom_fields"
+              temp_vc
+            )
+          )
+        ) {
+          tibble(!!as.name(.x) := temp[[.x]])
+        } else {
+          NULL
+        }
+      }
+    ) %>%
+    keep(~ !is.null(.x)) %>% 
+    keep(~ nrow(.x) > 0) %>% 
+    bind_cols()
+  
+  out <- tibble(url = url, js_rest = json_rest, date = Sys.Date())
+  for (i in c(temp_df, temp_vc)) {
+    out[[i]] <- list(temp[[i]])
+  }
+  assert_that(nrow(out) == 1)
+  
+  return(out)
+}
+
+winred_text_scrape <- function(x) {
+  ## Metadata
+  temp <- read_html(x) %>%
+    html_nodes("meta")
+  meta_data <- landing_text <- landing_logo <- landing_bgimg <-
+    landing_footer <- NA
+  
+  meta_data <- temp %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
+  
+  ## Landing page text
+  landing_text <- read_html(x) %>%
+    html_nodes(".landing-page-paragraph") %>%
+    html_text()
+  landing_text <- gsub("\\s+", " ", gsub("\n", " ", landing_text)) %>%
+    trimws() %>%
+    unique()
+  
+  if (length(landing_text) == 0) landing_text <- ""
+  
+  landing_logo <- read_html(x) %>%
+    html_nodes(".landing-page-image") %>%
+    html_nodes("img") %>%
+    html_attr("src")
+  if (length(landing_logo) == 0) landing_logo <- ""
+  
+  landing_bgimg <- read_html(x) %>%
+    html_nodes(".landing-page-mobile-image") %>%
+    html_nodes("source") %>%
+    html_attr("srcset")
+  if (length(landing_bgimg) == 0) landing_bgimg <- ""
+  
+  landing_footer <- read_html(x) %>%
+    html_nodes(".landing-page-footer") %>%
+    html_text()
+  if (length(landing_footer) == 0) landing_footer <- ""
+  
+  out <- meta_data %>%
+    mutate(name = coalesce(name, property)) %>%
+    filter(!is.na(name)) %>%
+    select(-property) %>%
+    pivot_wider(values_from = content) %>%
+    janitor::clean_names() 
+  
+  out <- out %>%
+    mutate(
+      text = landing_text,
+      footer = landing_footer,
+      logo = landing_logo,
+      bgimg = landing_bgimg,
+      date = Sys.Date()
+    )
+  
+  return(out)
+}
+
+anedot_text_scrape <- function(x) {
+  ## Metadata
+  temp <- read_html(x) %>%
+    html_nodes("meta")
+  meta_data <- landing_text <- landing_logo <- landing_bgimg <- NA
+  
+  meta_data <- temp %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
+  
+  ## Landing page text
+  landing_text <- read_html(x) %>%
+    html_nodes("div") %>%
+    html_nodes(
+      xpath = paste0(
+        '//*[@class="donations--form--', 
+        'campaign-description text-styles--campaign-description"]'
+      )
+    ) %>%
+    html_text()
+  if (length(landing_text) == 0) landing_text <- ""
+  
+  landing_logo <- read_html(x) %>%
+    html_nodes("img") %>%
+    html_nodes(xpath = '//*[@class="logo"]') %>%
+    html_attr("src")
+  if (length(landing_logo) == 0) landing_logo <- ""
+  
+  landing_bgimg <- read_html(x) %>% 
+    html_nodes("style") %>%
+    html_text() %>%
+    map(
+      ~ {
+        out <- str_match_all(.x, 'background-image: url\\(\\"(.*?)\"\\)')[[1]]
+        if (length(out) > 0) {
+          out[1, 2]
+        }
+      }
+    ) %>%
+    keep(~ !is.null(.x)) %>%
+    unlist()
+  if (length(landing_bgimg) == 0) landing_bgimg <- ""
+  
+  # Skip footer
+  # landing_footer <- read_html(x) %>%
+  #   html_nodes(".landing-page-footer") %>%
+  #   html_text()
+  
+  out <- meta_data %>%
+    mutate(name = coalesce(name, property)) %>%
+    filter(!is.na(name)) %>%
+    select(-property) %>%
+    pivot_wider(values_from = content) %>%
+    janitor::clean_names() 
+  
+  out <- out %>%
+    mutate(
+      text = landing_text,
+      # footer = landing_footer,
+      logo = landing_logo,
+      bgimg = landing_bgimg,
+      date = Sys.Date()
+    )
+  
+  return(out)
 }
 
 # Other options ================================================================
