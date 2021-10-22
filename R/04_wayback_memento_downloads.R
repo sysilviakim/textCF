@@ -10,8 +10,7 @@ cong <- list(
 # Check WayBack Machine mementos: donation pages download ======================
 for (x in c("house", "senate")) {
   ## Define file path
-  fp <- c("data", "raw", "wayback", x, "timestamp_donation") %>%
-    paste(collapse = "/")
+  fp <- here("data", "raw", "wayback", x, "timestamp_donation")
   if (!dir.exists(fp)) {
     dir.create(fp, recursive = TRUE)
     dir.create(gsub("timestamp_donation", "html", fp), recursive = TRUE)
@@ -52,8 +51,7 @@ for (x in c("house", "senate")) {
 
 # Check WayBack Machine mementos: donation page (read/daily wrangle) ===========
 for (x in c("house", "senate")) {
-  fp <- c("data", "raw", "wayback", x, "timestamp_donation") %>%
-    paste(collapse = "/")
+  fp <- here("data", "raw", "wayback", x, "timestamp_donation")
   
   ## Read mementos into a single dataframe
   wayback_donate <- 
