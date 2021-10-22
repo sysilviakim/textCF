@@ -68,7 +68,7 @@ for (x in c("house", "senate")) {
   
   ## Merge candidate data with WayBack timestamps, 2019+
   merged_df <- wayback_merge(
-    wayback_donate, cong[[x]] %>% select(-year), var = "url"
+    wayback_donate, cong[[x]] %>% select(-contains("^year$")), var = "url"
   ) %>%
     arrange(state, last_name, first_name, date) %>%
     dedup()
