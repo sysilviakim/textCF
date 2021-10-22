@@ -92,13 +92,15 @@ for (x in c("house", "senate")) {
   
   ## Check/download WayBack Machine snapshots: donation page daily, source
   for (i in seq(nrow(merged_df))) {
-    url <- merged_df$link[i]
-    con <- tryCatch(read_html(url), error = function(e) print(e))
-    
-    if (sum(class(con) == "error") < 1) {
-      write_xml(con, file = wayback_stamp_html(merged_df, i, fp))
+    if (!file.exists(wayback_stamp_html(merged_df, i, fp))) {
+      url <- merged_df$link[i]
+      con <- tryCatch(read_html(url), error = function(e) print(e))
+      
+      if (sum(class(con) == "error") < 1) {
+        write_xml(con, file = wayback_stamp_html(merged_df, i, fp))
+      }
+      message(wayback_msg(merged_df, i))
+      Sys.sleep(5)
     }
-    message(wayback_msg(merged_df, i))
-    Sys.sleep(5)
   }
 }
