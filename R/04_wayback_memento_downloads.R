@@ -67,10 +67,16 @@ for (x in c("house", "senate")) {
   )
   
   ## Merge candidate data with WayBack timestamps, 2019+
-  merged_df <- wayback_merge(wayback_donate, cong[[x]],  var = "url") %>%
+  merged_df <- wayback_merge(
+    wayback_donate, cong[[x]] %>% select(-year), var = "url"
+  ) %>%
     arrange(state, last_name, first_name, date) %>%
     dedup()
-  assert_that(sum(is.na(merged_df$year)) == 0)
+  if (x == "house") {
+    assert_that(sum(is.na(merged_df$state_cd)) == 0)
+  } else {
+    assert_that(sum(is.na(merged_df$state)) == 0)
+  }
   
   ## Save
   fp_out <- here("data", "tidy", "wayback", x)
@@ -79,7 +85,8 @@ for (x in c("house", "senate")) {
   save(
     merged_df,
     file = here(
-      "data", "tidy", "wayback", x, "wayback_senate_merged_donation.Rda"
+      "data", "tidy", "wayback", x, 
+      paste0("wayback_", x, "_merged_donation.Rda")
     )
   )
   

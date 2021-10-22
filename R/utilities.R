@@ -429,6 +429,7 @@ wayback_merge <- function(df, campaigns, var) {
         ## select(-year) %>%
         wayback_std(., var = var) %>%
         wayback_std(., var = var) %>%
+        dedup() %>%
         select(!!as.name(var), everything())
     )
 }
