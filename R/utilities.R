@@ -152,7 +152,11 @@ actblue_wrangle <- function(input) {
   if (!is.null(unlist(df$entities))) {
     df <- df %>%
       unnest(cols = c(entities), names_repair = "unique") %>%
-      filter(kind == "candidate" & `federal?` == TRUE)
+      filter(
+        ## https://www.secure.actblue.com/donate/moultonlf2019
+        (kind == "candidate" | kind == "jointcommittee") & 
+          `federal?` == TRUE
+      )
   } else {
     df$entities <- NULL
   }
@@ -311,8 +315,10 @@ actblue_wrangle <- function(input) {
 
   actblue_federal <- actblue_federal %>%
     select(
-      -contains("background_image_url"), -contains("header_image_url"),
-      -contains("acceptable_card_types"), -contains("ticket_types"),
+      -matches("^background_image_url$"),
+      -matches("^header_image_url$"),
+      -matches("^acceptable_card_types$"),
+      -matches("^ticket_types$"),
       everything()
     )
 
@@ -332,13 +338,16 @@ actblue_wrangle <- function(input) {
     dedup() %>%
     ## Delete, for now, the list data types
     select(
-      -contains("fundraising_video"), -contains("relevant_surrogate_keys"),
-      -contains("share_content"), -contains("list_disclaimer_policy"),
-      -contains("analytics_trackers_attributes"),
-      -contains("recurring_promotions"), -contains("formatted_variations_hash"),
-      -contains("ab_test"),
-      -contains("custom_fields"),
-      -contains("acceptable_card_types")
+      -matches("^fundraising_video$"), 
+      -matches("^relevant_surrogate_keys$"),
+      -matches("^share_content$"),
+      -matches("^list_disclaimer_policy$"),
+      -matches("^analytics_trackers_attributes$"),
+      -matches("^recurring_promotions$"),
+      -matches("^formatted_variations_hash$"),
+      -matches("^ab_test$"),
+      -matches("^custom_fields$"),
+      -matches("^acceptable_card_types$")
     )
 
   return(actblue_federal)
@@ -661,6 +670,7 @@ winred_text_scrape <- function(x) {
   landing_text <- read_html(x) %>%
     html_nodes(".landing-page-paragraph") %>%
     html_text()
+  
   landing_text <- gsub("\\s+", " ", gsub("\n", " ", landing_text)) %>%
     trimws() %>%
     unique()
@@ -691,6 +701,12 @@ winred_text_scrape <- function(x) {
     pivot_wider(values_from = content) %>%
     janitor::clean_names()
 
+  if (nrow(out) == 1 & length(landing_text) > 1) {
+    ## crenshaw; two landing paragraphs
+    landing_text <- 
+      landing_text[which(nchar(landing_text) == max(nchar(landing_text)))]
+  }
+  
   out <- out %>%
     mutate(
       text = landing_text,
@@ -747,7 +763,9 @@ anedot_text_scrape <- function(x) {
       }
     ) %>%
     keep(~ !is.null(.x)) %>%
-    unlist()
+    unlist() %>%
+    unique()
+  
   if (length(landing_bgimg) == 0) landing_bgimg <- ""
 
   # Skip footer
