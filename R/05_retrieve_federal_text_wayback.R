@@ -29,6 +29,9 @@ cong <- c(senate = "senate", house = "house") %>%
       select(-title, -text)
   )
 
+## senate 144 and house 818
+cong %>% map_dbl(nrow)
+
 # Check missing files ==========================================================
 raw <- list(
   senate = loadRData(here("data", "tidy", "senate-2020-matched.Rda")) %>%
@@ -231,5 +234,3 @@ out <- cross2(c("senate", "house"), c("actblue", "winred", "anedot")) %>%
       mutate(chamber = .x[[1]], platform = .x[[2]])
   )
 assert_that(out %>% map_dbl(nrow) %>% unlist() %>% sum() == 0)
-
-# Misc. text ===================================================================
