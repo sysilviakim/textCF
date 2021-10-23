@@ -219,8 +219,8 @@ anedot <- c(senate = "senate", house = "house") %>%
 out <- cross2(c("senate", "house"), c("actblue", "winred", "anedot")) %>%
   map(
     ~ anti_join(
-      cong[[.x[[1]]]] %>% filter(grepl(.x[[2]], url)),
-      get(.x[[2]])[[.x[[1]]]],
+      cong[[.x[[1]]]] %>% filter(grepl(.x[[2]], url)) %>% wayback_std(),
+      get(.x[[2]])[[.x[[1]]]] %>% wayback_std(),
       by = "url"
     ) %>%
       mutate(chamber = .x[[1]], platform = .x[[2]])

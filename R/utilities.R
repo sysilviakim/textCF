@@ -38,7 +38,12 @@ nested_df <- function(df, var = NULL) {
       message(paste0("Number of rows do not match for variable ", var))
     }
   } else {
-    var_list <- df %>% map_chr(class) %>% {which(. == "data.frame")} %>% names()
+    var_list <- df %>%
+      map_chr(class) %>%
+      {
+        which(. == "data.frame")
+      } %>%
+      names()
     for (var in var_list) {
       temp <- df[[var]]
       if (nrow(temp) == nrow(df)) {
@@ -75,7 +80,7 @@ image_download_logo_updated <- function(dat, image, name) {
 image_download_bgimg_updated <- function(dat, image, name) {
   path <- here("data/raw/2022/winred/bgimg")
   if (!dir.exists(path)) dir.create(path)
-  
+
   for (i in 1:nrow(dat)) {
     download.file(
       url = dat[[image]][i],
@@ -95,7 +100,7 @@ image_download_bgimg_updated <- function(dat, image, name) {
 image_download <- function(dat, image, name, pathway) {
   path <- here(pathway)
   if (!dir.exists(path)) dir.create(path)
-  
+
   for (i in 1:nrow(dat)) {
     download.file(
       url = dat[[image]][i],
@@ -112,13 +117,13 @@ image_download <- function(dat, image, name, pathway) {
   }
 }
 
-fb_query_short <- function(idx, 
+fb_query_short <- function(idx,
                            fields = "ad_data",
                            ad_delivery_date_max = "2020-11-30",
                            limit = 1e7) {
   query <- adlib_build_query(
-    ad_reached_countries = 'US', 
-    ad_active_status = 'ALL',
+    ad_reached_countries = "US",
+    ad_active_status = "ALL",
     ad_type = "POLITICAL_AND_ISSUE_ADS",
     ## Notice that for list creation purposes, idx is still character
     search_page_ids = as.numeric(idx),
@@ -138,13 +143,21 @@ actblue_wrangle <- function(input) {
     select(-js_rest, -eligibility_values_es, -post_donation_upsells) %>%
     bind_cols(., js_rest) %>%
     clean_names() %>%
-    rename(id_main = id, kind_main = kind) %>%
-    unnest(cols = c(entities), names_repair = "unique") %>%
-    filter(kind == "candidate" & `federal?` == TRUE) %>%
+    rename(id_main = id, kind_main = kind)
+
+  if (!is.null(unlist(df$entities))) {
+    df <- df %>%
+      unnest(cols = c(entities), names_repair = "unique") %>%
+      filter(kind == "candidate" & `federal?` == TRUE)
+  } else {
+    df$entities <- NULL
+  }
+
+  df <- df %>%
     clean_names() %>%
     dedup() %>%
     select(
-      -displayname_with_article,
+      -contains("displayname_with_article"),
       -contains("contribution_blurb_bottom"),
       -contains("eligibility_values"),
       -contains("_es$"),
@@ -155,34 +168,54 @@ actblue_wrangle <- function(input) {
     filter(!is.null(managing_entity)) %>%
     mutate(
       managing_id = managing_entity$id,
-      managing_name = managing_entity$display_name,
-      name_diff = stringdist(display_name, managing_name)
-    ) %>%
+      managing_name = managing_entity$display_name
+    )
+
+  if ("display_name" %in% names(df)) {
+    df <- df %>%
+      mutate(name_diff = stringdist(display_name, managing_name))
+  }
+
+  df <- df %>%
     ungroup() %>%
     select(
-      url, id, display_name, managing_id, managing_name, name_diff,
-      display_pretty_location, everything()
+      url, contains("id"), contains("display_name"), managing_id, managing_name,
+      contains("display_pretty_location"), everything()
     ) %>%
     ## name_diff is 5 or more
-    select(-name_diff) %>%
-    select(-managing_entity) %>%
-    rename(id_x = id, display_name_x = display_name) %>%
-    unnest(cols = c(brandings), names_repair = "unique") %>%
-    clean_names() %>%
-    dedup() %>%
-    rename(
-      id_brandings = id, display_name_brandings = display_name,
-      id = id_x, display_name = display_name_x
-    )
-  
+    select(-contains("name_diff")) %>%
+    select(-managing_entity)
+
+  if ("id" %in% names(df)) {
+    df <- df %>%
+      rename(id_x = id, display_name_x = display_name)
+  }
+
+  if (!is.null(unlist(df$brandings))) {
+    df <- df %>%
+      unnest(cols = c(brandings), names_repair = "unique") %>%
+      clean_names()
+  }
+
+  if ("id_x" %in% names(df) & "id" %in% names(df)) {
+    df <- df %>%
+      rename(
+        id_brandings = id, id = id_x, display_name = display_name_x,
+        display_name_brandings = display_name
+      )
+  } else {
+    df <- df %>%
+      rename(id = id_x)
+  }
+
   ## Unnesting =================================================================
   temp <- nested_df(df) %>%
     clean_names()
-  
+
   ## Twice to make sure (double- or triple-nested, sometimes)
   temp <- nested_df(temp) %>%
     clean_names()
-  
+
   ## Kick out aesthetics e.g., border, padding, background, font
   temp <- temp %>%
     select(-contains("border_")) %>%
@@ -196,7 +229,7 @@ actblue_wrangle <- function(input) {
     select(-contains("space_")) %>%
     select(-contains("css")) %>%
     select(-contains("height"))
-  
+
   assert_that(
     temp %>%
       map_chr(class) %>%
@@ -204,38 +237,62 @@ actblue_wrangle <- function(input) {
         which(. == "data.frame")
       } %>% length() == 0
   )
-  
+
   ## Entities vs. managing entities ============================================
-  temp <- temp %>%
-    filter(display_name == managing_name)
-  
+  if ("display_name" %in% names(temp)) {
+    temp <- temp %>%
+      rowwise() %>%
+      mutate(
+        ## Using case_when results in type conflicts
+        display_name = ifelse(length(display_name) == 0, NA, display_name),
+        managing_name = ifelse(length(managing_name) == 0, NA, managing_name)
+      ) %>%
+      filter(
+        identical(display_name, managing_name) | 
+          (is.na(display_name) & !is.na(managing_name))
+      ) %>%
+      ungroup()
+  } else {
+    temp <- temp %>% mutate(display_name = NA)
+  }
+
   ## Sanity checks =============================================================
   ## Must be political
   assert_that(all(temp$political == TRUE))
-  
+
   ## Is not charity
   assert_that(all(temp$charity == FALSE))
-  
+
   ## Not c4, i.e., 501(c)
   assert_that(all(temp$c4 == FALSE))
-  
+
   ## Donate is all TRUE
   assert_that(all(temp$donate == TRUE))
-  
+
   ## Drop unnecessary variables
   actblue_federal <- temp %>%
-    select(-federal, -political, -charity, -c4, -kind, -managing_name)
-  
+    select(
+      -matches("^federal$"), -political, 
+      -matches("^charity$"), -matches("^c4$"),
+      -matches("^kind$"), -managing_name
+    )
+
   ## More cleaning, including amounts converted to dollar ======================
   actblue_federal <- actblue_federal %>%
-    clean_names() %>%
-    mutate(contribution_limit = contribution_limit / 100) %>%
+    clean_names()
+  
+  if ("contribution_limit" %in% names(actblue_federal)) {
+    actblue_federal <- actblue_federal %>%
+      mutate(contribution_limit = contribution_limit / 100)
+  }
+   
+  actblue_federal <- actblue_federal %>%
     select(
       -contains("background_image_url"), -contains("header_image_url"),
       -contains("acceptable_card_types"), -contains("ticket_types"),
       everything()
     )
-  
+
   ## Delete unnecessary phrases from candidate name ============================
   actblue_federal <- actblue_federal %>%
     filter(!grepl("2016|Marijuana Reform Party PAC", display_name)) %>%
@@ -247,8 +304,20 @@ actblue_wrangle <- function(input) {
       display_name = trimws(
         stringi::stri_trans_general(display_name, "latin-ascii")
       )
+    ) %>%
+    ungroup() %>%
+    dedup() %>%
+    ## Delete, for now, the list data types
+    select(
+      -contains("fundraising_video"), -contains("relevant_surrogate_keys"),
+      -contains("share_content"), -contains("list_disclaimer_policy"),
+      -contains("analytics_trackers_attributes"), 
+      -contains("recurring_promotions"), -contains("formatted_variations_hash"),
+      -contains("ab_test"),
+      -contains("custom_fields"),
+      -contains("acceptable_card_types")
     )
-  
+
   return(actblue_federal)
 }
 
@@ -258,51 +327,52 @@ actblue_select_text <- function(input) {
     ## Some important variables, but not for this project
     ## df %>% map(class) %>% {. == "list"} %>% which() %>% names()
     select(-where(is.list))
-  
+
   names(df)[nearZeroVar(df, freqCut = 99.5 / 0.5)]
-  #  [1] "date"                              "donate"                           
-  #  [3] "full_background"                   "year"                             
-  #  [5] "party"                             "recurring_interval"               
-  #  [7] "deleted"                           "merchandise"                      
-  #  [9] "apple_pay_merchant_identifier"     "tip_variant"                      
-  # [11] "single_paypal_account"             "single_paypal_account_with_tip"   
-  # [13] "show_tip_ask"                      "requires_employer"                
+  #  [1] "date"                              "donate"
+  #  [3] "full_background"                   "year"
+  #  [5] "party"                             "recurring_interval"
+  #  [7] "deleted"                           "merchandise"
+  #  [9] "apple_pay_merchant_identifier"     "tip_variant"
+  # [11] "single_paypal_account"             "single_paypal_account_with_tip"
+  # [13] "show_tip_ask"                      "requires_employer"
   # [15] "requires_employer_address"         "requires_eligibility_confirmation"
-  # [17] "requires_cvv"                      "entry_mode"                       
-  # [19] "locale"                            "accepts_paypal"                   
-  # [21] "self_match_enabled"                "limited_info_available"           
-  # [23] "political_2"                       "embedded_form"                    
+  # [17] "requires_cvv"                      "entry_mode"
+  # [19] "locale"                            "accepts_paypal"
+  # [21] "self_match_enabled"                "limited_info_available"
+  # [23] "political_2"                       "embedded_form"
   # [25] "allow_contact_sharing_opt_out"     "background_image_url_17"
-  
+
   df %>%
     select(-names(df)[nearZeroVar(df, freqCut = 99.5 / 0.5)]) %>%
     select(
       display_name, url, fec_id_cand, first_name, last_name,
-      title, text = contribution_blurb
+      title,
+      text = contribution_blurb
     )
 }
 
 winred_select_text <- function(input) {
   df <- cong_text$senate$winred
   names(df)[nearZeroVar(df, freqCut = 99.5 / 0.5)]
-  #  [1] "organization_revv_uid"           "viewport"                       
-  #  [3] "stripe_publishable_key"          "update_cart_domain"             
+  #  [1] "organization_revv_uid"           "viewport"
+  #  [3] "stripe_publishable_key"          "update_cart_domain"
   #  [5] "preview_new_proration_domain"    "preview_change_proration_domain"
-  #  [7] "revv_api_domain"                 "page_donor_buckets_enabled"     
-  #  [9] "organization_uid"                "organization_name"              
-  # [11] "og_site_name"                    "og_locale"                      
-  # [13] "og_type"                         "twitter_card"                   
-  # [15] "og_image_width"                  "og_image_height"                
-  # [17] "csrf_param"                      "date"                           
+  #  [7] "revv_api_domain"                 "page_donor_buckets_enabled"
+  #  [9] "organization_uid"                "organization_name"
+  # [11] "og_site_name"                    "og_locale"
+  # [13] "og_type"                         "twitter_card"
+  # [15] "og_image_width"                  "og_image_height"
+  # [17] "csrf_param"                      "date"
   # [19] "year"                            "party"
-  
+
   df %>%
     mutate(text = paste(text, og_description, sep = " \n ")) %>%
     select(
       display_name = description, url = og_url, fec_id_cand = FEC_ID_cand,
-      first_name, last_name,  title = og_title, text
+      first_name, last_name, title = og_title, text
     )
-  
+
   ## Note that unlike ActBlue, WinRed same-link *did* change content!!
   ## https://secure.winred.com/marco-rubio-for-senate/website
 }
@@ -366,7 +436,7 @@ file_pattern <- function(df, i, var = "url", senate = FALSE) {
     gsub("\\s+", "_", .) %>%
     gsub("_+", "_", .) %>%
     gsub("[^[:alnum:]_-]", "", .)
-  
+
   return(out)
 }
 
@@ -486,19 +556,19 @@ actblue_js <- function(url) {
   x <- read_html(url) %>%
     html_nodes(xpath = '//*[@type="text/javascript"]') %>%
     html_text()
-  
+
   temp <- x %>%
     map(
       ~ {
         temp <- str_match_all(.x, "window.indigoListResponse = (\\{.*\\})")
         if (!is.null(temp)) {
-          temp[[1]][,2]
+          temp[[1]][, 2]
         }
       }
     ) %>%
     unlist() %>%
     fromJSON()
-  
+
   # temp$entities
   # temp three types: vector, dataframe, value
   temp_df <- temp %>%
@@ -506,29 +576,29 @@ actblue_js <- function(url) {
     unlist() %>%
     which() %>%
     names()
-  
+
   temp_vc <- temp %>%
     map(~ length(.x) > 1 & !is.data.frame(.x)) %>%
     unlist() %>%
     which() %>%
     names()
-  
-  json_rest <- names(temp) %>% 
+
+  json_rest <- names(temp) %>%
     map(
       ~ {
         if (
           !is.null(temp[[.x]]) &
-          !(
-            .x %in% c(
-              # "entities", "post_donation_upsells", "brandings",
-              temp_df,
-              # "relevant_surrogate_keys", "share_content", "radio_amounts",
-              # "eligibility_values", "eligibility_values_es",
-              # "list_disclaimer_policy", "acceptable_card_types",
-              # "managing_entity", "fundraising_video", "custom_fields"
-              temp_vc
+            !(
+              .x %in% c(
+                # "entities", "post_donation_upsells", "brandings",
+                temp_df,
+                # "relevant_surrogate_keys", "share_content", "radio_amounts",
+                # "eligibility_values", "eligibility_values_es",
+                # "list_disclaimer_policy", "acceptable_card_types",
+                # "managing_entity", "fundraising_video", "custom_fields"
+                temp_vc
+              )
             )
-          )
         ) {
           tibble(!!as.name(.x) := temp[[.x]])
         } else {
@@ -536,16 +606,16 @@ actblue_js <- function(url) {
         }
       }
     ) %>%
-    keep(~ !is.null(.x)) %>% 
-    keep(~ nrow(.x) > 0) %>% 
+    keep(~ !is.null(.x)) %>%
+    keep(~ nrow(.x) > 0) %>%
     bind_cols()
-  
+
   out <- tibble(url = url, js_rest = json_rest, date = Sys.Date())
   for (i in c(temp_df, temp_vc)) {
     out[[i]] <- list(temp[[i]])
   }
   assert_that(nrow(out) == 1)
-  
+
   return(out)
 }
 
@@ -555,16 +625,15 @@ winred_text_scrape <- function(x) {
     html_nodes("meta")
   meta_data <- landing_text <- landing_logo <- landing_bgimg <-
     landing_footer <- NA
-  
-  meta_data <- temp %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+
+  meta_data <- temp %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(x) %>%
     html_nodes(".landing-page-paragraph") %>%
@@ -572,33 +641,33 @@ winred_text_scrape <- function(x) {
   landing_text <- gsub("\\s+", " ", gsub("\n", " ", landing_text)) %>%
     trimws() %>%
     unique()
-  
+
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   landing_logo <- read_html(x) %>%
     html_nodes(".landing-page-image") %>%
     html_nodes("img") %>%
     html_attr("src")
   if (length(landing_logo) == 0) landing_logo <- ""
-  
+
   landing_bgimg <- read_html(x) %>%
     html_nodes(".landing-page-mobile-image") %>%
     html_nodes("source") %>%
     html_attr("srcset")
   if (length(landing_bgimg) == 0) landing_bgimg <- ""
-  
+
   landing_footer <- read_html(x) %>%
     html_nodes(".landing-page-footer") %>%
     html_text()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- out %>%
     mutate(
       text = landing_text,
@@ -607,7 +676,7 @@ winred_text_scrape <- function(x) {
       bgimg = landing_bgimg,
       date = Sys.Date()
     )
-  
+
   return(out)
 }
 
@@ -616,35 +685,34 @@ anedot_text_scrape <- function(x) {
   temp <- read_html(x) %>%
     html_nodes("meta")
   meta_data <- landing_text <- landing_logo <- landing_bgimg <- NA
-  
-  meta_data <- temp %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+
+  meta_data <- temp %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(x) %>%
     html_nodes("div") %>%
     html_nodes(
       xpath = paste0(
-        '//*[@class="donations--form--', 
+        '//*[@class="donations--form--',
         'campaign-description text-styles--campaign-description"]'
       )
     ) %>%
     html_text()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   landing_logo <- read_html(x) %>%
     html_nodes("img") %>%
     html_nodes(xpath = '//*[@class="logo"]') %>%
     html_attr("src")
   if (length(landing_logo) == 0) landing_logo <- ""
-  
-  landing_bgimg <- read_html(x) %>% 
+
+  landing_bgimg <- read_html(x) %>%
     html_nodes("style") %>%
     html_text() %>%
     map(
@@ -658,19 +726,19 @@ anedot_text_scrape <- function(x) {
     keep(~ !is.null(.x)) %>%
     unlist()
   if (length(landing_bgimg) == 0) landing_bgimg <- ""
-  
+
   # Skip footer
   # landing_footer <- read_html(x) %>%
   #   html_nodes(".landing-page-footer") %>%
   #   html_text()
-  
+
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- out %>%
     mutate(
       text = landing_text,
@@ -679,23 +747,21 @@ anedot_text_scrape <- function(x) {
       bgimg = landing_bgimg,
       date = Sys.Date()
     )
-  
+
   return(out)
 }
 
 # Other options ================================================================
 fb_fields <- c(
-  # "ad_data", "demographic_data", "region_data", 
+  # "ad_data", "demographic_data", "region_data",
   "ad_creation_time", "ad_creative_body", "ad_creative_link_caption",
   "ad_creative_link_description", "ad_creative_link_title",
   "ad_delivery_start_time", "ad_delivery_stop_time",
   "ad_snapshot_url", "currency", "demographic_distribution", "funding_entity",
-  "impressions", "page_id", "page_name", "potential_reach", 
+  "impressions", "page_id", "page_name", "potential_reach",
   "publisher_platforms", "region_distribution", "spend"
 )
 
 ## https://facebookresearch.github.io/Radlibrary/index.html
 ## See also
 ## https://disinfo.quaidorsay.fr/en/facebook-ads-library-assessment
-
-
