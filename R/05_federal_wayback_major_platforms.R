@@ -85,19 +85,9 @@ cong %>%
         }
 
         if ((x %% 50 == 0) | x == nrow(df)) {
-          tryCatch(
-            {
-              save(
-                actblue_js_list,
-                file = here(
-                  "data", "raw",
-                  paste0("actblue_js_", .y, "_list.Rda")
-                )
-              )
-            },
-            error = function(e) {
-              message(e)
-            }
+          save(
+            actblue_js_list,
+            file = here("data", "raw", paste0("actblue_js_", .y, "_list.Rda"))
           )
         }
       }
@@ -130,8 +120,8 @@ cong %>%
             winred_text_list[[x]] <-
               winred_text_scrape(wayback_stamp_html(df, x, fp)) %>%
               select(-date)
-            winred_text_list[[x]] <-
-              bind_cols(winred_text_list[[x]], df[x, ]) %>%
+            winred_text_list[[x]] <- 
+              bind_cols(winred_text_list[[x]], df[x, c("link", "url")]) %>%
               mutate(file = url) %>%
               mutate(url = df$url[x])
           },
@@ -141,19 +131,9 @@ cong %>%
         )
 
         if ((x %% 50 == 0) | x == nrow(df)) {
-          tryCatch(
-            {
-              save(
-                winred_text_list,
-                file = here(
-                  "data", "raw",
-                  paste0("winred_text_", .y, "_list.Rda")
-                )
-              )
-            },
-            error = function(e) {
-              message(e)
-            }
+          save(
+            winred_text_list,
+            file = here("data", "raw", paste0("winred_text_", .y, "_list.Rda"))
           )
         }
       }
@@ -193,19 +173,9 @@ cong %>%
         )
 
         if ((x %% 50 == 0) | x == nrow(df)) {
-          tryCatch(
-            {
-              save(
-                anedot_text_list,
-                file = here(
-                  "data", "raw",
-                  paste0("anedot_text_", .y, "_list.Rda")
-                )
-              )
-            },
-            error = function(e) {
-              message(e)
-            }
+          save(
+            anedot_text_list,
+            file = here("data", "raw", paste0("anedot_text_", .y, "_list.Rda"))
           )
         }
       }
