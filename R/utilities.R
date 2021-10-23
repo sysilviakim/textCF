@@ -171,7 +171,7 @@ actblue_wrangle <- function(input) {
       managing_name = managing_entity$display_name
     )
 
-  if ("display_name" %in% names(df)) {
+  if ("display_name" %in% names(df) & "managing_name" %in% names(df)) {
     df <- df %>%
       mutate(name_diff = stringdist(display_name, managing_name))
   }
@@ -179,7 +179,8 @@ actblue_wrangle <- function(input) {
   df <- df %>%
     ungroup() %>%
     select(
-      url, contains("id"), contains("display_name"), managing_id, managing_name,
+      url, contains("id"), contains("display_name"), 
+      contains("managing_id"), contains("managing_name"),
       contains("display_pretty_location"), everything()
     ) %>%
     ## name_diff is 5 or more
@@ -203,7 +204,7 @@ actblue_wrangle <- function(input) {
         id_brandings = id, id = id_x, display_name = display_name_x,
         display_name_brandings = display_name
       )
-  } else {
+  } else if (("id_x" %in% names(df) & !("id" %in% names(df)))) {
     df <- df %>%
       rename(id = id_x)
   }
@@ -244,18 +245,31 @@ actblue_wrangle <- function(input) {
       rowwise() %>%
       mutate(
         ## Using case_when results in type conflicts
-        display_name = ifelse(length(display_name) == 0, NA, display_name),
-        managing_name = ifelse(length(managing_name) == 0, NA, managing_name)
-      ) %>%
-      filter(
-        identical(display_name, managing_name) | 
-          (is.na(display_name) & !is.na(managing_name))
-      ) %>%
-      ungroup()
+        display_name = ifelse(length(display_name) == 0, NA, display_name)
+      ) 
   } else {
     temp <- temp %>% mutate(display_name = NA)
   }
+  
+  if ("managing_name" %in% names(temp)) {
+    temp <- temp %>%
+      rowwise() %>%
+      mutate(
+        ## Using case_when results in type conflicts
+        managing_name = ifelse(length(managing_name) == 0, NA, managing_name)
+      )     
+  }
+  
+  if ("display_name" %in% names(temp) & "managing_name" %in% names(temp)) {
+    temp <- temp %>%
+      filter(
+        identical(display_name, managing_name) | 
+          (is.na(display_name) & !is.na(managing_name))
+      )
+  }
 
+  temp <- temp %>% ungroup()
+  
   ## Sanity checks =============================================================
   ## Must be political
   assert_that(all(temp$political == TRUE))
@@ -274,7 +288,7 @@ actblue_wrangle <- function(input) {
     select(
       -matches("^federal$"), -political, 
       -matches("^charity$"), -matches("^c4$"),
-      -matches("^kind$"), -managing_name
+      -matches("^kind$"), -matches("^managing_name$")
     )
 
   ## More cleaning, including amounts converted to dollar ======================
