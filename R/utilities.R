@@ -1150,6 +1150,19 @@ minor_platforms <- function(cong, platform) {
     )
 }
 
+save_text_df <- function(platform) {
+  c(senate = "senate", house = "house") %>%
+    map(
+      ~ loadRData(
+        here("data", "raw", paste0(platform, "_text_", .x, "_list.Rda"))
+      ) %>%
+        keep(~ !is.null(.x)) %>%
+        map(clean_names) %>%
+        bind_rows() %>%
+        clean_names()
+    )
+}
+
 # Wayback-specific Functions ===================================================
 wayback_memento <- function(files) {
   files %>%
