@@ -28,6 +28,7 @@ cong <- c(senate = "senate", house = "house") %>%
       ## Delete what was initially merged
       select(-title, -text)
   )
+save(cong, file = here("data", "tidy", "cong_merged_donations.Rda"))
 
 ## senate 144 and house 818
 cong %>% map_dbl(nrow)
