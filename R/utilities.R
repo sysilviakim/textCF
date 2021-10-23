@@ -140,7 +140,11 @@ actblue_wrangle <- function(input) {
 
   ## Federal candidates ========================================================
   df <- input %>%
-    select(-js_rest, -eligibility_values_es, -post_donation_upsells) %>%
+    select(
+      -js_rest,
+      -matches("^eligibility_values_es$"),
+      -matches("^post_donation_upsells$")
+    ) %>%
     bind_cols(., js_rest) %>%
     clean_names() %>%
     rename(id_main = id, kind_main = kind)
@@ -163,13 +167,18 @@ actblue_wrangle <- function(input) {
       -contains("_es$"),
       -contains("disclaimer_flags"),
       -contains("radio_amounts")
-    ) %>%
-    rowwise() %>%
-    filter(!is.null(managing_entity)) %>%
-    mutate(
-      managing_id = managing_entity$id,
-      managing_name = managing_entity$display_name
     )
+
+  if ("managing_entity" %in% names(df)) {
+    df <- df %>%
+      rowwise() %>%
+      filter(!is.null(managing_entity)) %>%
+      mutate(
+        managing_id = managing_entity$id,
+        managing_name = managing_entity$display_name
+      ) %>%
+      ungroup()
+  }
 
   if ("display_name" %in% names(df) & "managing_name" %in% names(df)) {
     df <- df %>%
@@ -179,13 +188,13 @@ actblue_wrangle <- function(input) {
   df <- df %>%
     ungroup() %>%
     select(
-      url, contains("id"), contains("display_name"), 
-      contains("managing_id"), contains("managing_name"),
-      contains("display_pretty_location"), everything()
+      url, matches("^id$"), matches("^display_name$"),
+      matches("^managing_id$"), matches("^managing_name$"),
+      matches("^display_pretty_location$"), everything()
     ) %>%
     ## name_diff is 5 or more
-    select(-contains("name_diff")) %>%
-    select(-managing_entity)
+    select(-matches("^name_diff$")) %>%
+    select(-matches("^managing_entity$"))
 
   if ("id" %in% names(df)) {
     df <- df %>%
@@ -246,30 +255,30 @@ actblue_wrangle <- function(input) {
       mutate(
         ## Using case_when results in type conflicts
         display_name = ifelse(length(display_name) == 0, NA, display_name)
-      ) 
+      )
   } else {
     temp <- temp %>% mutate(display_name = NA)
   }
-  
+
   if ("managing_name" %in% names(temp)) {
     temp <- temp %>%
       rowwise() %>%
       mutate(
         ## Using case_when results in type conflicts
         managing_name = ifelse(length(managing_name) == 0, NA, managing_name)
-      )     
+      )
   }
-  
+
   if ("display_name" %in% names(temp) & "managing_name" %in% names(temp)) {
     temp <- temp %>%
       filter(
-        identical(display_name, managing_name) | 
+        identical(display_name, managing_name) |
           (is.na(display_name) & !is.na(managing_name))
       )
   }
 
   temp <- temp %>% ungroup()
-  
+
   ## Sanity checks =============================================================
   ## Must be political
   assert_that(all(temp$political == TRUE))
@@ -286,7 +295,7 @@ actblue_wrangle <- function(input) {
   ## Drop unnecessary variables
   actblue_federal <- temp %>%
     select(
-      -matches("^federal$"), -political, 
+      -matches("^federal$"), -political,
       -matches("^charity$"), -matches("^c4$"),
       -matches("^kind$"), -matches("^managing_name$")
     )
@@ -294,12 +303,12 @@ actblue_wrangle <- function(input) {
   ## More cleaning, including amounts converted to dollar ======================
   actblue_federal <- actblue_federal %>%
     clean_names()
-  
+
   if ("contribution_limit" %in% names(actblue_federal)) {
     actblue_federal <- actblue_federal %>%
       mutate(contribution_limit = contribution_limit / 100)
   }
-   
+
   actblue_federal <- actblue_federal %>%
     select(
       -contains("background_image_url"), -contains("header_image_url"),
@@ -325,7 +334,7 @@ actblue_wrangle <- function(input) {
     select(
       -contains("fundraising_video"), -contains("relevant_surrogate_keys"),
       -contains("share_content"), -contains("list_disclaimer_policy"),
-      -contains("analytics_trackers_attributes"), 
+      -contains("analytics_trackers_attributes"),
       -contains("recurring_promotions"), -contains("formatted_variations_hash"),
       -contains("ab_test"),
       -contains("custom_fields"),

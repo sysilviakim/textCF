@@ -105,8 +105,10 @@ actblue <- c(senate = "senate", house = "house") %>%
     ~ loadRData(
       here("data", "raw", paste0("actblue_js_", .x, "_list.Rda"))
     ) %>%
-      bind_rows() %>%
-      actblue_wrangle()
+      map(actblue_wrangle) %>%
+      ## type error in display_pretty_location logical vs. character
+      map(~ .x %>% mutate(across(where(is.logical), ~ as.character(.x)))) %>%
+      bind_rows()
   )
 save(actblue, file = here("data", "tidy", "actblue_congress.Rda"))
 
@@ -229,7 +231,7 @@ out <- cross2(c("senate", "house"), c("actblue", "winred", "anedot")) %>%
       mutate(chamber = .x[[1]], platform = .x[[2]])
   )
 
-## [1]  2 11  0  1  1  0
+## [1] 0 1 0 1 1 0
 out %>% map_dbl(nrow)
 
 # Misc. text ===================================================================
