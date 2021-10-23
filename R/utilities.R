@@ -487,7 +487,7 @@ ngp_select_text <- function(url) {
   return(out)
 }
 
-raise_the_money_select_text <- function(url) {
+raisethemoney_select_text <- function(url) {
   ## Setting variables to NA
   landing_text <- meta_data <- landing_footer <-
     contribution_amounts <- NA
@@ -555,7 +555,7 @@ raise_the_money_select_text <- function(url) {
   return(out)
 }
 
-click_pledge_select_text <- function(url) {
+clickandpledge_select_text <- function(url) {
   ## Setting variables to NA
   meta_data <- contribution_amounts <- NA
   ## Starting rselenium
@@ -733,7 +733,7 @@ donorbox_select_text <- function(url) {
   return(out)
 }
 
-authorize_net_select_text <- function(url) {
+authorize_select_text <- function(url) {
   ## Setting variables to NA
   landing_text <- meta_data <- landing_footer_compliance <-
     landing_footer_note <- landing_footer <- NA
@@ -1111,6 +1111,43 @@ fundhero_select_text <- function(url) {
   gc(reset = TRUE)
   
   return(out)
+}
+
+minor_platforms <- function(cong, platform) {
+  cong %>%
+    imap(
+      ~ {
+        df <- .x %>% filter(grepl(platform, url))
+        out <- vector(mode = "list", length = nrow(df))
+        fp <- here("data", "raw", "wayback", .y, "html")
+        
+        for (x in seq(nrow(df))) {
+          tryCatch(
+            {
+              out[[x]] <-
+                get(eval(paste0(platform, "_select_text")))((df$link[x])) %>%
+                select(-date) %>%
+                rename(link = url) %>%
+                bind_cols(., df[x, c("url")]) %>%
+                select(url, -link, everything())
+            },
+            error = function(e) {
+              message(e)
+            }
+          )
+          
+          if ((x %% 50 == 0) | x == nrow(df)) {
+            save(
+              out,
+              file = here(
+                "data/raw", 
+                paste0(platform, "_text_", .y, "_list.Rda")
+              )
+            )
+          }
+        }
+      }
+    )
 }
 
 # Wayback-specific Functions ===================================================
