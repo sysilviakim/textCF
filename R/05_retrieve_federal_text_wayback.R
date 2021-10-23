@@ -19,7 +19,6 @@ cong <- c(senate = "senate", house = "house") %>%
       filter(file.exists(file)) %>%
       mutate(gap = abs(date - as.Date("2020-11-03"))) %>%
       group_by(url) %>%
-      filter(gap < 11) %>%
       ## Choose date closest to Election Day, before Election Day
       ## If after Election Day, allow 10 days
       ## Must be a file that is actually downloaded

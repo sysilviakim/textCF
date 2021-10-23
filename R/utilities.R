@@ -423,7 +423,12 @@ wayback_merge <- function(df, campaigns, var) {
     ungroup() %>%
     mutate(year = year(date)) %>%
     filter(!grepl("@", !!as.name(var))) %>%
-    filter(year >= 2019) %>%
+    filter(
+      ## https://web.archive.org/web/20141115202623/https://www.act.myngp.com/forms/-566609128118550528
+      ## Not sure why recorded as 2014, but definitely *not* 2014
+      ## Limit was not 2800 at the time
+      grepl("566609128118550528", !!as.name(var)) | (year >= 2019)
+    ) %>%
     left_join(
       .,
       campaigns %>%
