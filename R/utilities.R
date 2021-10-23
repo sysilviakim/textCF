@@ -478,6 +478,12 @@ ngp_select_text <- function(url) {
       footer = landing_footer,
       logo = landing_logo
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+  
   return(out)
 }
 
@@ -540,6 +546,12 @@ raise_the_money_select_text <- function(url) {
       text = landing_text,
       footer = landing_footer
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+
   return(out)
 }
 
@@ -584,6 +596,11 @@ click_pledge_select_text <- function(url) {
     mutate(
       amounts = contribution_amounts
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
   
   return(out)
 }
@@ -637,6 +654,11 @@ transaxt_select_text <- function(url) {
       amounts = contribution_amounts,
       footer = landing_footer
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
   
   return(out)
 }
@@ -702,6 +724,12 @@ donorbox_select_text <- function(url) {
       text = landing_text,
       logo = landing_logo
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+  
   return(out)
 }
 
@@ -758,6 +786,12 @@ authorize_net_select_text <- function(url) {
       text = landing_text,
       footer = landing_footer
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+  
   return(out)
 }
 
@@ -830,6 +864,12 @@ piryx_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+  
   return(out)
 }
 
@@ -900,6 +940,12 @@ numero_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+  
   return(out)
 }
 
@@ -973,6 +1019,12 @@ efundraising_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+  
   return(out)
 }
 
@@ -1052,6 +1104,12 @@ fundhero_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
+  
+  remote$close()
+  rs[["server"]]$stop()
+  rm(rs)
+  gc(reset = TRUE)
+  
   return(out)
 }
 
