@@ -230,8 +230,6 @@ out <- cross2(c("senate", "house"), c("actblue", "winred", "anedot")) %>%
     ) %>%
       mutate(chamber = .x[[1]], platform = .x[[2]])
   )
-
-## [1] 0 1 0 1 1 0
-out %>% map_dbl(nrow)
+assert_that(out %>% map_dbl(nrow) %>% unlist() %>% sum() == 0)
 
 # Misc. text ===================================================================
