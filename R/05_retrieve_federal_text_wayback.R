@@ -12,7 +12,7 @@ cong <- c(senate = "senate", house = "house") %>%
     ) %>%
       mutate(
         file = wayback_stamp_html(
-          ., row_number(), 
+          ., row_number(),
           here("data", "raw", "wayback", .x, "timestamp_donation")
         )
       ) %>%
@@ -37,13 +37,15 @@ raw <- list(
     ## manual fix
     mutate(
       url = case_when(
-        last_name == "swisher" & grepl("mostpeople", url) ~ 
-          "https://secure.ngpvan.com/v1/Forms/WuiklsKYhk223Z9Pkldcyg2",
+        last_name == "swisher" & grepl("mostpeople", url) ~
+        "https://secure.ngpvan.com/v1/Forms/WuiklsKYhk223Z9Pkldcyg2",
         TRUE ~ url
       )
     )
 ) %>%
-  map(~ .x %>% group_by(url) %>% slice(1))
+  map(~ .x %>%
+    group_by(url) %>%
+    slice(1))
 
 ## 0 and 4, but the 4 are PayPal links
 View(anti_join(wayback_std(raw$senate), wayback_std(cong$senate), by = "url"))
@@ -56,37 +58,43 @@ cong %>%
       df <- .x %>% filter(grepl("actblue", url))
       actblue_js_list <- vector(mode = "list", length = nrow(df))
       fp <- here("data", "raw", "wayback", .y, "html")
-      
+
       for (x in seq(nrow(df))) {
         full_js <- out <- NA
-        
-        tryCatch({
-          full_js <- actblue_js(wayback_stamp_html(df, x, fp)) %>%
-            mutate(file = url) %>%
-            mutate(url = df$url[x])
-        }, error = function(e) {
-          message(e)
-        })
-        
+
+        tryCatch(
+          {
+            full_js <- actblue_js(wayback_stamp_html(df, x, fp)) %>%
+              mutate(file = url) %>%
+              mutate(url = df$url[x])
+          },
+          error = function(e) {
+            message(e)
+          }
+        )
+
         if (any(class(full_js) == "tbl")) {
           actblue_js_list[[x]] <- full_js
           message(paste0(x, "-th complete: campaign for ", df$url[x]))
         } else {
           message(paste0("Javascript did not scrape for ", df$url[x]))
         }
-        
+
         if ((x %% 50 == 0) | x == nrow(df)) {
-          tryCatch({
-            save(
-              actblue_js_list, 
-              file = here(
-                "data", "raw", 
-                paste0("actblue_js_", .y, "_list.Rda")
+          tryCatch(
+            {
+              save(
+                actblue_js_list,
+                file = here(
+                  "data", "raw",
+                  paste0("actblue_js_", .y, "_list.Rda")
+                )
               )
-            )
-          }, error = function(e) {
-            message(e)
-          })
+            },
+            error = function(e) {
+              message(e)
+            }
+          )
         }
       }
     }
@@ -95,7 +103,7 @@ cong %>%
 actblue <- c(senate = "senate", house = "house") %>%
   map(
     ~ loadRData(
-      here("data", "raw",  paste0("actblue_js_", .x, "_list.Rda"))
+      here("data", "raw", paste0("actblue_js_", .x, "_list.Rda"))
     ) %>%
       bind_rows() %>%
       actblue_wrangle()
@@ -108,11 +116,11 @@ cong %>%
       df <- .x %>% filter(grepl("winred", url))
       winred_text_list <- vector(mode = "list", length = nrow(df))
       fp <- here("data", "raw", "wayback", .y, "html")
-      
+
       for (x in seq(nrow(df))) {
         tryCatch(
           {
-            winred_text_list[[x]] <- 
+            winred_text_list[[x]] <-
               winred_text_scrape(wayback_stamp_html(df, x, fp)) %>%
               select(-date)
             winred_text_list[[x]] <-
@@ -126,17 +134,20 @@ cong %>%
         )
 
         if ((x %% 50 == 0) | x == nrow(df)) {
-          tryCatch({
-            save(
-              winred_text_list, 
-              file = here(
-                "data", "raw", 
-                paste0("winred_text_", .y, "_list.Rda")
+          tryCatch(
+            {
+              save(
+                winred_text_list,
+                file = here(
+                  "data", "raw",
+                  paste0("winred_text_", .y, "_list.Rda")
+                )
               )
-            )
-          }, error = function(e) {
-            message(e)
-          })
+            },
+            error = function(e) {
+              message(e)
+            }
+          )
         }
       }
     }
@@ -145,7 +156,7 @@ cong %>%
 winred <- c(senate = "senate", house = "house") %>%
   map(
     ~ loadRData(
-      here("data", "raw",  paste0("winred_text_", .x, "_list.Rda"))
+      here("data", "raw", paste0("winred_text_", .x, "_list.Rda"))
     ) %>%
       keep(~ !is.null(.x)) %>%
       map(clean_names) %>%
@@ -160,30 +171,34 @@ cong %>%
       df <- .x %>% filter(grepl("anedot", url))
       anedot_text_list <- vector(mode = "list", length = nrow(df))
       fp <- here("data", "raw", "wayback", .y, "html")
-      
+
       for (x in seq(nrow(df))) {
         tryCatch(
           {
-            anedot_text_list[[x]] <- 
-              anedot_text_scrape(wayback_stamp_html(df, x, fp))
+            anedot_text_list[[x]] <-
+              anedot_text_scrape(wayback_stamp_html(df, x, fp)) %>%
+              mutate(url = df$url[x])
           },
           error = function(e) {
             message(e)
           }
         )
-        
+
         if ((x %% 50 == 0) | x == nrow(df)) {
-          tryCatch({
-            save(
-              anedot_text_list, 
-              file = here(
-                "data", "raw", 
-                paste0("anedot_text_", .y, "_list.Rda")
+          tryCatch(
+            {
+              save(
+                anedot_text_list,
+                file = here(
+                  "data", "raw",
+                  paste0("anedot_text_", .y, "_list.Rda")
+                )
               )
-            )
-          }, error = function(e) {
-            message(e)
-          })
+            },
+            error = function(e) {
+              message(e)
+            }
+          )
         }
       }
     }
@@ -192,7 +207,7 @@ cong %>%
 anedot <- c(senate = "senate", house = "house") %>%
   map(
     ~ loadRData(
-      here("data", "raw",  paste0("anedot_text_", .x, "_list.Rda"))
+      here("data", "raw", paste0("anedot_text_", .x, "_list.Rda"))
     ) %>%
       keep(~ !is.null(.x)) %>%
       map(clean_names) %>%
@@ -200,6 +215,18 @@ anedot <- c(senate = "senate", house = "house") %>%
       clean_names()
   )
 
+# Test proper scrapes for three platforms ======================================
+out <- cross2(c("senate", "house"), c("actblue", "winred", "anedot")) %>%
+  map(
+    ~ anti_join(
+      cong[[.x[[1]]]] %>% filter(grepl(.x[[2]], url)),
+      get(.x[[2]])[[.x[[1]]]],
+      by = "url"
+    ) %>%
+      mutate(chamber = .x[[1]], platform = .x[[2]])
+  )
+
+## [1]  2 11  0  1  1  0
+out %>% map_dbl(nrow)
+
 # Misc. text ===================================================================
-
-
