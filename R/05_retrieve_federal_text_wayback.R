@@ -55,7 +55,6 @@ cong %>%
     ~ {
       df <- .x %>% filter(grepl("actblue", url))
       actblue_js_list <- vector(mode = "list", length = nrow(df))
-      
       fp <- here("data", "raw", "wayback", .y, "html")
       
       for (x in seq(nrow(df))) {
@@ -108,12 +107,9 @@ cong %>%
     ~ {
       df <- .x %>% filter(grepl("winred", url))
       winred_text_list <- vector(mode = "list", length = nrow(df))
-      
       fp <- here("data", "raw", "wayback", .y, "html")
       
       for (x in seq(nrow(df))) {
-        full_js <- out <- NA
-        
         tryCatch(
           {
             winred_text_list[[x]] <- 
@@ -158,6 +154,51 @@ winred <- c(senate = "senate", house = "house") %>%
   )
 
 # Anedot text ==================================================================
+cong %>%
+  imap(
+    ~ {
+      df <- .x %>% filter(grepl("anedot", url))
+      anedot_text_list <- vector(mode = "list", length = nrow(df))
+      fp <- here("data", "raw", "wayback", .y, "html")
+      
+      for (x in seq(nrow(df))) {
+        tryCatch(
+          {
+            anedot_text_list[[x]] <- 
+              anedot_text_scrape(wayback_stamp_html(df, x, fp))
+          },
+          error = function(e) {
+            message(e)
+          }
+        )
+        
+        if ((x %% 50 == 0) | x == nrow(df)) {
+          tryCatch({
+            save(
+              anedot_text_list, 
+              file = here(
+                "data", "raw", 
+                paste0("anedot_text_", .y, "_list.Rda")
+              )
+            )
+          }, error = function(e) {
+            message(e)
+          })
+        }
+      }
+    }
+  )
+
+anedot <- c(senate = "senate", house = "house") %>%
+  map(
+    ~ loadRData(
+      here("data", "raw",  paste0("anedot_text_", .x, "_list.Rda"))
+    ) %>%
+      keep(~ !is.null(.x)) %>%
+      map(clean_names) %>%
+      bind_rows() %>%
+      clean_names()
+  )
 
 # Misc. text ===================================================================
 
