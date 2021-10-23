@@ -47,7 +47,7 @@ raw <- list(
     group_by(url) %>%
     slice(1))
 
-## 0 and 4, but the 4 are PayPal links
+## 0 and 5, but the 5 are PayPal links
 View(anti_join(wayback_std(raw$senate), wayback_std(cong$senate), by = "url"))
 View(anti_join(wayback_std(raw$house), wayback_std(cong$house), by = "url"))
 
@@ -108,6 +108,7 @@ actblue <- c(senate = "senate", house = "house") %>%
       bind_rows() %>%
       actblue_wrangle()
   )
+save(actblue, file = here("data", "tidy", "actblue_congress.Rda"))
 
 # WinRed text ==================================================================
 cong %>%
@@ -163,6 +164,7 @@ winred <- c(senate = "senate", house = "house") %>%
       bind_rows() %>%
       clean_names()
   )
+save(winred, file = here("data", "tidy", "winred_congress.Rda"))
 
 # Anedot text ==================================================================
 cong %>%
@@ -214,6 +216,7 @@ anedot <- c(senate = "senate", house = "house") %>%
       bind_rows() %>%
       clean_names()
   )
+save(anedot, file = here("data", "tidy", "anedot_congress.Rda"))
 
 # Test proper scrapes for three platforms ======================================
 out <- cross2(c("senate", "house"), c("actblue", "winred", "anedot")) %>%
