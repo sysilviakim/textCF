@@ -34,5 +34,71 @@ donorbox <- save_text_df("donorbox")
 donorbox %>% map_dbl(nrow)
 save(donorbox, file = here("data", "tidy", "donorbox_congress.Rda"))
 
+# Efundraising =================================================================
+minor_platforms(cong, "efundraising")
+efundraising <- save_text_df("efundraising")
+efundraising %>% map_dbl(nrow)
+save(efundraising, file = here("data", "tidy", "efundraising_congress.Rda"))
+
+# Fundhero =====================================================================
+minor_platforms(cong, "fundhero")
+fundhero <- save_text_df("fundhero")
+fundhero %>% map_dbl(nrow)
+save(fundhero, file = here("data", "tidy", "fundhero_congress.Rda"))
+
+# Raise the money ==============================================================
+minor_platforms(cong, "raisethemoney")
+raisethemoney <- save_text_df("raisethemoney")
+raisethemoney %>% map_dbl(nrow)
+save(raisethemoney, file = here("data", "tidy", "raisethemoney_congress.Rda"))
+
+# Click and pledge =============================================================
+minor_platforms(cong, "clickandpledge")
+clickandpledge <- save_text_df("clickandpledge")
+clickandpledge %>% map_dbl(nrow)
+save(clickandpledge, file = here("data", "tidy", "clickandpledge_congress.Rda"))
+
+# Authorize.net ================================================================
+minor_platforms(cong, "authorize")
+authorize <- save_text_df("authorize")
+authorize %>% map_dbl(nrow)
+save(authorize, file = here("data", "tidy", "authorize_congress.Rda"))
+
+# Transaxt =====================================================================
+minor_platforms(cong, "transaxt")
+transaxt <- save_text_df("transaxt")
+transaxt %>% map_dbl(nrow)
+save(transaxt, file = here("data", "tidy", "transaxt_congress.Rda"))
+
+# Piryx ========================================================================
+minor_platforms(cong, "piryx")
+piryx <- save_text_df("piryx")
+piryx %>% map_dbl(nrow)
+save(piryx, file = here("data", "tidy", "piryx_congress.Rda"))
+
+# Numero.ai ====================================================================
+minor_platforms(cong, "numero")
+numero <- save_text_df("numero")
+numero %>% map_dbl(nrow)
+save(numero, file = here("data", "tidy", "numero_congress.Rda"))
+
+# Gather the minor platforms and check for missing occasions ===================
+cong_minor <- cong
+cong <- cong_minor %>%
+  imap(
+    ~ anti_join(
+      wayback_std(.x),
+      Reduce(
+        bind_rows,
+        list(
+          ngp[[.y]], donorbox[[.y]], efundraising[[.y]], fundhero[[.y]],
+          raisethemoney[[.y]], clickandpledge[[.y]], authorize[[.y]],
+          transaxt[[.y]], piryx[[.y]], numero[[.y]]
+        )
+      ),
+      by = "url"
+    )
+  )
+
 # Duplicate scrapes per URL ====================================================
 
