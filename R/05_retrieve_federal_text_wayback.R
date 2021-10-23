@@ -29,9 +29,6 @@ cong <- c(senate = "senate", house = "house") %>%
       select(-title, -text)
   )
 
-## Must be senate 142 and house 822, but 138 and 675
-cong %>% map_dbl(nrow)
-
 # Check missing files ==========================================================
 raw <- list(
   senate = loadRData(here("data", "tidy", "senate-2020-matched.Rda")) %>%
@@ -48,6 +45,7 @@ raw <- list(
 ) %>%
   map(~ .x %>% group_by(url) %>% slice(1))
 
+## 0 and 4, but the 4 are PayPal links
 View(anti_join(wayback_std(raw$senate), wayback_std(cong$senate), by = "url"))
 View(anti_join(wayback_std(raw$house), wayback_std(cong$house), by = "url"))
 
