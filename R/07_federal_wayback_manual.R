@@ -22,7 +22,7 @@ cong <- cong %>%
       filter(!grepl("paypal", url))
   )
 
-## 13 and 54
+## 11 and 50
 cong %>% map_dbl(nrow)
 
 # Senate manual ================================================================
@@ -43,6 +43,7 @@ senate <- cong$senate %>%
         footer = "If you'd prefer to contribute by check, please make payable to the Angus King for U.S. Senate Campaign, and mail to: Angus King for U.S. Senate Campaign PO Box 368, Brunswick, ME 04011 If you have any questions about your contribution or would like a refund, please contact info@angusformaine.com within 30 days. With other questions, contact us at: Angus King for U.S. Senate Campaign PO Box 368, Brunswick, ME 04011 info@angusformaine.com. Phone: 207-607-4298"
       ),
       data.frame(
+        ## No title, text, nor footer
         link = "http://web.archive.org/web/20201018155614/https://cm.aristotle.com/d/roundsforsenate",
         title = "",
         text = "",
@@ -50,63 +51,51 @@ senate <- cong$senate %>%
       ),
       data.frame(
         link = "http://web.archive.org/web/20201107060947/https://contribute.brianschatz.com/page/contribute/contribute",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Senator Brian Schatz: Make a contribution",
+        text = "Your support is critical to giving our volunteers the resources to reach every voter to share Senator Schatz’s work to stand up for Hawai‘i's values and build an economy that works for all our families. Please fill out the form below to give.",
+        footer = "Paid for by Schatz for Senate"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201031133733/https://www.dustinbmurphy.com/contribute",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Dustin Murphy for United States Senate",
+        text = " Under the Federal Election Commission, individuals may contribute a maximum of $2,800 per election to a candidate's campaign. For contributions over $200 it is required to provide your employer and occupation. Since we're not a large campaign, we are asking that all contributions list their employer and occupation. We have also set a maximum contribution limit of $2,500 per individual. Thank you and God Bless! ",
+        footer = "Committee to Elect Dustin Murphy"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201102202130/https://www.graysonforga.com/donate",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Donate",
+        text = "If you prefer to use Paypal, click here: Pay via PayPal Mail Checks to: Grayson Committee PO BOX 1018 Lithonia, GA 30058",
+        footer = "Grayson for Georgia"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201106035213/https://www.johnsonsenate.com/contribute-now",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Join Wayne's Mission To End Student Loan Debt",
+        text = "1.7 Million Georgians Owe Student Loans. Join The Fight To Help Your Family and Friends. End Student Loan Debt Improve Georgia's Infrastructure - Roads, Waterways, Rail, Power Grid, Ports, Airports Fight For Lower Prescription Drug Prices and Comprehensive Elder Care Expand Georgia Military Bases Protect Our Borders from Unlawful Entry Promote Alternative Energy The Grassroots Fight To End Student Loan Debt Needs You. Invest Today!",
+        footer = "Wayne Johnson for Senate, Inc. Macon, Georgia © Copyright 2020"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201203043851/https://mystique.victorypassport.com/pages/burr/post-election-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fburr%2Fcontribute",
-        title = "",
+        title = "Donate Today to Richard Burr!",
         text = "",
-        footer = ""
+        footer = "By clicking Contribute I certify that the following statements are true and accurate: This contribution is made from my personal funds and is not drawn on an account maintained by a corporation, labor union, or national bank, and I am a U.S. citizen or lawfully admitted permanent resident and this contribution will not be reimbursed by another person. I agree to the Terms of Service Contributions are not tax deductible as charitable contributions for federal income tax purposes. Federal law requires us to obtain and report the name, mailing address, occupation and name of employer for each individual whose contributions aggregate in excess of $200 per election cycle. Contributions by corporations, foreign nationals (non-green card holders), labor unions, federal government contractors, and minors under the age of 18 are prohibited."
       ),
       data.frame(
         link = "http://web.archive.org/web/20201203032316/https://mystique.victorypassport.com/pages/murkowski/contribute?location=https%3A%2F%2Fgive.victorypassport.com%2Fmurkowski%2Fcontribute",
         title = "",
-        text = "",
+        text = "Freedom comes from strength and self-reliance. - Lisa Murkowski",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201030004514/https://secure.campaignsolutions.com/jimrisch/donation1/?initiativekey=N4MUBY3F3R6T",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Jim Risch U.S. Senate Donate Today",
+        text = "Jim Risch earned his reputation as a popular “no-nonsense, get the job done leader” as Idaho’s Governor where he cut property taxes by 20%, bringing property tax relief to Idaho taxpayer. His foresight also provided $100 million in a rainy day fund for public schools that was desperately needed during the economic downturn.",
+        footer = "Paid for by Jim Risch for U.S. Senate Committee - 407 W. Jefferson, Boise, Idaho 83702"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201107072330/https://secure.chuckschumer.com/",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201022121912/https://secure.johncornyn.com/contribute",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201106031230/https://secure.laurenwitzke.com/contribute",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Schumer U.S. Senate Make a Contribution",
+        text = "Your contribution will give Chuck Schumer the opportunity to continue serving New Yorkers -- and all Americans -- in the U.S. Senate.",
+        footer = "Paid for by Friends of Schumer"
       )
     ) %>%
       bind_rows()
@@ -167,24 +156,6 @@ house <- cong$house %>%
       ),
       data.frame(
         link = "http://web.archive.org/web/20201101033434/http://www.erikastottspearson.com/donate",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201103021106/http://erincruz.revv.co/takebackthehouse",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201031015013/https://fredkeller.revv.co/donate",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201113043159/https://gaetzforcongress.revv.co/donate",
         title = "",
         text = "",
         footer = ""
@@ -346,12 +317,6 @@ house <- cong$house %>%
         footer = ""
       ),
       data.frame(
-        link = "http://web.archive.org/web/20201101010605/http://secure.johncurtis.org/contribute",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
         link = "http://web.archive.org/web/20201114025921/https://secure.ngpvan.com/v1/Forms/-JGiuva5hk6bvLoBN7nHcw2",
         title = "",
         text = "",
@@ -412,25 +377,7 @@ house <- cong$house %>%
         footer = ""
       ),
       data.frame(
-        link = "http://web.archive.org/web/20201027030627/https://secure.standwithjackie.com/contribute",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201028020410/https://secure.stevestivers.com/donate",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
         link = "http://web.archive.org/web/20201005044822/https://secure.victorypassport.com/pages/handel/main-donate-page?location=https%3A%2F%2Fkarenhandel.com%2Fdonate&location_url=aHR0cHM6Ly9rYXJlbmhhbmRlbC5jb20vZG9uYXRlLyM%3D",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201106040503/https://secure.voteanthonygonzalez.com/donate",
         title = "",
         text = "",
         footer = ""
