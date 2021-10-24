@@ -110,7 +110,25 @@ save(actblue, file = here("data", "tidy", "actblue_congress.Rda"))
 cong %>%
   imap(
     ~ {
-      df <- .x %>% filter(grepl("winred", url) | grepl("revv", url))
+      df <- .x %>%
+        filter(grepl("winred", url) | grepl("revv", url))
+      
+      df2 <- .x %>%
+        filter(!grepl("actblue", url) & !grepl("anedot", url)) %>%
+        filter(!grepl("winred", url) & !grepl("revv", url)) %>%
+        filter(
+          read_html(link) %>%
+            html_nodes("meta") %>%
+            html_attr("content") %>%
+            unlist() %>%
+            paste(collapse = "") %>%
+            grepl("revv", .)
+        )
+      
+      if (nrow(df2) > 0) {
+        df <- bind_rows(df, df2)
+      }
+      
       winred_text_list <- vector(mode = "list", length = nrow(df))
       fp <- here("data", "raw", "wayback", .y, "html")
 
@@ -120,7 +138,7 @@ cong %>%
             winred_text_list[[x]] <-
               winred_text_scrape(wayback_stamp_html(df, x, fp)) %>%
               select(-date)
-            winred_text_list[[x]] <- 
+            winred_text_list[[x]] <-
               bind_cols(winred_text_list[[x]], df[x, c("link", "url")]) %>%
               mutate(file = url) %>%
               mutate(url = df$url[x])
