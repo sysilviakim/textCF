@@ -10,6 +10,8 @@ cong <- list(
       url = case_when(
         last_name == "swisher" & grepl("mostpeople", url) ~ 
           "https://secure.ngpvan.com/v1/Forms/WuiklsKYhk223Z9Pkldcyg2",
+        last_name == "briscoe" & grepl("briscoe", url) ~ 
+          "https://secure.anedot.com/johnbriscoe/donate",
         TRUE ~ url
       )
     )

@@ -175,27 +175,22 @@ house <- cong$house %>%
       ),
       data.frame(
         link = "http://web.archive.org/web/20201005061620/https://garretgraves.ichooseapex.com/donate/",
+        ## Not captured well; cookie?
         title = "",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201101082248/https://jim2020.com/donate/",
-        title = "",
+        title = "DONATE",
         text = "",
-        footer = ""
+        footer = "Paid for by Jim 2020 Committee"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201104042810/https://www.jimcosta.com/donate",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201005035729/https://johnbriscoe.us/donations",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Make A Contribution To Jim Costa For Congress",
+        text = "CONTRIBUTE Keep Our Valley Strong",
+        footer = "Paid for by Jim Costa for Congress"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201108075605/https://www.johnnyteague.com/donate",
