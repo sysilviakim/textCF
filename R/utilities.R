@@ -1113,37 +1113,75 @@ fundhero_select_text <- function(url) {
   return(out)
 }
 
+ngpvan_select_text <- function(url) {
+  ## secure.ngpvan.com
+  out <- httr::GET(url)
+  out <- httr::content(out)
+  
+  designation <- out$designation
+  out$designation <- NULL
+  out$form_elements <- NULL ## too many, skip
+  out$metadata <- NULL ## similarly unnecessary
+  out$url <- NULL
+  
+  out <- out %>%
+    imap(~ tibble(!!as.name(.y) := .x)) %>%
+    bind_cols() %>%
+    clean_names()
+
+  if (!is.null(designation)) {
+    designation <- designation %>%
+      imap(~ tibble(!!as.name(.y) := .x)) %>%
+      bind_cols() %>%
+      clean_names() %>%
+      rename(designation_name = name)
+    
+    out <- out %>%
+      bind_cols(., designation)
+  }
+  
+  return(out)
+}
+
 minor_platforms <- function(cong, platform) {
   cong %>%
     imap(
       ~ {
         df <- .x %>% filter(grepl(platform, url))
-        out <- vector(mode = "list", length = nrow(df))
-        fp <- here("data", "raw", "wayback", .y, "html")
-        
-        for (x in seq(nrow(df))) {
-          tryCatch(
-            {
-              out[[x]] <-
-                get(eval(paste0(platform, "_select_text")))((df$link[x])) %>%
-                select(-date) %>%
-                rename(link = url) %>%
-                bind_cols(., df[x, c("url")]) %>%
-                select(url, -link, everything())
-            },
-            error = function(e) {
-              message(e)
-            }
-          )
+        if (nrow(df) > 1) {
+          out <- vector(mode = "list", length = nrow(df))
+          fp <- here("data", "raw", "wayback", .y, "html")
           
-          if ((x %% 50 == 0) | x == nrow(df)) {
-            save(
-              out,
-              file = here(
-                "data/raw", 
-                paste0(platform, "_text_", .y, "_list.Rda")
-              )
+          for (x in seq(nrow(df))) {
+            tryCatch(
+              {
+                out[[x]] <-
+                  get(eval(paste0(platform, "_select_text")))((df$link[x])) %>%
+                  select(-matches("^date$"))
+                
+                if ("url" %in% names(out[[x]])) {
+                  out[[x]] <- out[[x]] %>%
+                    rename(link = url)
+                }
+                
+                out[[x]] <- out[[x]] %>%
+                  bind_cols(., df[x, c("url")]) %>%
+                  select(url, -matches("^link$"), everything())
+              },
+              error = function(e) {
+                message(e)
+              }
             )
+            
+            if ((x %% 50 == 0) | x == nrow(df)) {
+              save(
+                out,
+                file = here(
+                  "data/raw", 
+                  paste0(platform, "_text_", .y, "_list.Rda")
+                )
+              )
+            }
           }
         }
       }
