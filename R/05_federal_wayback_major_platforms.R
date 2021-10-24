@@ -110,7 +110,7 @@ save(actblue, file = here("data", "tidy", "actblue_congress.Rda"))
 cong %>%
   imap(
     ~ {
-      df <- .x %>% filter(grepl("winred", url))
+      df <- .x %>% filter(grepl("winred", url) | grepl("revv", url))
       winred_text_list <- vector(mode = "list", length = nrow(df))
       fp <- here("data", "raw", "wayback", .y, "html")
 
