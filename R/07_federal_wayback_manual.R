@@ -368,3 +368,27 @@ assert_that(all(!is.na(senate$text)))
 assert_that(all(!is.na(house$text)))
 # assert_that(all(senate$text != ""))
 # assert_that(all(house$text != ""))
+
+# Save =========================================================================
+minor_list[["manual"]] <- manual <- list(
+  senate = senate,
+  house = house
+)
+save(manual, file = here("data", "raw", "manual_congress.Rda"))
+
+# Save merged output ===========================================================
+cong_complete <- 
+  loadRData(here("data", "tidy", "cong_merged_donations.Rda")) %>%
+  imap(
+    ~ left_join(
+      wayback_std(.x),
+      Reduce(bind_rows, minor_list %>% map(.y)),
+      by = "url"
+    ) %>%
+      mutate(
+        text = case_when(is.na(text) ~ "", TRUE ~ text),
+        title = case_when(is.na(title) ~ "", TRUE ~ title),
+        footer = case_when(is.na(footer) ~ "", TRUE ~ footer)
+      )
+  )
+save(cong_complete, file = here("data", "tidy", "cong_complete.Rda"))
