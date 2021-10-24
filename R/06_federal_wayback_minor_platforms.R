@@ -19,7 +19,7 @@ cong <- cong_raw %>%
       filter(!grepl("paypal", url))
 )
 
-## 14 and 130
+## 14 and 127
 cong %>% map_dbl(nrow)
 
 # NGP VAN ======================================================================
@@ -81,24 +81,3 @@ minor_platforms(cong, "numero")
 numero <- save_text_df("numero")
 numero %>% map_dbl(nrow)
 save(numero, file = here("data", "tidy", "numero_congress.Rda"))
-
-# Gather the minor platforms and check for missing occasions ===================
-cong_minor <- cong
-cong <- cong_minor %>%
-  imap(
-    ~ anti_join(
-      wayback_std(.x),
-      Reduce(
-        bind_rows,
-        list(
-          ngp[[.y]], donorbox[[.y]], efundraising[[.y]], fundhero[[.y]],
-          raisethemoney[[.y]], clickandpledge[[.y]], authorize[[.y]],
-          transaxt[[.y]], piryx[[.y]], numero[[.y]]
-        )
-      ),
-      by = "url"
-    )
-  )
-
-# Duplicate scrapes per URL ====================================================
-
