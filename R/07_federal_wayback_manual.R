@@ -11,7 +11,6 @@ minor_list <- c(
   set_names(., .) %>%
   map(~ loadRData(here("data", "tidy", paste0(.x, "_congress.Rda"))))
 
-# Duplicate scrapes per URL ====================================================
 cong <- cong %>%
   imap(
     ~ anti_join(
@@ -24,6 +23,14 @@ cong <- cong %>%
 
 ## 11 and 50
 cong %>% map_dbl(nrow)
+
+# NGP VAN (but variation) ======================================================
+minor_platforms(cong, "ngpvan")
+ngpvan <- save_text_df("ngpvan")
+ngpvan %>% map_dbl(nrow)
+save(ngpvan, file = here("data", "tidy", "ngpvan_congress.Rda"))
+
+cong$house <- anti_join(wayback_std(cong$house), ngpvan$house, by = "url")
 
 # Senate manual ================================================================
 senate <- cong$senate %>%
@@ -108,62 +115,62 @@ house <- cong$house %>%
     ., list(
       data.frame(
         link = "http://web.archive.org/web/20201111181018/https://67320.campaignpartner.net/contribute",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Make a Difference! Donate Now.",
+        text = "To make a donation Please complete the form below or mail your contribution to Patrick Delices For Congress 948 Longwood Avenue Bronx, NYS 10459. For contribution limits and requirements, please click here Thank you! Sincerely, Patrick Delices",
+        footer = "Paid for by Patrick Delices For U.S. Congress"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201105050630/https://beeler4congress.nationbuilder.com/donate",
-        title = "",
+        title = "Beeler for Congress",
         text = "",
-        footer = ""
+        footer = "Follow @Beeler4Congress on Twitter"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201108222819/https://www.campaigncontribution.com/payment/contribution/info/29f7be14-f873-419c-bf56-7f5668bc41ff",
-        title = "",
+        title = "Eddie Bernice Johnson United States Congress",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201112201614/https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f",
-        title = "",
+        title = "Emanuel Cleaver, II U.S. Congress",
         text = "",
-        footer = ""
+        footer = "Paid for by Cleaver for Congress, Donna M. Wilson, Treasurer"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201112181149/https://www.campaigncontribution.com/payment/contribution/info/6be33664-4500-45dd-a593-b2a47d017538",
         title = "",
         text = "",
-        footer = ""
+        footer = "Copyright 2018 - Paid for by the Friends of Chris Smith"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201029095733/https://carlosforny.com/donation/",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Donate",
+        text = 'Please donate right now to give our campaign the resources we need to take on Congresswoman Carolyn B. Maloney. All online donations are processed and powered by "STRIPE". Stripe is the most trusted and industry-leading payment gateway system which is the highest grade of payment processing security. You can rest assured that your information is safe and secure.',
+        footer = "PAID FOR BY CARLOS SANTIAGO-CANO FOR CONGRESS"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201109035506/https://www.chuckforcongress.com/donate",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Donate",
+        text = "Federal law limits contributions to Chuck Fleischmann for Congress, Inc. to $2,700 per election (primary and general 2018) from individuals, and $5,000 per election (primary and general) from qualified federal PACs. Federal law requires us to use our best efforts to collect and report the name, address, occupation, and name of employer of each individual whose contributions exceed $200 in an election cycle. Contributions to Chuck Fleischmann for Congress are not tax deductible for federal income tax purposes. Contributions by corporations, foreign nationals, and federal government contractors are prohibited.",
+        footer = "PAID FOR BY CHUCK FLEISCHMANN FOR CONGRESS COMMITTEE, INC., RANDALL HEBERT, TREASURER"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201030071543/https://www.cooperforcongress.com/form/-8877775747779720448",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Contribute to Our Campaign",
+        text = "Running for office is becoming a more and more expensive challenge. It takes the help of all my friends and  supporters to get our message out to interested Tennesseans. Chip in today to support our campaign and keep Middle Tennessee's voice strong.",
+        footer = "Paid for by Cooper For Congress Committee, Robert A. Davidson, Treasurer. Contributions are not deductible for federal income tax purposes. Corporate and cash contributions prohibited."
       ),
       data.frame(
         link = "http://web.archive.org/web/20201101033434/http://www.erikastottspearson.com/donate",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Donate to Erika Stotts Pearson for Congress",
+        text = "Erika is fighting for a Tennessee where everyone has the opportunity to thrive! Education, Health Care, and the Economy are her top priorities and she is ready to bring that fight to Washington. Your generous contribution helps her get there!",
+        footer = "PAID FOR BY ERIKA STOTTS PEARSON FOR CONGRESS"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201024171436/https://www.garamendi.org/contribute",
-        title = "",
-        text = "",
+        title = "Support Congressman John Garamendi",
+        text = "If you would like to contribute by check, please mail your contribution to P.O. Box 440, Walnut Grove, CA 95690",
         footer = ""
       ),
       data.frame(
@@ -317,63 +324,9 @@ house <- cong$house %>%
         footer = ""
       ),
       data.frame(
-        link = "http://web.archive.org/web/20201114025921/https://secure.ngpvan.com/v1/Forms/-JGiuva5hk6bvLoBN7nHcw2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201005072812/https://secure.ngpvan.com/v1/Forms/lZk2sknDFEaf2y9mFq1piQ2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201213043442/https://secure.ngpvan.com/v1/Forms/SmKLOj5DxkiO8Y96aSoDVQ2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201109202202/https://secure.ngpvan.com/v1/Forms/UzuWY0wU8EC3YlSdP5LoXg2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201005101129/https://secure.ngpvan.com/v1/Forms/V5zS2tQN7UGegndBJW-oKw2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201105025206/https://secure.ngpvan.com/v1/Forms/VHSW6b1ewk-YWY8XloCLZw2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201212223847/https://secure.ngpvan.com/v1/Forms/WuiklsKYhk223Z9Pkldcyg2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201212231219/https://secure.ngpvan.com/v1/Forms/ZFgQB1NB_027aRtM8Xj6LQ2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
-        link = "http://web.archive.org/web/20201113032149/https://secure.ngpvan.com/v1/Forms/zlW8zr2BKEa_YQBu8Pin8A2",
-        title = "",
-        text = "",
-        footer = ""
-      ),
-      data.frame(
         link = "http://web.archive.org/web/20201213063415/https://secure.squarespace.com/checkout/donate?donatePageId=5ecc811995a4d74aea67676d&ss_cid=edf464be-7b4b-4231-ac84-5ba180c28e78&ss_cvisit=1603868097604&ss_cvr=9cc107d3-7d3a-4075-a93e-aed4dc886250%7C1603868097515%7C1603868097515%7C1603868097515%7C1",
         title = "",
-        text = "",
+        text = "Karen is working to deliver real results to Georgia. Contribute today to join the team!",
         footer = ""
       ),
       data.frame(
@@ -384,27 +337,28 @@ house <- cong$house %>%
       ),
       data.frame(
         link = "http://web.archive.org/web/20201113041602/https://spark.widgetmakr.com/widget/render/bc027835-dca5-4dc9-b691-cdb648713f67",
+        # Widgetmakr retired; cannot see
         title = "",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201031051317/https://www.trailblz.info/ColeTom/Donations.aspx?rdif=http%3A%2F%2Fwww.tomcoleforcongress.com/thank_you&ver=2",
-        title = "",
+        title = "Tom Cole for Congress",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201101052905/http://vickyhartzler.com/donate",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Interested in Donating?",
+        text = "Please contribute to Vicky Hartzler for Congress. Help us raise money and share our cause today!",
+        footer = "2019 Paid for by Vicky Hartzler for Congress"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201112200422/https://billylongforcongress.com/donate",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Looking To Get Involved?",
+        text = "Please contribute to Billy Long for Congress. Help us raise money and share our cause today!",
+        footer = "2020 Paid for by Billy Long for Congress"
       )
     ) %>%
       bind_rows()
