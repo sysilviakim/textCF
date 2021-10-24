@@ -193,6 +193,7 @@ house <- cong$house %>%
         footer = "Paid for by Jim Costa for Congress"
       ),
       data.frame(
+        ## Not scraped
         link = "http://web.archive.org/web/20201108075605/https://www.johnnyteague.com/donate",
         title = "",
         text = "",
@@ -200,47 +201,48 @@ house <- cong$house %>%
       ),
       data.frame(
         link = "http://web.archive.org/web/20201114075103/https://mariodiazbalart.org/donate/",
-        title = "",
+        title = "Your donation makes a big difference",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201113162231/http://www.markreedforcongress.com/donate/",
-        title = "",
+        title = "Contribute to the Campaign",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201101003436/https://maryottforcongress.com/contribute",
-        title = "",
-        text = "",
+        title = "YOUR DONATION TODAY HAS AN IMMEDIATE IMPACT ON OUR DISTRICT",
+        text = "“Let’s make a difference for our communities; let’s enact solutions that we can be proud of.” — BRIAN MARYOTT",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201111181133/https://www.maureen4congress.com/donate/",
-        title = "",
+        title = "Donation Form",
         text = "",
-        footer = ""
+        footer = "Vote for Maureen in 2020!"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201026124354/https://michaelguest.ms/donate/",
-        title = "",
+        title = "Donate",
         text = "",
-        footer = ""
+        footer = "Friends of Michael Guest P. O. Box 470 Brandon, MS 39043"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201109064844/https://www.mikekellyforcongress.com/contribute/",
-        title = "",
+        title = "Contribute",
         text = "",
-        footer = ""
+        footer = "Copyright © 2015 All Rights Reserved. Paid for by Mike Kelly for Congress. Design by Starn Marketing Group"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201106010248/https://www.mikethompsonforcongress.com/donate",
-        title = "",
+        title = "Contribute to Mike",
         text = "",
-        footer = ""
+        footer = "Authorized & Paid For By Mike Thompson For Congress"
       ),
       data.frame(
+        ## Nothing
         link = "http://web.archive.org/web/20201005053153/https://mystique.victorypassport.com/pages/baird/baird-donations?location=https%3A%2F%2Fgive.victorypassport.com%2Fbaird%2Fdonate&location_url=aHR0cHM6Ly9naXZlLnZpY3RvcnlwYXNzcG9ydC5jb20vYmFpcmQvZG9uYXRlLyM%3D",
         title = "",
         text = "",
@@ -248,85 +250,87 @@ house <- cong$house %>%
       ),
       data.frame(
         link = "http://web.archive.org/web/20201005102621/https://mystique.victorypassport.com/pages/joyce/main-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fjoyce%2Fdonate-today&location_url=aHR0cHM6Ly9naXZlLnZpY3RvcnlwYXNzcG9ydC5jb20vam95Y2UvZG9uYXRlLXRvZGF5LyM%3D",
-        title = "",
+        title = "Donate Today to Help Propel Dr. John Joyce to Congress!",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201113032152/https://www.parrott2020.org/donate-page",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Thank Your for your help.  Your Support Today Makes a Huge Difference.",
+        text = "Please know that I will always use your donations wisely and with great care. Every amount helps.",
+        footer = "PAID FOR BY NEIL PARROTT FOR CONGRESS"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201113162754/https://petel4congress.com/donations/donation-form",
-        title = "",
+        title = "Donation form",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201112204729/https://www.rabornforcongress.com/donate",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Donate",
+        text = "Your contributions will go directly toward campaign expenses to deliver Theresa's message of hope, freedom, liberty, and equality to the entire district.  No one on the campaign takes a salary.  We are all working hard to represent you and fight the establishment.  Your support is greatly appreciated and Theresa is deeply humbled by your support!",
+        footer = "Citizens for Theresa Raborn"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201105084414/https://reygonzalez.org/donate-today.html",
-        title = "",
+        title = "Rey Gonzalez for Congress",
         text = "",
-        footer = ""
+        footer = "Paid for by the Rey Gonzalez for Congress Campaign, Mario Marinez, Treasurer, 109 E. Arroyo St. Harlingen, TX. 78550"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201106011308/https://rishikumar.com/contribute",
         title = "",
-        text = "",
-        footer = ""
+        text = "Contribute to a New Silicon Valley Vision. A New Energy, New Leadership. Rishi has pledged to NOT accept any PAC or Special Interest Group money. America deserves New Leadership, New Energy to solve our big challenges of today. An American Dream: A graduate student immigrant, now running for Congress.",
+        footer = "Join the Grassroots Movement"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201105043954/https://www.rogersforwisconsin.com/donate",
+        ## Nothing
         title = "",
         text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201027122520/https://schakowsky.bsd.net/page/contribute/default?donate_page_KEY=15",
-        title = "",
-        text = "",
-        footer = ""
+        title = "MAKE AN ONLINE CONTRIBUTION",
+        text = "Your contribution will help us in our campaign. We can't do it without you.",
+        footer = "Paid for and Authorized by Schakowsky for Congress"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201113162050/https://secure.campaignsolutions.com/calvert/list/proc/donation1/?InitiativeKey=LL39MZ8HTQXD",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Contribute Today",
+        text = "Thank you for standing with me! Please consider making a contribution to help me continue the fight for conservative principles. - Ken",
+        footer = "Paid for by Ken Calvert for Congress"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201101182721/https://secure.campaignsolutions.com/kenbuck/list/proc/donation1/?initiativekey=V0T9TNVLFGX5",
-        title = "",
-        text = "",
-        footer = ""
+        title = "Donate Today",
+        text = "Ken Buck represents the people of the 4th District of Colorado. A former Weld Country District Attorney, business executive, and prosecutor with the U.S. Department of Justice, Ken is committed to representing the people with Conservative Leadership and an Independent Voice.",
+        footer = "Paid for by Buck for Colorado"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201115010830/https://secure.campaignsolutions.com/webster/donation1/default.aspx?InitiativeKey=8LI7KDO8RIOF",
-        title = "",
-        text = "",
-        footer = ""
+        title = "YOUR VALUABLE GIFT ENABLES US TO CONTINUE THE RACE TOWARD VICTORY",
+        text = "Because of generous donors like you, we can advance one step closer to fixing Washington government. We will honor your kind contribution by conducting our campaign to reflect the determination and integrity that Daniel Webster is known for. Thank you for becoming a Webster Donor Warrior.",
+        footer = "Paid for by Daniel Webster For Congress"
       ),
       data.frame(
         link = "http://web.archive.org/web/20201101011709/https://secure.joecollinsforcongress.com/donation1/?InitiativeKey=VE0D2VWDBDVQ",
-        title = "",
-        text = "",
+        title = "Stand with Joe!",
+        text = "As your next Congressman, I will start with the rebuilding of South Central LA! Moving FORWARD in working with businesses in our district to bring in quality paying jobs, working to help rebuild the infrastructure of our communities, to support growth and expansion of housing and businesses. Taking ACTION in helping to ensure our schools receive major funding to overhaul our education program. And helping the TRANSITION to help rebuild and foster the relationship between law enforcement and our community.",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201213063415/https://secure.squarespace.com/checkout/donate?donatePageId=5ecc811995a4d74aea67676d&ss_cid=edf464be-7b4b-4231-ac84-5ba180c28e78&ss_cvisit=1603868097604&ss_cvr=9cc107d3-7d3a-4075-a93e-aed4dc886250%7C1603868097515%7C1603868097515%7C1603868097515%7C1",
+        ## Nothing
         title = "",
-        text = "Karen is working to deliver real results to Georgia. Contribute today to join the team!",
+        text = "",
         footer = ""
       ),
       data.frame(
         link = "http://web.archive.org/web/20201005044822/https://secure.victorypassport.com/pages/handel/main-donate-page?location=https%3A%2F%2Fkarenhandel.com%2Fdonate&location_url=aHR0cHM6Ly9rYXJlbmhhbmRlbC5jb20vZG9uYXRlLyM%3D",
-        title = "",
+        title = "Karen is working to deliver real results to Georgia. Contribute today to join the team!",
         text = "",
         footer = ""
       ),
