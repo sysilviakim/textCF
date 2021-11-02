@@ -846,4 +846,293 @@ smith.tibble$candidate <- "Tina Smith, MN"
 
 fb.senate <- rbind(fb.senate, smith.tibble)
 
-## 41. 
+### Have not done the ones below here - just setting up ========================
+
+## 41. Mike Espy, MS ===========================================================
+
+espy <- as.vector(senatedat[41,'id'])
+espy.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = espy,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 10000,
+                                 fields = "ad_data")
+espy.response <- adlib_get(params = espy.query, token = token)
+espy.tibble <- as_tibble(espy.response, type = "ad")
+espy.tibble$candidate <- "Mike Espy, MS"
+
+fb.senate <- rbind(fb.senate, espy.tibble)
+
+## 42. Cindy Hyde-Smith, MS ====================================================
+
+hydesmith <- as.vector(senatedat[42,'id'])
+hydesmith.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                ad_active_status = 'ALL',
+                                search_page_ids = hydesmith,
+                                ad_delivery_date_max = '2020-11-03',
+                                ad_delivery_date_min = '2020-01-01',
+                                limit = 10000,
+                                fields = "ad_data")
+hydesmith.response <- adlib_get(params = hydesmith.query, token = token)
+hydesmith.tibble <- as_tibble(hydesmith.response, type = "ad")
+hydesmith.tibble$candidate <- "Cindy Hyde-Smith, MS"
+
+fb.senate <- rbind(fb.senate, hydesmith.tibble)
+
+## 43. Steve Bullock, MT =======================================================
+
+bullock <- as.vector(senatedat[43,'id'])
+bullock.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                     ad_active_status = 'ALL',
+                                     search_page_ids = bullock,
+                                     ad_delivery_date_max = '2020-11-03',
+                                     ad_delivery_date_min = '2020-01-01',
+                                     limit = 10000,
+                                     fields = "ad_data")
+bullock.response <- adlib_get(params = bullock.query, token = token)
+bullock.tibble <- as_tibble(bullock.response, type = "ad")
+bullock.tibble$candidate <- "Steve Bullock, MT"
+
+fb.senate <- rbind(fb.senate, bullock.tibble)
+
+## 44. Steve Daines, MT ========================================================
+
+daines <- as.vector(senatedat[44,'id'])
+daines.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                   ad_active_status = 'ALL',
+                                   search_page_ids = daines,
+                                   ad_delivery_date_max = '2020-11-03',
+                                   ad_delivery_date_min = '2020-01-01',
+                                   limit = 10000,
+                                   fields = "ad_data")
+daines.response <- adlib_get(params = daines.query, token = token)
+daines.tibble <- as_tibble(daines.response, type = "ad")
+daines.tibble$candidate <- "Steve Daines, MT"
+
+fb.senate <- rbind(fb.senate, daines.tibble)
+
+## 45. Ben Sasse, NE ===========================================================
+
+sasse <- as.vector(senatedat[45,'id'])
+sasse.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                  ad_active_status = 'ALL',
+                                  search_page_ids = sasse,
+                                  ad_delivery_date_max = '2020-11-03',
+                                  ad_delivery_date_min = '2020-01-01',
+                                  limit = 10000,
+                                  fields = "ad_data")
+sasse.response <- adlib_get(params = sasse.query, token = token)
+sasse.tibble <- as_tibble(sasse.response, type = "ad")
+sasse.tibble$candidate <- "Ben Sasse, NE"
+
+fb.senate <- rbind(fb.senate, sasse.tibble)
+
+## 46. Chris Janeck, NE ========================================================
+
+janeck <- as.vector(senatedat[46,'id'])
+janeck.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = janeck,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 10000,
+                                 fields = "ad_data")
+janeck.response <- adlib_get(params = janeck.query, token = token)
+janeck.tibble <- as_tibble(janeck.response, type = "ad")
+janeck.tibble$candidate <- "Chris Janeck, NE"
+
+fb.senate <- rbind(fb.senate, janeck.tibble)
+
+## 47. Corky Messner, NH =======================================================
+
+messner <- as.vector(senatedat[47,'id'])
+messner.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                  ad_active_status = 'ALL',
+                                  search_page_ids = messner,
+                                  ad_delivery_date_max = '2020-11-03',
+                                  ad_delivery_date_min = '2020-01-01',
+                                  limit = 10000,
+                                  fields = "ad_data")
+messner.response <- adlib_get(params = messner.query, token = token)
+messner.tibble <- as_tibble(messner.response, type = "ad")
+messner.tibble$candidate <- "Corky Messner, NH"
+
+fb.senate <- rbind(fb.senate, messner.tibble)
+
+## 48. Jeanne Shaheen, NH ======================================================
+
+shaheen <- as.vector(senatedat[48,'id'])
+shaheen.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                   ad_active_status = 'ALL',
+                                   search_page_ids = shaheen,
+                                   ad_delivery_date_max = '2020-11-03',
+                                   ad_delivery_date_min = '2020-01-01',
+                                   limit = 10000,
+                                   fields = "ad_data")
+shaheen.response <- adlib_get(params = shaheen.query, token = token)
+shaheen.tibble <- as_tibble(shaheen.response, type = "ad")
+shaheen.tibble$candidate <- "Jeanne Shaheen, NH"
+
+fb.senate <- rbind(fb.senate, shaheen.tibble)
+
+## 49. Cory Booker, NJ =========================================================
+
+booker <- as.vector(senatedat[49,'id'])
+booker.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                   ad_active_status = 'ALL',
+                                   search_page_ids = booker,
+                                   ad_delivery_date_max = '2020-11-03',
+                                   ad_delivery_date_min = '2020-01-01',
+                                   limit = 10000,
+                                   fields = "ad_data")
+booker.response <- adlib_get(params = booker.query, token = token)
+booker.tibble <- as_tibble(booker.response, type = "ad")
+booker.tibble$candidate <- "Cory Booker, NJ"
+
+fb.senate <- rbind(fb.senate, booker.tibble)
+
+## 50. Rik Mehta, NJ ===========================================================
+
+mehta <- as.vector(senatedat[50,'id'])
+mehta.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                  ad_active_status = 'ALL',
+                                  search_page_ids = mehta,
+                                  ad_delivery_date_max = '2020-11-03',
+                                  ad_delivery_date_min = '2020-01-01',
+                                  limit = 10000,
+                                  fields = "ad_data")
+mehta.response <- adlib_get(params = mehta.query, token = token)
+mehta.tibble <- as_tibble(mehta.response, type = "ad")
+mehta.tibble$candidate <- "Rik Mehta, NJ"
+
+fb.senate <- rbind(fb.senate, mehta.tibble)
+
+## 51. Mark Ronchetti, NM ======================================================
+
+ronchetti <- as.vector(senatedat[51,'id'])
+ronchetti.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = ronchetti,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 10000,
+                                 fields = "ad_data")
+ronchetti.response <- adlib_get(params = ronchetti.query, token = token)
+ronchetti.tibble <- as_tibble(ronchetti.response, type = "ad")
+ronchetti.tibble$candidate <- "Mark Ronchetti, NM"
+
+fb.senate <- rbind(fb.senate, ronchetti.tibble)
+
+## 52. Ben Lujan, NM ===========================================================
+
+lujan <- as.vector(senatedat[52,'id'])
+lujan.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                     ad_active_status = 'ALL',
+                                     search_page_ids = lujan,
+                                     ad_delivery_date_max = '2020-11-03',
+                                     ad_delivery_date_min = '2020-01-01',
+                                     limit = 10000,
+                                     fields = "ad_data")
+lujan.response <- adlib_get(params = lujan.query, token = token)
+lujan.tibble <- as_tibble(lujan.response, type = "ad")
+lujan.tibble$candidate <- "Ben Lujan, NM"
+
+fb.senate <- rbind(fb.senate, lujan.tibble)
+
+## 53. Thom Tillis, NC =========================================================
+
+tillis <- as.vector(senatedat[53,'id'])
+tillis.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = tillis,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 10000,
+                                 fields = "ad_data")
+tillis.response <- adlib_get(params = tillis.query, token = token)
+tillis.tibble <- as_tibble(tillis.response, type = "ad")
+tillis.tibble$candidate <- "Thom Tillis, NC"
+
+fb.senate <- rbind(fb.senate, tillis.tibble)
+
+## 54. Cal Cunningham, NC ======================================================
+
+cunningham <- as.vector(senatedat[54,'id'])
+cunningham.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                  ad_active_status = 'ALL',
+                                  search_page_ids = cunningham,
+                                  ad_delivery_date_max = '2020-11-03',
+                                  ad_delivery_date_min = '2020-01-01',
+                                  limit = 10000,
+                                  fields = "ad_data")
+cunningham.response <- adlib_get(params = cunningham.query, token = token)
+cunningham.tibble <- as_tibble(cunningham.response, type = "ad")
+cunningham.tibble$candidate <- "Cal Cunningham, NC"
+
+fb.senate <- rbind(fb.senate, cunningham.tibble)
+
+## 55. Jim Inhofe, OK ==========================================================
+
+inhofe <- as.vector(senatedat[55, 'id'])
+inhofe.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                      ad_active_status = 'ALL',
+                                      search_page_ids = inhofe,
+                                      ad_delivery_date_max = '2020-11-03',
+                                      ad_delivery_date_min = '2020-01-01',
+                                      limit = 10000,
+                                      fields = "ad_data")
+inhofe.response <- adlib_get(params = inhofe.query, token = token)
+inhofe.tibble <- as_tibble(inhofe.response, type = "ad")
+inhofe.tibble$candidate <- "Jim Inhofe, OK"
+
+fb.senate <- rbind(fb.senate, inhofe.tibble)
+
+## 56. Abby Broyles, OK ==========================================================
+
+broyles <- as.vector(senatedat[56, 'id'])
+broyles.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                  ad_active_status = 'ALL',
+                                  search_page_ids = broyles,
+                                  ad_delivery_date_max = '2020-11-03',
+                                  ad_delivery_date_min = '2020-01-01',
+                                  limit = 10000,
+                                  fields = "ad_data")
+broyles.response <- adlib_get(params = broyles.query, token = token)
+broyles.tibble <- as_tibble(broyles.response, type = "ad")
+broyles.tibble$candidate <- "Abby Broyles, OK"
+
+fb.senate <- rbind(fb.senate, broyles.tibble)
+
+## 57. Jo Rae Perkins, OR ======================================================
+
+raeperkins <- as.vector(senatedat[57, 'id'])
+raeperkins.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                   ad_active_status = 'ALL',
+                                   search_page_ids = raeperkins,
+                                   ad_delivery_date_max = '2020-11-03',
+                                   ad_delivery_date_min = '2020-01-01',
+                                   limit = 10000,
+                                   fields = "ad_data")
+raeperkins.response <- adlib_get(params = raeperkins.query, token = token)
+raeperkins.tibble <- as_tibble(raeperkins.response, type = "ad")
+raeperkins.tibble$candidate <- "Jo Rae Perkins, OR"
+
+fb.senate <- rbind(fb.senate, raeperkins.tibble)
+
+## 58. Jeff Merkley, OR ========================================================
+
+merkley <- as.vector(senatedat[57, 'id'])
+merkley.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                      ad_active_status = 'ALL',
+                                      search_page_ids = merkley,
+                                      ad_delivery_date_max = '2020-11-03',
+                                      ad_delivery_date_min = '2020-01-01',
+                                      limit = 10000,
+                                      fields = "ad_data")
+merkley.response <- adlib_get(params = merkley.query, token = token)
+merkley.tibble <- as_tibble(merkley.response, type = "ad")
+merkley.tibble$candidate <- "Jeff Merkley, OR"
+
+fb.senate <- rbind(fb.senate, merkley.tibble)
+
