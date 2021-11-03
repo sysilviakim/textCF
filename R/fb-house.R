@@ -713,3 +713,40 @@ for (i in loopdatvec){
 }
 ## I can't figure out how to craft a for loop that'll work for Radlibrary.
 ## It only pulls two ads from one candidate.
+
+loopdf <- as.data.frame(loopdatvec)
+for (i in loopdf){
+  test_query_i <- adlib_build_query(ad_reached_countries = 'US', 
+                                    ad_active_status = 'ALL',
+                                    search_page_ids = as.vector(i),
+                                    ad_delivery_date_max = '2020-11-03',
+                                    ad_delivery_date_min = '2020-01-01',
+                                    limit = 5000,
+                                    fields = "ad_data")
+  test_response_i <- adlib_get(params = test_query_i, token = token)
+  test_tibble_i <- as_tibble(test_response_i, type = "ad")
+}
+# The issue here is, this is putting all of the i's into one query. This is
+# basically just a different version of the basic version of the code in the
+# chunks above. It wouldn't work if there were more than 10 items. 
+# By way of example:
+testwith12 <- head(housedat, 12)
+testwith12vec <- as.vector(testwith12$id)
+testwith12df <- as.data.frame(testwith12vec)
+for (i in testwith12df){
+  test_query_i <- adlib_build_query(ad_reached_countries = 'US', 
+                                    ad_active_status = 'ALL',
+                                    search_page_ids = as.vector(i),
+                                    ad_delivery_date_max = '2020-11-03',
+                                    ad_delivery_date_min = '2020-01-01',
+                                    limit = 5000,
+                                    fields = "ad_data")
+  test_response_i <- adlib_get(params = test_query_i, token = token)
+  test_tibble_i <- as_tibble(test_response_i, type = "ad")
+}
+# It doesn't work. "Error in adlib_build_query(ad_reached_countries = "US", 
+# ad_active_status = "ALL",  : Can only search 10 page IDs at a time."
+
+
+# The loop needs to run multiple queries and return multiple data frames for
+# it to be useful. Otherwise, it's counterintuitive.
