@@ -671,4 +671,45 @@ hr.query.43 <- adlib_build_query(ad_reached_countries = 'US',
 hr.response.43 <- adlib_get(params = hr.query.43, token = token)
 hr.tibble.43 <- as_tibble(hr.response.43, type = "ad")
 
+## For some reason, exactly the same code structure and type of variables yield
+## an error here, whereas they haven't done so anywhere else
+
+### Error in extract_error_message(response) : HTTP Error:
+### {
+###   "error": {
+###     "message": "(#100) Param search_page_ids[8] must be an integer. Instead, got float.",
+###     "type": "OAuthException",
+###     "code": 100,
+###     "fbtrace_id": "AYiZuqCxMZuMp8fcyvgLJWp"
+###   }
+### }
 fb.house <- rbind(fb.house, hr.tibble.42)
+
+## Something is very wrong with this...
+
+# Experimenting ================================================================
+
+housedat.01 <- houseframes[["1"]]
+housedat.42 <- houseframes[["42"]]
+# Why on earth is this skipping values? There's absolutely no rhyme or reason
+# that I can see in this.
+housedat.43 <- houseframes[["43"]]
+# And why on earth does the exact same data structure suddenly give issues here?
+
+# For Loop Experimentation =====================================================
+
+loopdat <- housedat.01
+loopdatvec <- as.vector(loopdat$id)
+for (i in loopdatvec){
+  test_query_i <- adlib_build_query(ad_reached_countries = 'US', 
+                                   ad_active_status = 'ALL',
+                                   search_page_ids = as.vector(i),
+                                   ad_delivery_date_max = '2020-11-03',
+                                   ad_delivery_date_min = '2020-01-01',
+                                   limit = 5000,
+                                   fields = "ad_data")
+  test_response_i <- adlib_get(params = test_query_i, token = token)
+  test_tibble_i <- as_tibble(test_response_i, type = "ad")
+}
+## I can't figure out how to craft a for loop that'll work for Radlibrary.
+## It only pulls two ads from one candidate.
