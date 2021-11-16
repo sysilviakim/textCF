@@ -36,6 +36,16 @@ houseframes <- split(housedat,rep(1:74,each=10))
 
 ## Yvette Herrell, NM, 1750700000000000
 ## Ted Budd, NC, 1585290000000000
+## Tony Gonzales, TX, 2146200000000000
+## Jaimy Z. Blanco, TX, 1773150000000000
+## Genevieve Collins, TX, 2338980000000000
+## Nicholas Betts, VA, 1911030000000000
+## Donald Beyer, VA, 1411980000000000
+
+
+# As integer, perhaps? The float error
+#vec %>% map_lgl(is.integer) %>% all()
+
 
 # Group 1 ======================================================================
 
@@ -1038,9 +1048,461 @@ hr.tibble.50 <- as_tibble(hr.response.50, type = "ad")
 # 15 digits.
 # The excluded candidate is Ted Budd.
 
+# Group 51 =====================================================================
+
+hr.id.51 <- as.vector(houseframes[["51"]]$id)
+hr.query.51 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.51,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.51 <- adlib_get(params = hr.query.51, token = token)
+hr.tibble.51 <- as_tibble(hr.response.51, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.51)
+
+# Group 52 =====================================================================
+
+hr.id.52 <- as.vector(houseframes[["52"]]$id)
+hr.query.52 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.52,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.52 <- adlib_get(params = hr.query.52, token = token)
+hr.tibble.52 <- as_tibble(hr.response.52, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.52)
+
+# Group 53 =====================================================================
+
+hr.id.53 <- as.vector(houseframes[["53"]]$id)
+hr.query.53 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.53,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.53 <- adlib_get(params = hr.query.53, token = token)
+hr.tibble.53 <- as_tibble(hr.response.53, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.53)
+
+# Group 54 =====================================================================
+
+hr.id.54 <- as.vector(houseframes[["54"]]$id)
+hr.query.54 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.54,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.54 <- adlib_get(params = hr.query.54, token = token)
+hr.tibble.54 <- as_tibble(hr.response.54, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.54)
+
+# Group 55 =====================================================================
+
+hr.id.55 <- as.vector(houseframes[["55"]]$id)
+hr.query.55 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.55,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.55 <- adlib_get(params = hr.query.55, token = token)
+hr.tibble.55 <- as_tibble(hr.response.55, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.55)
+
+# This one is just over 5,000...needs a part 2.
+hr.query.55b <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.55,
+                                 ad_delivery_date_max = '2020-02-01',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.55b <- adlib_get(params = hr.query.55b, token = token)
+hr.tibble.55b <- as_tibble(hr.response.55b, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.55b)
+
+# Group 56 =====================================================================
+
+hr.id.56 <- as.vector(houseframes[["56"]]$id)
+hr.query.56 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.56,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.56 <- adlib_get(params = hr.query.56, token = token)
+hr.tibble.56 <- as_tibble(hr.response.56, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.56)
+
+# Group 57 =====================================================================
+
+hr.id.57 <- as.vector(houseframes[["57"]]$id)
+hr.query.57 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.57,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.57 <- adlib_get(params = hr.query.57, token = token)
+hr.tibble.57 <- as_tibble(hr.response.57, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.57)
+
+# Group 58 =====================================================================
+
+hr.id.58 <- as.vector(houseframes[["58"]]$id)
+hr.query.58 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.58,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.58 <- adlib_get(params = hr.query.58, token = token)
+hr.tibble.58 <- as_tibble(hr.response.58, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.58)
+
+# Group 59 =====================================================================
+
+hr.id.59 <- as.vector(houseframes[["59"]]$id)
+hr.query.59 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.59,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.59 <- adlib_get(params = hr.query.59, token = token)
+hr.tibble.59 <- as_tibble(hr.response.59, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.59)
+
+# Group 60 =====================================================================
+
+hr.id.60 <- as.vector(houseframes[["60"]]$id)
+hr.query.60 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.60,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.60 <- adlib_get(params = hr.query.60, token = token)
+hr.tibble.60 <- as_tibble(hr.response.60, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.60)
+
+# Group 61 =====================================================================
+
+hr.id.61 <- as.vector(houseframes[["61"]]$id)
+hr.query.61 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.61,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.61 <- adlib_get(params = hr.query.61, token = token)
+hr.tibble.61 <- as_tibble(hr.response.61, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.61)
+
+# Group 62 =====================================================================
+
+hr.id.62 <- as.vector(houseframes[["62"]]$id)
+hr.query.62 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.62,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.62 <- adlib_get(params = hr.query.62, token = token)
+hr.tibble.62 <- as_tibble(hr.response.62, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.62)
+
+# Group 63 =====================================================================
+
+hr.id.63 <- as.vector(houseframes[["63"]]$id)
+hr.query.63 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.63,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.63 <- adlib_get(params = hr.query.63, token = token)
+hr.tibble.63 <- as_tibble(hr.response.63, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.63)
+
+# Group 64 =====================================================================
+
+hr.id.64 <- as.vector(houseframes[["64"]]$id)
+#hr.query.64 <- adlib_build_query(ad_reached_countries = 'US', 
+#                                 ad_active_status = 'ALL',
+#                                 search_page_ids = hr.id.64,
+#                                 ad_delivery_date_max = '2020-11-03',
+#                                 ad_delivery_date_min = '2020-01-01',
+#                                 limit = 5000,
+#                                 fields = "ad_data")
+#hr.response.64 <- adlib_get(params = hr.query.64, token = token)
+#hr.tibble.64 <- as_tibble(hr.response.64, type = "ad")
+# Another of our series of errors...
+hr.id.64.less <- hr.id.64[-8]
+hr.query.64.less <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.64.less,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.64.less <- adlib_get(params = hr.query.64.less, token = token)
+hr.tibble.64.less <- as_tibble(hr.response.64.less, type = "ad")
+# Tony Gonzales is the one missing
+fb.house <- rbind(fb.house, hr.tibble.64.less)
+# More than 5000...need another query.
+hr.query.64.less.2 <- adlib_build_query(ad_reached_countries = 'US', 
+                                      ad_active_status = 'ALL',
+                                      search_page_ids = hr.id.64.less,
+                                      ad_delivery_date_max = '2020-06-30',
+                                      ad_delivery_date_min = '2020-01-01',
+                                      limit = 5000,
+                                      fields = "ad_data")
+hr.response.64.less.2 <- adlib_get(params = hr.query.64.less.2, token = token)
+hr.tibble.64.less.2 <- as_tibble(hr.response.64.less.2, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.64.less.2)
+
+# Group 65 =====================================================================
+
+hr.id.65 <- as.vector(houseframes[["65"]]$id)
+#hr.query.65 <- adlib_build_query(ad_reached_countries = 'US', 
+#                                 ad_active_status = 'ALL',
+#                                 search_page_ids = hr.id.65,
+#                                 ad_delivery_date_max = '2020-11-03',
+#                                 ad_delivery_date_min = '2020-01-01',
+#                                 limit = 5000,
+#                                 fields = "ad_data")
+#hr.response.65 <- adlib_get(params = hr.query.65, token = token)
+#hr.tibble.65 <- as_tibble(hr.response.65, type = "ad")
+# Our same error is back...
+# Jaimy Z. Blanco
+hr.id.65.less <- hr.id.65[-9]
+hr.query.65 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.65.less,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.65 <- adlib_get(params = hr.query.65, token = token)
+hr.tibble.65 <- as_tibble(hr.response.65, type = "ad")
+
+fb.house <- rbind(fb.house, hr.tibble.65)
+
+# Group 66 =====================================================================
+
+hr.id.66 <- as.vector(houseframes[["66"]]$id)
+# Yet another of our error...
+# Genevieve Collins
+hr.id.66.less <- hr.id.66[-4]
+hr.query.66 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.66.less,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.66 <- adlib_get(params = hr.query.66, token = token)
+hr.tibble.66 <- as_tibble(hr.response.66, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.66)
+
+# Group 67 =====================================================================
+
+hr.id.67 <- as.vector(houseframes[["67"]]$id)
+hr.query.67 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.67,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.67 <- adlib_get(params = hr.query.67, token = token)
+hr.tibble.67 <- as_tibble(hr.response.67, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.67)
 
 
+# Group 68 =====================================================================
 
+hr.id.68 <- as.vector(houseframes[["68"]]$id)
+hr.query.68 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.68,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.68 <- adlib_get(params = hr.query.68, token = token)
+hr.tibble.68 <- as_tibble(hr.response.68, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.68)
+# Over 5,000...need another one
+hr.query.68.2 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.68,
+                                 ad_delivery_date_max = '2020-03-01',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.68.2 <- adlib_get(params = hr.query.68.2, token = token)
+hr.tibble.68.2 <- as_tibble(hr.response.68.2, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.68.2)
+
+# Group 69 =====================================================================
+
+hr.id.69 <- as.vector(houseframes[["69"]]$id)
+# Yet another of our error...two this time
+# Nicholas Betts, Donald Beyer
+hr.id.69.less <- hr.id.69[-c(5, 9)]
+hr.query.69 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.69.less,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.69 <- adlib_get(params = hr.query.69, token = token)
+hr.tibble.69 <- as_tibble(hr.response.69, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.69)
+
+# Group 70 =====================================================================
+
+hr.id.70 <- as.vector(houseframes[["70"]]$id)
+hr.query.70 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.70,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.70 <- adlib_get(params = hr.query.70, token = token)
+hr.tibble.70 <- as_tibble(hr.response.70, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.70)
+
+# Group 71 =====================================================================
+
+hr.id.71 <- as.vector(houseframes[["71"]]$id)
+hr.query.71 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.71,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.71 <- adlib_get(params = hr.query.71, token = token)
+hr.tibble.71 <- as_tibble(hr.response.71, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.71)
+
+# Group 72 =====================================================================
+
+hr.id.72 <- as.vector(houseframes[["72"]]$id)
+hr.query.72 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.72,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.72 <- adlib_get(params = hr.query.72, token = token)
+hr.tibble.72 <- as_tibble(hr.response.72, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.72)
+
+# Group 73 =====================================================================
+
+hr.id.73 <- as.vector(houseframes[["73"]]$id)
+hr.query.73 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.73,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.73 <- adlib_get(params = hr.query.73, token = token)
+hr.tibble.73 <- as_tibble(hr.response.73, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.73)
+
+# Group 74 =====================================================================
+
+hr.id.74 <- as.vector(houseframes[["74"]]$id)
+hr.query.74 <- adlib_build_query(ad_reached_countries = 'US', 
+                                 ad_active_status = 'ALL',
+                                 search_page_ids = hr.id.74,
+                                 ad_delivery_date_max = '2020-11-03',
+                                 ad_delivery_date_min = '2020-01-01',
+                                 limit = 5000,
+                                 fields = "ad_data")
+hr.response.74 <- adlib_get(params = hr.query.74, token = token)
+hr.tibble.74 <- as_tibble(hr.response.74, type = "ad")
+fb.house <- rbind(fb.house, hr.tibble.74)
+
+# Tests with our outliers ======================================================
+
+## Yvette Herrell, NM, 1750700000000000
+## Ted Budd, NC, 1585290000000000
+## Tony Gonzales, TX, 2146200000000000
+## Jaimy Z. Blanco, TX, 1773150000000000
+## Genevieve Collins, TX, 2338980000000000
+## Nicholas Betts, VA, 1911030000000000
+## Donald Beyer, VA, 1411980000000000
+
+# Seems to be the case that these page IDs got corrupted - I'll go searching
+# for them.
+
+herrell <- 1750699881894920
+herrell.query <- adlib_build_query(ad_reached_countries = 'US', 
+                                   ad_active_status = 'ALL',
+                                   search_page_ids = as.vector(herrell),
+                                   ad_delivery_date_max = '2020-11-03',
+                                   ad_delivery_date_min = '2020-01-01',
+                                   limit = 10000,
+                                   fields = "ad_data")
+herrell.response <- adlib_get(params = herrell.query, token = token)
+herrell.tibble <- as_tibble(herrell.response, type = "ad")
+
+herrell <- 1750699881894920
+budd <- 1585291608451100
+gonzales <- 2146201085498440
+blanco <- 1773152856029750
+collins <- 2338979479650120
+betts <- 1911027705653860
+beyer <- 1411983362382190
+
+id_vector <- as.vector(c(herrell, budd, gonzales, blanco, collins, betts, 
+                         beyer))
+
+query <- adlib_build_query(ad_reached_countries = 'US', 
+                           ad_active_status = 'ALL',
+                           search_page_ids = id_vector,
+                           ad_delivery_date_max = '2020-11-03',
+                           ad_delivery_date_min = '2020-01-01',
+                           limit = 5000,
+                           fields = "ad_data")
+
+response <- adlib_get(params = query, token = token)
+results.tibble <- as_tibble(response, type = "ad")
+
+fb.house <- rbind(fb.house, results.tibble)
+
+# Removing Duplicates, and Saving Data =========================================
+
+fb.house.distinct <- distinct(fb.house)
+
+save(fb.house.distinct, file = "data/raw/fb/fb-house-2020-ads.rda")
 
 # For Loop Experimentation =====================================================
 
@@ -1099,16 +1561,5 @@ for (i in testwith12df){
 
 
 
-# Group 74...see if this works... ==============================================
 
-hr.id.74 <- as.vector(houseframes[["74"]]$id)
-hr.query.74 <- adlib_build_query(ad_reached_countries = 'US', 
-                                 ad_active_status = 'ALL',
-                                 search_page_ids = hr.id.74,
-                                 ad_delivery_date_max = '2020-11-03',
-                                 ad_delivery_date_min = '2020-01-01',
-                                 limit = 5000,
-                                 fields = "ad_data")
-hr.response.74 <- adlib_get(params = hr.query.74, token = token)
-hr.tibble.74 <- as_tibble(hr.response.74, type = "ad")
 
