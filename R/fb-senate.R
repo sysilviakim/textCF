@@ -26,7 +26,7 @@ senate_list <- senate %>%
 
 # Run FB Graph API =============================================================
 fname <- here("data", "raw", "fb", "fb-senate-raw-ads-2020.Rda")
-if (!file.exists(fname)) {
+if (file.exists(fname)) {
   load(fname)
 } else {
   fb_senate <- vector("list", length(senate_list))

@@ -52,7 +52,7 @@ house_list <- house %>%
 
 # Run FB Graph API =============================================================
 fname <- here("data", "raw", "fb", "fb-house-raw-ads-2020.Rda")
-if (!file.exists(fname)) {
+if (file.exists(fname)) {
   load(fname)
 } else {
   fb_house <- vector("list", length(house_list))
