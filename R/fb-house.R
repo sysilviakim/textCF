@@ -47,6 +47,7 @@ assert_that(!any(is.na(house$id)))
 ## Group by ID but name with candidate
 house_list <- house %>%
   group_by(id) %>%
+  slice(1) %>% 
   group_split() %>%
   `names<-`({.} %>% map(~ .x$candidate[1]) %>% unlist())
 
@@ -109,18 +110,20 @@ for (i in idx_retry) {
   ## Run by two months intervals then combine the rows
   for (x in seq(length(date_breaks) - 1)) {
     fb_senate[[cand]][[x]] <- fb_short(
-      id = idx, token = token, limit = 1e7,
+      id = idx, token = token, 
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
     if (!is.null(nrow(fb_senate[[cand]][[x]]$tbl))) {
       assert_that(nrow(fb_senate[[cand]][[x]]$tbl) < 5000)
+      message(paste0("2 mo interval starting from ", date_breaks[x], " done."))
+      message(paste0("Number of rows was ", nrow(fb_senate[[cand]][[x]]$tbl)))
     }
-    message(paste0("2 month interval starting from ", date_breaks[x], " done."))
     Sys.sleep(5)
   }
   fb_senate[[cand]]$tbl <- fb_senate[[cand]] %>% map("tbl") %>% bind_rows()
   assert_that(!is.null(fb_senate[[cand]]))
+  assert_that(nrow(fb_senate[[cand]]$tbl) > 5000)
   save(fb_senate, file = fname)
   message(paste0("Finished for ", cand, ", ", senate_list[[i]]$state, "."))
 }
