@@ -1,16 +1,9 @@
-# Basics =======================================================================
-
-## Download and load any necessary packages
-# install.packages("devtools")
-# devtools::install_github("facebookresearch/Radlibrary")
-library(Radlibrary)
-
 # Setup ========================================================================
+source(here::here("R", "utilities.R"))
 
 # Copy the token directly from the Facebook Ad Library (will be under the
 # 'Graph API Explorer' tool). Paste it into the console when prompted. Token
 # will expire within an hour(?) of generation, so be mindful of that.
-# For me, it is no more than an hour
 token <- readline()
 
 # Data Wrangling ===============================================================
