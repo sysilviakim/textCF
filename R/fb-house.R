@@ -123,3 +123,6 @@ for (i in idx_retry) {
   save(fb_house, file = fname)
   message(paste0("Finished for ", cand, ", ", house_list[[i]]$state, "."))
 }
+
+# Final check ==================================================================
+fb_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()

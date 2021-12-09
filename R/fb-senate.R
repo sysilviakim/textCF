@@ -100,3 +100,6 @@ for (i in idx_retry) {
   save(fb_senate, file = fname)
   message(paste0("Finished for ", cand, ", ", senate_list[[i]]$state, "."))
 }
+
+# Final check ==================================================================
+fb_senate %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
