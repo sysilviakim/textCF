@@ -89,7 +89,7 @@ for (i in idx_retry) {
     )
     if (!is.null(nrow(fb_senate[[cand]][[x]]$tbl))) {
       assert_that(nrow(fb_senate[[cand]][[x]]$tbl) < 5000)
-      message(paste0("2 mo interval starting from ", date_breaks[x], " done."))
+      message(paste0("1mo interval starting from ", date_breaks[x], " done."))
       message(paste0("Number of rows was ", nrow(fb_senate[[cand]][[x]]$tbl)))
     }
     Sys.sleep(5)

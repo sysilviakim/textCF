@@ -99,7 +99,8 @@ idx_retry <- house_list %>%
   which()
 
 date_breaks <- c(
-  seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "1 month"),
+  ## Due to AOC, 1mo not sufficiently small interval
+  seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "2 weeks"),
   as.Date("2020-12-31")
 )
 for (i in idx_retry) {
@@ -115,7 +116,7 @@ for (i in idx_retry) {
     )
     if (!is.null(nrow(fb_house[[cand]][[x]]$tbl))) {
       assert_that(nrow(fb_house[[cand]][[x]]$tbl) < 5000)
-      message(paste0("2 mo interval starting from ", date_breaks[x], " done."))
+      message(paste0("1mo interval starting from ", date_breaks[x], " done."))
       message(paste0("Number of rows was ", nrow(fb_house[[cand]][[x]]$tbl)))
     }
     Sys.sleep(5)
