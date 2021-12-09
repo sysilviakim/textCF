@@ -45,5 +45,6 @@ R/old/*
 # Discussion results
 fig/*.JPG
 doc/*.JPG
+data/fb_graph_api_token
 
 .DS_Store

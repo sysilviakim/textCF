@@ -1177,8 +1177,9 @@ save_text_df <- function(platform) {
 }
 
 fb_short <- function(id, token, fields = "ad_data",
-                           max_date = "2020-12-31",
-                           min_date = "2019-01-01") {
+                     max_date = "2020-12-31",
+                     min_date = "2019-01-01",
+                     limit = 5000) {
   query <- adlib_build_query(
     ad_reached_countries = "US",
     ad_active_status = "ALL",
@@ -1186,7 +1187,7 @@ fb_short <- function(id, token, fields = "ad_data",
     search_page_ids = id,
     ad_delivery_date_max = max_date,
     ad_delivery_date_min = min_date,
-    limit = 5000,
+    limit = limit,
     fields = fields
   )
   resp <- adlib_get(params = query, token = token)
