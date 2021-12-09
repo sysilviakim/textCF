@@ -19,6 +19,7 @@ library(xml2)
 library(caret)
 library(RSelenium)
 library(netstat)
+library(Radlibrary)
 
 ## devtools::install_github("hrbrmstr/wayback")
 library(wayback)
@@ -119,22 +120,6 @@ image_download <- function(dat, image, name, pathway) {
   }
 }
 
-fb_query_short <- function(idx,
-                           fields = "ad_data",
-                           ad_delivery_date_max = "2020-11-30",
-                           limit = 1e7) {
-  query <- adlib_build_query(
-    ad_reached_countries = "US",
-    ad_active_status = "ALL",
-    ad_type = "POLITICAL_AND_ISSUE_ADS",
-    ## Notice that for list creation purposes, idx is still character
-    search_page_ids = as.numeric(idx),
-    fields = fields,
-    ad_delivery_date_max = ad_delivery_date_max,
-    limit = limit
-  )
-}
-
 actblue_wrangle <- function(input) {
   ## Unused parts ==============================================================
   js_rest <- input$js_rest
@@ -156,7 +141,7 @@ actblue_wrangle <- function(input) {
       unnest(cols = c(entities), names_repair = "unique") %>%
       filter(
         ## https://www.secure.actblue.com/donate/moultonlf2019
-        (kind == "candidate" | kind == "jointcommittee") & 
+        (kind == "candidate" | kind == "jointcommittee") &
           `federal?` == TRUE
       )
   } else {
@@ -340,7 +325,7 @@ actblue_wrangle <- function(input) {
     dedup() %>%
     ## Delete, for now, the list data types
     select(
-      -matches("^fundraising_video$"), 
+      -matches("^fundraising_video$"),
       -matches("^relevant_surrogate_keys$"),
       -matches("^share_content$"),
       -matches("^list_disclaimer_policy$"),
@@ -419,57 +404,56 @@ ngp_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@class="at-markup HeaderHtml"]') %>% 
+    html_nodes(xpath = '//*[@class="at-markup HeaderHtml"]') %>%
     html_text()
-  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>% 
+  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page logo
   landing_logo <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="at-banner"]') %>%
     html_nodes("img") %>%
     html_attr("src")
   if (length(landing_logo) == 0) landing_logo <- ""
-  
+
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="at-markup FooterHtml clearfix"]') %>%
     html_text()
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="at-radio"]') %>%
     html_nodes("label") %>%
     html_attr("title") %>%
-    map(~ gsub("\n", "", .x)) %>% 
-    unlist() %>% 
+    map(~ gsub("\n", "", .x)) %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
@@ -478,12 +462,12 @@ ngp_select_text <- function(url) {
       footer = landing_footer,
       logo = landing_logo
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -495,50 +479,49 @@ raisethemoney_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@class="paper_new"]') %>% 
+    html_nodes(xpath = '//*[@class="paper_new"]') %>%
     html_text()
-  landing_text <- gsub("\n", "", landing_text) %>% 
+  landing_text <- gsub("\n", "", landing_text) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="space-top-small markdown contribution-terms text-black"]') %>%
     html_text()
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="contribution-amount"]') %>%
     html_nodes("label") %>%
     html_text() %>%
     map(~ gsub("\n", "", .x)) %>%
-    unlist() %>% 
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
@@ -546,7 +529,7 @@ raisethemoney_select_text <- function(url) {
       text = landing_text,
       footer = landing_footer
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
@@ -562,46 +545,45 @@ clickandpledge_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="amount-buttons row margin-top-10"]') %>%
     html_nodes("button") %>%
     html_text() %>%
     map(~ gsub("\n", "", .x))
-  contribution_amounts <- contribution_amounts[c(1:5)] %>% 
-    unlist() %>% 
+  contribution_amounts <- contribution_amounts[c(1:5)] %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
       amounts = contribution_amounts
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -612,54 +594,53 @@ transaxt_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="compliance legal-text"]') %>%
     html_text()
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="control"]') %>%
     html_nodes("label") %>%
     html_text() %>%
-    map(~ gsub("\n", "", .x)) %>% 
-    unlist() %>% 
+    map(~ gsub("\n", "", .x)) %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
       amounts = contribution_amounts,
       footer = landing_footer
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -671,52 +652,51 @@ donorbox_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text_title <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@class="columns campaign-columns"]') %>% 
+    html_nodes(xpath = '//*[@class="columns campaign-columns"]') %>%
     html_text()
-  landing_text_description <- read_html(remote$getPageSource()[[1]]) %>% 
-    html_nodes(xpath = '//*[@class="donor-campaign-details fr-view"]') %>% 
+  landing_text_description <- read_html(remote$getPageSource()[[1]]) %>%
+    html_nodes(xpath = '//*[@class="donor-campaign-details fr-view"]') %>%
     html_text()
   landing_text <- paste(landing_text_title, landing_text_description)
-  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>% 
+  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page logo
   landing_logo <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="org-logo"]') %>%
     html_attr("src")
   if (length(landing_logo) == 0) landing_logo <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="amount-item suggested-amount-item"]') %>%
     html_nodes(xpath = '//*[@class="amount"]') %>%
     html_text() %>%
-    map(~ gsub("\n", "", .x)) %>% 
-    unlist() %>% 
+    map(~ gsub("\n", "", .x)) %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
@@ -724,12 +704,12 @@ donorbox_select_text <- function(url) {
       text = landing_text,
       logo = landing_logo
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -741,57 +721,56 @@ authorize_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@id="spnMerchantHTMLHeader"]') %>% 
+    html_nodes(xpath = '//*[@id="spnMerchantHTMLHeader"]') %>%
     html_text()
-  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>% 
+  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page footer
   landing_footer_compliance <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@id="spnItemDescription3"]') %>% 
+    html_nodes(xpath = '//*[@id="spnItemDescription3"]') %>%
     html_text()
-  landing_footer_note <- read_html(remote$getPageSource()[[1]]) %>% 
-    html_nodes(xpath = '//*[@id="spnMerchantHTMLFooter"]') %>% 
+  landing_footer_note <- read_html(remote$getPageSource()[[1]]) %>%
+    html_nodes(xpath = '//*[@id="spnMerchantHTMLFooter"]') %>%
     html_text()
   landing_footer <- paste(landing_footer_compliance, landing_footer_note)
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
       text = landing_text,
       footer = landing_footer
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -803,59 +782,58 @@ piryx_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@id="page"]') %>% 
-    html_nodes(xpath = '//*[@id="heading"]') %>% 
+    html_nodes(xpath = '//*[@id="page"]') %>%
+    html_nodes(xpath = '//*[@id="heading"]') %>%
     html_text()
-  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>% 
+  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page logo
   landing_logo <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@id="logo"]') %>%
     html_nodes("img") %>%
     html_attr("src")
   if (length(landing_logo) == 0) landing_logo <- ""
-  
+
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@id="legal-compliance"]') %>%
     html_text()
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="piryx-donation-form"]') %>%
-    html_nodes(xpath = '//*[@id="amount"]') %>% 
-    html_nodes(xpath = '//*[@class="amount"]') %>% 
+    html_nodes(xpath = '//*[@id="amount"]') %>%
+    html_nodes(xpath = '//*[@class="amount"]') %>%
     html_text() %>%
-    map(~ gsub("\n", "", .x)) %>% 
-    unlist() %>% 
+    map(~ gsub("\n", "", .x)) %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
@@ -864,12 +842,12 @@ piryx_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -881,57 +859,56 @@ numero_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@class="col-md-5"]') %>% 
+    html_nodes(xpath = '//*[@class="col-md-5"]') %>%
     html_text()
-  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>% 
+  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page logo
   landing_logo <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="col-xl-3 col-md-5 col-sm-7 col-8"]') %>%
     html_nodes("img") %>%
     html_attr("src")
   if (length(landing_logo) == 0) landing_logo <- ""
-  
+
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="pt-1 card-body"]') %>%
     html_text()
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="card-body"]') %>%
-    html_nodes("button") %>% 
+    html_nodes("button") %>%
     html_text() %>%
-    map(~ gsub("\n", "", .x)) %>% 
-    unlist() %>% 
+    map(~ gsub("\n", "", .x)) %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
@@ -940,12 +917,12 @@ numero_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -957,60 +934,59 @@ efundraising_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@class="efund_title"]') %>% 
+    html_nodes(xpath = '//*[@class="efund_title"]') %>%
     html_text()
-  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>% 
+  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page logo
   landing_logo <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="efund_title"]') %>%
     html_nodes("img") %>%
     html_attr("src")
   if (length(landing_logo) == 0) landing_logo <- ""
-  
+
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(
-      xpath = 
+      xpath =
         '//*[@class="efund-form-col col-sm-12 col-md-10 col-lg-8 col-xl-6"]'
     ) %>%
     html_text()
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="card-body"]') %>%
     html_nodes(xpath = '//*[@class="efund_PaymentOptionItem"]') %>%
     html_attr("data-amount") %>%
-    map(~ gsub("\n", "", .x)) %>% 
-    unlist() %>% 
+    map(~ gsub("\n", "", .x)) %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
@@ -1019,12 +995,12 @@ efundraising_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -1036,66 +1012,65 @@ fundhero_select_text <- function(url) {
   rs <- rsDriver(browser = "firefox", port = netstat::free_port())
   remote <- rs$client
   remote$navigate(url)
-  
+
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
-  
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
+
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@class="p20"]') %>% 
-    html_nodes("h1") %>% 
+    html_nodes(xpath = '//*[@class="p20"]') %>%
+    html_nodes("h1") %>%
     html_text()
-  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>% 
+  landing_text <- gsub("\n", "", gsub("\t", "", landing_text)) %>%
     trimws()
   if (length(landing_text) == 0) landing_text <- ""
-  
+
   ## Landing page logo
   landing_logo <- read_html(remote$getPageSource()[[1]]) %>%
-    html_nodes(xpath = '//*[@class="img-wrapper"]') %>% 
+    html_nodes(xpath = '//*[@class="img-wrapper"]') %>%
     html_nodes(xpath = '//*[@class="hero img-child"]') %>%
     html_attr("style")
   landing_logo <- landing_logo[1]
-  
+
   url_pattern <- paste0(
-    "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|", 
+    "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|",
     "[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
   )
-    
+
   landing_logo <- str_extract(landing_logo, url_pattern)
   landing_logo <- sub("\\).*", "", landing_logo)
   if (length(landing_logo) == 0) landing_logo <- ""
-  
+
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="middle2"]') %>%
     html_text()
-  landing_footer <- gsub("\n", "", landing_footer) %>% 
+  landing_footer <- gsub("\n", "", landing_footer) %>%
     trimws()
   if (length(landing_footer) == 0) landing_footer <- ""
-  
+
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
     html_nodes(xpath = '//*[@class="buttons-container"]') %>%
     html_nodes(xpath = '//*[@class="g-btn"]') %>%
-    map(~ gsub("\n", "", .x)) %>% 
-    unlist() %>% 
+    map(~ gsub("\n", "", .x)) %>%
+    unlist() %>%
     toString()
-  
+
   ## Preparing output
   out <- meta_data %>%
     mutate(name = coalesce(name, property)) %>%
     filter(!is.na(name)) %>%
     select(-property) %>%
     pivot_wider(values_from = content) %>%
-    janitor::clean_names() 
-  
+    janitor::clean_names()
+
   out <- tibble(url = url, date = Sys.Date())
   out <- out %>%
     mutate(
@@ -1104,12 +1079,12 @@ fundhero_select_text <- function(url) {
       amounts = contribution_amounts,
       logo = landing_logo
     )
-  
+
   remote$close()
   rs[["server"]]$stop()
   rm(rs)
   gc(reset = TRUE)
-  
+
   return(out)
 }
 
@@ -1117,13 +1092,13 @@ ngpvan_select_text <- function(url) {
   ## secure.ngpvan.com
   out <- httr::GET(url)
   out <- httr::content(out)
-  
+
   designation <- out$designation
   out$designation <- NULL
   out$form_elements <- NULL ## too many, skip
   out$metadata <- NULL ## similarly unnecessary
   out$url <- NULL
-  
+
   out <- out %>%
     imap(~ tibble(!!as.name(.y) := .x)) %>%
     bind_cols() %>%
@@ -1135,11 +1110,11 @@ ngpvan_select_text <- function(url) {
       bind_cols() %>%
       clean_names() %>%
       rename(designation_name = name)
-    
+
     out <- out %>%
       bind_cols(., designation)
   }
-  
+
   return(out)
 }
 
@@ -1151,19 +1126,19 @@ minor_platforms <- function(cong, platform) {
         if (nrow(df) > 1) {
           out <- vector(mode = "list", length = nrow(df))
           fp <- here("data", "raw", "wayback", .y, "html")
-          
+
           for (x in seq(nrow(df))) {
             tryCatch(
               {
                 out[[x]] <-
                   get(eval(paste0(platform, "_select_text")))((df$link[x])) %>%
                   select(-matches("^date$"))
-                
+
                 if ("url" %in% names(out[[x]])) {
                   out[[x]] <- out[[x]] %>%
                     rename(link = url)
                 }
-                
+
                 out[[x]] <- out[[x]] %>%
                   bind_cols(., df[x, c("url")]) %>%
                   select(url, -matches("^link$"), everything())
@@ -1172,12 +1147,12 @@ minor_platforms <- function(cong, platform) {
                 message(e)
               }
             )
-            
+
             if ((x %% 50 == 0) | x == nrow(df)) {
               save(
                 out,
                 file = here(
-                  "data/raw", 
+                  "data/raw",
                   paste0(platform, "_text_", .y, "_list.Rda")
                 )
               )
@@ -1199,6 +1174,24 @@ save_text_df <- function(platform) {
         bind_rows() %>%
         clean_names()
     )
+}
+
+fb_short <- function(id, token, fields = "ad_data",
+                           max_date = "2020-12-31",
+                           min_date = "2019-01-01") {
+  query <- adlib_build_query(
+    ad_reached_countries = "US",
+    ad_active_status = "ALL",
+    ## ad_type = "POLITICAL_AND_ISSUE_ADS", ---> this is implicit
+    search_page_ids = id,
+    ad_delivery_date_max = max_date,
+    ad_delivery_date_min = min_date,
+    limit = 5000,
+    fields = fields
+  )
+  resp <- adlib_get(params = query, token = token)
+  out <- as_tibble(resp, type = "ad")
+  return(list(query = query, resp = resp, tbl = out))
 }
 
 # Wayback-specific Functions ===================================================
@@ -1462,7 +1455,7 @@ winred_text_scrape <- function(x) {
   landing_text <- read_html(x) %>%
     html_nodes(".landing-page-paragraph") %>%
     html_text()
-  
+
   landing_text <- gsub("\\s+", " ", gsub("\n", " ", landing_text)) %>%
     trimws() %>%
     unique()
@@ -1495,10 +1488,10 @@ winred_text_scrape <- function(x) {
 
   if (nrow(out) == 1 & length(landing_text) > 1) {
     ## crenshaw; two landing paragraphs
-    landing_text <- 
+    landing_text <-
       landing_text[which(nchar(landing_text) == max(nchar(landing_text)))]
   }
-  
+
   out <- out %>%
     mutate(
       text = landing_text,
@@ -1557,7 +1550,7 @@ anedot_text_scrape <- function(x) {
     keep(~ !is.null(.x)) %>%
     unlist() %>%
     unique()
-  
+
   if (length(landing_bgimg) == 0) landing_bgimg <- ""
 
   # Skip footer
