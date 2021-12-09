@@ -79,6 +79,9 @@ for (i in seq(length(house_list))) {
   message(paste0("Row ", i, " out of ", length(house_list), "."))
 }
 
+# fb_house$`C. ANTONIO DELGADO`$tbl <- 
+#   fb_house$`C. ANTONIO DELGADO` %>% map("tbl") %>% bind_rows() %>% dedup()
+
 # Which candidates go over 5,000? ==============================================
 vec <- fb_house %>%
   map("tbl") %>%
