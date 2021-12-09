@@ -1190,7 +1190,11 @@ fb_short <- function(id, token, fields = "ad_data",
     fields = fields
   )
   resp <- adlib_get(params = query, token = token)
-  out <- as_tibble(resp, type = "ad")
+  if (length(resp$data) > 0) {
+    out <- as_tibble(resp, type = "ad")
+  } else {
+    out <- NULL
+  }
   return(list(query = query, resp = resp, tbl = out))
 }
 
