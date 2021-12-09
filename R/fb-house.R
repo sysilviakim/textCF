@@ -77,3 +77,51 @@ for (i in seq(length(house_list))) {
   message(paste0("Finished for ", cand, ", ", house_list[[i]]$state, "."))
   message(paste0("Row ", i, " out of ", length(house_list), "."))
 }
+
+# Which candidates go over 5,000? ==============================================
+vec <- fb_senate %>%
+  map("tbl") %>%
+  map(nrow) %>% 
+  ## map_lgl gives type compliance errors:
+  ## must be a single logical, not a logical vector of length 0
+  map(~ .x >= 5000) %>%
+  unlist() %>%
+  which() %>%
+  names()
+
+idx_retry <- senate_list %>% 
+  map("candidate") %>%
+  map_lgl(~ .x %in% vec) %>%
+  which()
+
+# [1] "AMY MCGRATH"          "CAL CUNNINGHAM"       "MARK KELLY"          
+# [4] "LINDSEY GRAHAM"       "SARA I. GIDEON"       "CORY BOOKER"         
+# [7] "JEFF MERKLEY"         "JOHN W. HICKENLOOPER"
+
+date_breaks <- c(
+  seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "2 months"),
+  as.Date("2020-12-31")
+)
+for (i in idx_retry) {
+  idx <- senate_list[[i]]$id
+  cand <- senate_list[[i]]$candidate
+  fb_senate[[cand]] <- list() 
+  ## Run by two months intervals then combine the rows
+  for (x in seq(length(date_breaks) - 1)) {
+    fb_senate[[cand]][[x]] <- fb_short(
+      id = idx, token = token, limit = 1e7,
+      min_date = date_breaks[x],
+      max_date = date_breaks[x + 1]
+    )
+    if (!is.null(nrow(fb_senate[[cand]][[x]]$tbl))) {
+      assert_that(nrow(fb_senate[[cand]][[x]]$tbl) < 5000)
+    }
+    message(paste0("2 month interval starting from ", date_breaks[x], " done."))
+    Sys.sleep(5)
+  }
+  fb_senate[[cand]]$tbl <- fb_senate[[cand]] %>% map("tbl") %>% bind_rows()
+  assert_that(!is.null(fb_senate[[cand]]))
+  save(fb_senate, file = fname)
+  message(paste0("Finished for ", cand, ", ", senate_list[[i]]$state, "."))
+}
+
