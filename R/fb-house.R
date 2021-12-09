@@ -6,22 +6,16 @@ source(here::here("R", "utilities.R"))
 # will expire within an hour(?) of generation, so be mindful of that.
 token <- readline()
 
-# Data Wrangling ===============================================================
+# Data Importing/wrangling =====================================================
+house <- read_csv(
+  here("data", "raw", "fb", "fb-house.csv"), col_types = cols(.default = "c")
+) %>%
+  select(candidate, state, id = fb_ad_library_id) %>%
+  ## 868 ---> 736
+  filter(!is.na(id))
 
-fb_house <- read.csv("data/raw/fb/fb-house.csv")
-housedat <- as.data.frame(cbind(
-  fb_house$candidate, fb_house$state,
-  fb_house$fb_ad_library_id
-))
-colnames(housedat) <- c("candidate", "state", "id")
-housedat$id <- as.numeric(housedat$id)
-housedat <- housedat[!is.na(housedat$id), ] # Takes us from 868 to 736
-# Now, the rub is that the Radlibrary will only accept 10 page IDs at a time.
-# So, we should split this dataframe up into 74 dataframes with rows of 10.
-houseframes <- split(housedat, rep(1:74, each = 10))
-# It gave a warning that the data length is not a multiple of the split
-# variable, but it's okay - the 74th dataframe has a length of 6 rows.
-# housedat.01 <- houseframes[["1"]]
+## Radlibrary will only accept 10 page IDs at a time
+house_list <- split(house, rep(seq(nrow(house) %/% 10 + 1), each = 10))
 
 # Missing Candidates ===========================================================
 

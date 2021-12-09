@@ -7,18 +7,15 @@ source(here::here("R", "utilities.R"))
 token <- readline()
 
 # Data Wrangling ===============================================================
+senate <- read_csv(
+  here("data", "raw", "fb", "fb-senate.csv"), col_types = cols(.default = "c")
+) %>%
+  select(candidate, state, id = fb_ad_library_id) %>%
+  ## 75 ---> 72
+  filter(!is.na(id))
 
-fb_senate <- read.csv("data/raw/fb/fb-senate.csv")
-senatedat <- as.data.frame(cbind(
-  fb_senate$candidate, fb_senate$state,
-  fb_senate$fb_ad_library_id
-))
-colnames(senatedat) <- c("candidate", "state", "id")
-senatedat$id <- as.numeric(senatedat$id)
-senatedat <- senatedat[!is.na(senatedat$id), ] # Takes us from 75 to 72
-senateframes <- split(senatedat, rep(1:8, each = 10))
-# We splilt the data into frames with a maximum of 10 members per frame
-# because we can only query the ads for ten pages at a time.
+## Radlibrary will only accept 10 page IDs at a time
+senate_list <- split(senate, rep(seq(nrow(senate) %/% 10 + 1), each = 10))
 
 
 senate1ids <- as.vector(senateframes[["1"]]$id)
