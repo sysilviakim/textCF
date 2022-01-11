@@ -91,9 +91,6 @@ FBH_forAnalysis <- FBH_forAnalysis %>%
     is.na(ad_creative_link_caption) ~ "Non-financial"
   ))
 
-FBH_forAnalysis %>% filter(party=="REPUBLICAN",
-                           type=="ActBlue") %>% count(page_name)
-
 
 
 ################
