@@ -18,14 +18,6 @@ rm(fb_senate)
 
 # Text is in "ad_creative_body":
 
-FBH %>% filter(!is.na(ad_creative_body)) %>%
-          filter(ad_creative_link_caption == "secure.actblue.com" |
-                 ad_creative_link_caption == "secure.winred.com" | 
-               is.na(ad_creative_link_caption)) %>%
-  group_by(ad_creative_link_caption) %>%
-  sample_n(10) %>%
-  select(ad_creative_link_caption,ad_creative_body)
-
 FBH_unique <- 
   FBH %>% 
   select(page_id,
@@ -72,7 +64,19 @@ FBH_forAnalysis <- left_join(FBH_unique,
                  covariates_house %>% mutate(page_id = as.character(fb_ad_library_id))) %>%
                                       filter(ad_creative_body != "")
 
+# A Manual fix:
+# Given that Antonio Delgado duplicates appear (with wrong PID), drop those rows
+FBH_forAnalysis <- FBH_forAnalysis %>%
+  mutate(toDrop = ifelse(page_name=="Antonio Delgado" & party == "REPUBLICAN",1,0)) %>%
+  filter(toDrop==0) %>%
+  dplyr::select(-toDrop)
 
+
+################
+# Label ad types 
+# [here we currently exclude some donation solicitations 
+# - i.e. when major conduits are not used]
+################
 FBS_forAnalysis <- FBS_forAnalysis %>%
   mutate(type = case_when(
     ad_creative_link_caption == "secure.actblue.com" ~ "ActBlue",
@@ -87,13 +91,10 @@ FBH_forAnalysis <- FBH_forAnalysis %>%
     is.na(ad_creative_link_caption) ~ "Non-financial"
   ))
 
-# FBH %>% filter(!is.na(ad_creative_body)) %>%
-#   filter(ad_creative_link_caption == "secure.actblue.com" |
-#            ad_creative_link_caption == "secure.winred.com" | 
-#            is.na(ad_creative_link_caption)) %>%
-#   group_by(ad_creative_link_caption) %>%
-#   sample_n(10) %>%
-#   select(ad_creative_link_caption,ad_creative_body) %>% View()
+FBH_forAnalysis %>% filter(party=="REPUBLICAN",
+                           type=="ActBlue") %>% count(page_name)
+
+
 
 ################
 # BUILD A CORPUS
