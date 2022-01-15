@@ -8,9 +8,11 @@ library(rvest)
 library(quanteda)
 library(quanteda.textplots)
 library(quanteda.textstats)
+library(quanteda.dictionaries)
 
 # Other packages ===============================================================
 library(here)
+library(ggpubr)
 library(janitor)
 library(assertthat)
 library(stringdist)
