@@ -9,6 +9,7 @@ library(quanteda)
 library(quanteda.textplots)
 library(quanteda.textstats)
 library(quanteda.dictionaries)
+## https://muellerstefan.net/files/quanteda-cheatsheet.pdf
 
 # Other packages ===============================================================
 library(here)
