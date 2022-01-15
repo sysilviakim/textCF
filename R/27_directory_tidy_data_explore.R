@@ -6,28 +6,30 @@ load(here("data/tidy/winred_federal_2022.Rda"))
 load("data/raw/2022/actblue/actblue_js_scraped.Rda") ## large nested data!
 load("data/raw/2022/winred/winred_text_scraped.Rda")
 
-# Extract blurbs ===============================================================
+# ActBlue process and analyze ==================================================
+## Extract blurbs --------------------------------------------------------------
 TIB <- actblue_js_full$js_rest
 tcf <- TIB %>% select(title, contribution_blurb)
 
-# We want to connect text of blurbs with entities
-# ISSUE: There appear to be multiple buyers in some cases.
-# SOLUTION: When there are multiple display names, just grab the first one:
+## Merge entity data -----------------------------------------------------------
+## We want to connect text of blurbs with entities
+## ISSUE: There appear to be multiple buyers in some cases.
+## SOLUTION: When there are multiple display names, just grab the first one:
 display_name <- map(actblue_js_full$entities, "display_name") %>% map(1)
 
-# NB: Before unlisting, must replace NULLs with NAs
-# [otherwise the vector will be too short for proper column-binding later]
+## NB: Before unlisting, must replace NULLs with NAs
+## [otherwise the vector will be too short for proper column-binding later]
 display_name[sapply(display_name, is.null)] <- NA
 display_name <- unlist(display_name)
 
-# Merge data ===================================================================
-# Join the burbs with the candidate/PACs
+## Join the burbs with the candidate/PACs
 tcf <- cbind(tcf, display_name)
 
-# Text processing ==============================================================
-# Now unleash quanteda
+## Text processing -------------------------------------------------------------
+## Now unleash quanteda: building corpus
 corp <- corpus(tcf, text_field = "contribution_blurb")
 
+## tokens object
 toks <- corp %>%
   tokens(
     remove_url = TRUE,
@@ -37,10 +39,10 @@ toks <- corp %>%
   tokens_remove(removing_tokens) %>%
   tokens_tolower()
 
-# Document feature matrix:
+## Document feature matrix:
 DFM <- dfm(toks)
 
-# Preliminary results ==========================================================
+## Summary results -------------------------------------------------------------
 # How often do they use fighting words?
 DFM[, c("fight")] %>% sum()
 DFM[, c("defeat")] %>% sum()
@@ -66,7 +68,7 @@ DFM[, c("destroying")] %>% sum()
 set.seed(84104)
 textplot_wordcloud(DFM_trimmed)
 
-# Make a comparison cloud ======================================================
+## Make a comparison cloud -----------------------------------------------------
 corpus_subset(
   corp,
   display_name %in% 
@@ -84,7 +86,7 @@ corpus_subset(
   dfm_trim(min_termfreq = 3, verbose = FALSE) %>%
   textplot_wordcloud(comparison = TRUE)
 
-# Frequency of organizations / people [top 50] =================================
+## Frequency of organizations/candidates [top 50] ------------------------------
 tcf %>%
   filter(!is.na(display_name)) %>%
   group_by(display_name) %>%
@@ -97,10 +99,10 @@ tcf %>%
     axis.text.x = element_text(angle = 90, hjust = 1),
     text = element_text(size = 14)
   ) +
-  labs(subtitle = "Top 50 orgs / people", x = "", y = "") +
+  labs(subtitle = "Top 50 Organizations/Candidates", x = "", y = "") +
   coord_flip()
 
-# Frequency of word ============================================================
+## Frequency of words ----------------------------------------------------------
 topF <- textstat_frequency(DFM, n = 75)
 
 # Sort by reverse freq
@@ -112,4 +114,4 @@ ggplot(topF, aes(x = feature, y = frequency)) +
     axis.text.x = element_text(angle = 90, hjust = 1),
     text = element_text(size = 14)
   ) +
-  labs(subtitle = "Top 75 features in the campaign blurbs")
+  labs(subtitle = "Top 75 Features in ActBlue Solicitation Texts")
