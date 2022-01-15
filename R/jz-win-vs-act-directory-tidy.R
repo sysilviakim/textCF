@@ -1,4 +1,4 @@
-source(here::here("R", "utilties.R"))
+source(here::here("R", "utilities.R"))
 load(here("data/tidy/actblue_federal_2022.Rda"))
 load(here("data/tidy/winred_federal_2022.Rda"))
 load("data/raw/2022/actblue/actblue_js_scraped.Rda")
@@ -10,15 +10,14 @@ names(winred_text)
 
 act_blurb <- actblue_js_full$js_rest$contribution_blurb
 
-# Get text from ActBlue
+## Building a corpus from ActBlue blurbs ---------------------------------------
 c1 <- corpus(act_blurb)
 
-# Get text and other data from WinRed
+## Get text and other data from WinRed -----------------------------------------
 c2 <- corpus(
   winred_text %>%
     select(
-      description,
-      short_text = text,
+      description, short_text = text,
       name, og_description, text_field = "description"
     )
 )
