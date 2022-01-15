@@ -1,9 +1,4 @@
-# renv::restore() 
-
-library(tidyverse)
-library(here)
-library(ggpubr)
-library(quanteda)
+source(here::here("R", "utilities.R"))
 
 # READ IN TEXT DATA:
 
@@ -18,63 +13,79 @@ rm(fb_senate)
 
 # Text is in "ad_creative_body":
 
-FBH_unique <- 
-  FBH %>% 
-  select(page_id,
-         page_name,
-         ad_creative_body,
-         ad_creative_link_caption) %>%
-  distinct() 
+FBH_unique <-
+  FBH %>%
+  select(
+    page_id,
+    page_name,
+    ad_creative_body,
+    ad_creative_link_caption
+  ) %>%
+  distinct()
 
-FBS_unique <- 
-  FBS %>% 
-  select(page_id,
-         page_name,
-         ad_creative_body,
-         ad_creative_link_caption) %>%
+FBS_unique <-
+  FBS %>%
+  select(
+    page_id,
+    page_name,
+    ad_creative_body,
+    ad_creative_link_caption
+  ) %>%
   distinct()
 
 
 covariates_house <- read_csv(here("data/raw/fb/fb-house.csv")) %>%
   mutate(voteshare = candidatevotes / totalvotes) %>%
-  select(fb_ad_library_id,
-         candidate,
-         voteshare,
-         party,
-         office,
-         state_po,
-         year)
+  select(
+    fb_ad_library_id,
+    candidate,
+    voteshare,
+    party,
+    office,
+    state_po,
+    year
+  )
 
 covariates_senate <- read_csv(here("data/raw/fb/fb-senate.csv")) %>%
   mutate(voteshare = candidatevotes / totalvotes) %>%
-  select(fb_ad_library_id,
-         candidate,
-         voteshare,
-         party_simplified,
-         office,
-         state_po,
-         year)
+  select(
+    fb_ad_library_id,
+    candidate,
+    voteshare,
+    party_simplified,
+    office,
+    state_po,
+    year
+  )
 
 # Merge in covariates [but note that we need page_ids to be strings]
-FBS_forAnalysis <- left_join(FBS_unique, 
-                  covariates_senate %>% mutate(page_id = as.character(fb_ad_library_id))) %>%
-                                        filter(ad_creative_body != "")
+FBS_forAnalysis <- left_join(
+  FBS_unique,
+  covariates_senate %>%
+    mutate(page_id = as.character(fb_ad_library_id))
+) %>%
+  filter(ad_creative_body != "")
 
-FBH_forAnalysis <- left_join(FBH_unique, 
-                 covariates_house %>% mutate(page_id = as.character(fb_ad_library_id))) %>%
-                                      filter(ad_creative_body != "")
+FBH_forAnalysis <- left_join(
+  FBH_unique,
+  covariates_house %>%
+    mutate(page_id = as.character(fb_ad_library_id))
+) %>%
+  filter(ad_creative_body != "")
 
 # A Manual fix:
 # Given that Antonio Delgado duplicates appear (with wrong PID), drop those rows
 FBH_forAnalysis <- FBH_forAnalysis %>%
-  mutate(toDrop = ifelse(page_name=="Antonio Delgado" & party == "REPUBLICAN",1,0)) %>%
-  filter(toDrop==0) %>%
+  mutate(
+    toDrop = ifelse(page_name == "Antonio Delgado" & party == "REPUBLICAN", 1, 0)
+  ) %>%
+  filter(toDrop == 0) %>%
   dplyr::select(-toDrop)
 
 
 ################
-# Label ad types 
-# [here we currently exclude some donation solicitations 
+# Label ad types
+# [here we currently exclude some donation solicitations
 # - i.e. when major conduits are not used]
 ################
 FBS_forAnalysis <- FBS_forAnalysis %>%
@@ -97,29 +108,31 @@ FBH_forAnalysis <- FBH_forAnalysis %>%
 # BUILD A CORPUS
 ################
 CS <- corpus(FBS_forAnalysis$ad_creative_body,
-             docvars = 
-               data.frame(
-                 type = FBS_forAnalysis$type,
-                 candidate = FBS_forAnalysis$candidate,
-                 party = FBS_forAnalysis$party_simplified,
-                 voteshare = FBS_forAnalysis$voteshare,
-                 chamber = rep("senate",nrow(FBS_forAnalysis))
-               ))
+  docvars =
+    data.frame(
+      type = FBS_forAnalysis$type,
+      candidate = FBS_forAnalysis$candidate,
+      party = FBS_forAnalysis$party_simplified,
+      voteshare = FBS_forAnalysis$voteshare,
+      chamber = rep("senate", nrow(FBS_forAnalysis))
+    )
+)
 # Rename the documents, adding a Senate prefix:
-docnames(CS) <- paste("Senate", 1:ndoc(CS), sep="")
+docnames(CS) <- paste("Senate", 1:ndoc(CS), sep = "")
 
 CH <- corpus(FBH_forAnalysis$ad_creative_body,
-       docvars = 
-         data.frame(
-           type = FBH_forAnalysis$type,
-           candidate = FBH_forAnalysis$candidate,
-           party = FBH_forAnalysis$party,
-           voteshare = FBH_forAnalysis$voteshare,
-           chamber = rep("house",nrow(FBH_forAnalysis))
-         ))
+  docvars =
+    data.frame(
+      type = FBH_forAnalysis$type,
+      candidate = FBH_forAnalysis$candidate,
+      party = FBH_forAnalysis$party,
+      voteshare = FBH_forAnalysis$voteshare,
+      chamber = rep("house", nrow(FBH_forAnalysis))
+    )
+)
 
 # Rename the documents, adding a House prefix:
-docnames(CH) <- paste("House", 1:ndoc(CH), sep="")
+docnames(CH) <- paste("House", 1:ndoc(CH), sep = "")
 
 
 CORP_FB <- CS + CH
@@ -127,15 +140,17 @@ CORP_FB <- CS + CH
 ####################
 # TOKENIZE DOCUMENTS
 ####################
-toks_FB <- tokens(CORP_FB) %>% 
-  tokens(remove_url = TRUE,
-         remove_punct=TRUE,
-         include_docvars = TRUE) %>% 
-      #  tokens_wordstem() %>%
-      tokens_remove(stopwords("english")) %>% 
-      tokens_remove(stopwords("spanish")) %>%
-      tokens_remove(c("rt","amp","u8")) %>%
-      tokens_tolower()
+toks_FB <- tokens(CORP_FB) %>%
+  tokens(
+    remove_url = TRUE,
+    remove_punct = TRUE,
+    include_docvars = TRUE
+  ) %>%
+  #  tokens_wordstem() %>%
+  tokens_remove(stopwords("english")) %>%
+  tokens_remove(stopwords("spanish")) %>%
+  tokens_remove(c("rt", "amp", "u8")) %>%
+  tokens_tolower()
 
 ##############################
 # Each document will be an AD
@@ -148,6 +163,3 @@ dfm_FBprop <- dfm_weight(dfm_FB, scheme = "prop")
 ###################################
 dfmCAND <- dfm_group(dfm_FB, groups = candidate)
 dfmCANDprop <- dfm_weight(dfmCAND, scheme = "prop")
-
-
-
