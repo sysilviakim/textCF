@@ -1596,6 +1596,12 @@ fb_fields <- c(
   "publisher_platforms", "region_distribution", "spend"
 )
 
+removing_tokens <- c(
+  "rt", "amp", "u8", "<p>", "<", ">", "div", "img", "alt", "br",
+  "text-align", "li", "=", "b", "nbsp", "style",
+  "em", "p", "strong", "center", "u", "href", "rel"
+)
+
 ## https://facebookresearch.github.io/Radlibrary/index.html
 ## See also
 ## https://disinfo.quaidorsay.fr/en/facebook-ads-library-assessment

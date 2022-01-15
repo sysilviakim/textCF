@@ -37,15 +37,7 @@ toks <- corp %>%
     remove_punct = TRUE
   ) %>%
   tokens_remove(stopwords("english")) %>%
-  tokens_remove(
-    c(
-      "rt", "amp", "u8", "<p>", "<", ">", "div", "img", "alt", "br",
-      "text-align", "li", "=", "b", "nbsp", "style",
-      "em", "p", "strong",
-      "center", "u",
-      "href", "rel"
-    )
-  ) %>%
+  tokens_remove(removing_tokens) %>%
   tokens_tolower()
 
 # Document feature matrix:
@@ -246,17 +238,8 @@ toks <- c2 %>%
     remove_punct = TRUE
   ) %>%
   tokens_remove(stopwords("english")) %>%
-  tokens_remove(
-    c(
-      "rt", "amp", "u8", "<p>", "<", ">", "div", "img", "alt", "br",
-      "text-align", "li", "=", "b", "nbsp", "style",
-      "em", "p", "strong",
-      "center", "u",
-      "href", "rel"
-    )
-  ) %>%
+  tokens_remove(removing_tokens) %>%
   tokens_tolower()
-
 
 # Document feature matrix:
 DFM <- dfm(toks)
@@ -264,12 +247,10 @@ DFM_trimmed <- dfm_trim(DFM, min_termfreq = 10)
 # Make an FCM:
 FCmat_trimmed <- fcm(DFM_trimmed)
 
-
 # [This part is experimental]
 # Matching tokens to dictionaries AFTER pre-processing:
 dfmat_lookup1 <- dfm_lookup(DFM, dictionary = data_dictionary_AFINN)
 dfmat_lookup2 <- dfm_lookup(DFM, dictionary = data_dictionary_NRC)
-
 
 # Count the number of word occurences:
 DFM[, c("democrat")] %>% sum()

@@ -1,36 +1,12 @@
-library(tidyverse)
-library(quanteda)
-library(quanteda.textplots)
-library(quanteda.textstats)
+source(here::here("R", "utilities.R"))
 
-# Want access to Silvia's sweet package? RUN also:
-# library(devtools)
-# install_github("sysilviakim/Kmisc")
+# Load data ====================================================================
+load(here("data/tidy/actblue_federal_2022.Rda"))
+load(here("data/tidy/winred_federal_2022.Rda"))
+load("data/raw/2022/actblue/actblue_js_scraped.Rda") ## large nested data!
+load("data/raw/2022/winred/winred_text_scraped.Rda")
 
-# We should be loading FEDERAL ads only...
-
-# names(actblue_js_full)
-
-# MISC DATA GRABS:
-# entitites <- actblue_js_full$entities
-# entitites[[1]]
-# names(entitites[[1]])
-#
-# share_content <- actblue_js_full$share_content
-#
-# twitter_text <- map(share_content,"twitter_text") %>% unlist()
-#
-# # map(entitites, "recurring_enabled") %>% unlist() %>% head()
-# # map(entitites, "display_name") %>% unlist() %>% head()
-#
-# act <- actblue_js_full %>% select(url,entities,radio_amounts)
-# names(act$entities)
-
-
-################
-# Extract BLURBS
-################
-
+# Extract blurbs ===============================================================
 TIB <- actblue_js_full$js_rest
 tcf <- TIB %>% select(title, contribution_blurb)
 
@@ -39,16 +15,17 @@ tcf <- TIB %>% select(title, contribution_blurb)
 # SOLUTION: When there are multiple display names, just grab the first one:
 display_name <- map(actblue_js_full$entities, "display_name") %>% map(1)
 
-# NB: Before unlisting, must  replace NULLs with NAs
+# NB: Before unlisting, must replace NULLs with NAs
 # [otherwise the vector will be too short for proper column-binding later]
 display_name[sapply(display_name, is.null)] <- NA
-
 display_name <- unlist(display_name)
 
-# Now join the burbs with the candidate/PAC:
+# Merge data ===================================================================
+# Join the burbs with the candidate/PACs
 tcf <- cbind(tcf, display_name)
 
-# Now unleash quanteda / start processing the texts:
+# Text processing ==============================================================
+# Now unleash quanteda
 corp <- corpus(tcf, text_field = "contribution_blurb")
 
 toks <- corp %>%
@@ -57,18 +34,13 @@ toks <- corp %>%
     remove_punct = TRUE
   ) %>%
   tokens_remove(stopwords("english")) %>%
-  tokens_remove(c(
-    "rt", "amp", "u8", "<p>", "<", ">", "div", "img", "alt", "br",
-    "text-align", "li", "=", "b", "nbsp", "style",
-    "em", "p", "strong",
-    "center", "u",
-    "href", "rel"
-  )) %>%
+  tokens_remove(removing_tokens) %>%
   tokens_tolower()
 
 # Document feature matrix:
 DFM <- dfm(toks)
 
+# Preliminary results ==========================================================
 # How often do they use fighting words?
 DFM[, c("fight")] %>% sum()
 DFM[, c("defeat")] %>% sum()
@@ -76,6 +48,7 @@ DFM[, c("destroy")] %>% sum()
 DFM[, c("destroying")] %>% sum()
 
 # As of Apr. 23, 2021:
+
 # 187,425 ads in the Actblue file/dataset
 # 5,809,543 tokens
 # 26,909 occurrences of the word “fight”
@@ -93,9 +66,7 @@ DFM[, c("destroying")] %>% sum()
 set.seed(84104)
 textplot_wordcloud(DFM_trimmed)
 
-#########################
-# MAKE A COPARISON CLOUD
-#########################
+# Make a comparison cloud ======================================================
 corpus_subset(
   corp,
   display_name %in% 
@@ -106,24 +77,14 @@ corpus_subset(
     remove_punct = TRUE
   ) %>%
   tokens_remove(stopwords("english")) %>%
-  tokens_remove(c(
-    "rt", "amp", "u8", "<p>", "<", ">", "div", "img", "alt", "br",
-    "text-align", "li", "=", "b", "nbsp", "style",
-    "em", "p", "strong",
-    "center", "u",
-    "href", "rel"
-  )) %>%
+  tokens_remove(removing_tokens) %>%
   tokens_tolower() %>%
   dfm() %>%
   dfm_group(groups = display_name) %>%
   dfm_trim(min_termfreq = 3, verbose = FALSE) %>%
   textplot_wordcloud(comparison = TRUE)
 
-
-
-##############################################
-# FREQUENCY of organizations / people [top 50]
-##############################################
+# Frequency of organizations / people [top 50] =================================
 tcf %>%
   filter(!is.na(display_name)) %>%
   group_by(display_name) %>%
@@ -139,9 +100,7 @@ tcf %>%
   labs(subtitle = "Top 50 orgs / people", x = "", y = "") +
   coord_flip()
 
-####################
-# FREQUENCY OF WORDS
-####################
+# Frequency of word ============================================================
 topF <- textstat_frequency(DFM, n = 75)
 
 # Sort by reverse freq
