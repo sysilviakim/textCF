@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.1.0",
+    "Version": "4.1.2",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -41,8 +41,8 @@
       "Package": "Kmisc",
       "Version": "0.2.0",
       "Source": "GitHub",
-      "Remotes": "ropensci/genderdata",
       "RemoteType": "github",
+      "Remotes": "ropensci/genderdata",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "Kmisc",
       "RemoteUsername": "sysilviakim",
@@ -102,7 +102,7 @@
       "RemoteUsername": "facebookresearch",
       "RemoteRef": "HEAD",
       "RemoteSha": "01aa4a5f22a8154aa85351dba8b534e8d1d066f4",
-      "Hash": "a45109c84cde5f57b62c7c811303eb65"
+      "Hash": "bb6fda39f9e2d50e9fcb5aaf2189f00a"
     },
     "Rcpp": {
       "Package": "Rcpp",
