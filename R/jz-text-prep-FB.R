@@ -3,45 +3,34 @@ source(here::here("R", "utilities.R"))
 # Load data and create unique dataframe ========================================
 ## Text is in "ad_creative_body"
 load(here("data", "tidy", "fb_matched.Rda"))
+fb_matched$senate <- fb_matched$senate %>% rename(party = party_simplified)
 
 ## Deduplicate ads if body is the same
 fb_unique <- fb_matched %>%
   map(
     ~ .x %>%
-      select(page_id, page_name, ad_creative_body, ad_creative_link_caption) %>%
-      distinct()
-  ) %>%
-  filter(ad_creative_body != "")
-
-# A Manual fix:
-# Given that Antonio Delgado duplicates appear (with wrong PID), drop those rows
-FBH_forAnalysis <- FBH_forAnalysis %>%
-  mutate(
-    toDrop = ifelse(page_name == "Antonio Delgado" & party == "REPUBLICAN", 1, 0)
-  ) %>%
-  filter(toDrop == 0) %>%
-  dplyr::select(-toDrop)
-
-
-################
-# Label ad types
-# [here we currently exclude some donation solicitations
-# - i.e. when major conduits are not used]
-################
-FBS_forAnalysis <- FBS_forAnalysis %>%
-  mutate(type = case_when(
-    ad_creative_link_caption == "secure.actblue.com" ~ "ActBlue",
-    ad_creative_link_caption == "secure.winred.com" ~ "WinRed",
-    is.na(ad_creative_link_caption) ~ "Non-financial"
-  ))
-
-FBH_forAnalysis <- FBH_forAnalysis %>%
-  mutate(type = case_when(
-    ad_creative_link_caption == "secure.actblue.com" ~ "ActBlue",
-    ad_creative_link_caption == "secure.winred.com" ~ "WinRed",
-    is.na(ad_creative_link_caption) ~ "Non-financial"
-  ))
-
+      select(
+        fb_ad_library_id, page_name, party, inc, state_po,
+        ad_creative_body, ad_creative_link_caption
+      ) %>%
+      distinct() %>%
+      filter(ad_creative_body != "") %>%
+      ## Antonio Delgado duplicates appear (House, with wrong PID)
+      ## Drop these rows
+      filter(!(page_name == "Antonio Delgado" & party == "REPUBLICAN")) %>%
+      ## Label ad types by conduit/platform
+      mutate(ad_creative_link_caption = tolower(ad_creative_link_caption)) %>%
+      rowwise() %>% 
+      mutate(
+        type = case_when(
+          grepl(ad_creative_link_caption, "secure.actblue.com") ~ "ActBlue",
+          grepl(ad_creative_link_caption, "secure.winred.com") ~ "WinRed",
+          grepl(ad_creative_link_caption, "secure.ngpvan.com") ~ "NGP VAN",
+          is.na(ad_creative_link_caption) ~ "Non-financial"
+        )
+      ) %>%
+      ungroup()
+  )
 
 
 ################
