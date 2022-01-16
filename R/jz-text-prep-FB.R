@@ -1,76 +1,16 @@
 source(here::here("R", "utilities.R"))
 
-# READ IN TEXT DATA:
+# Load data and create unique dataframe ========================================
+## Text is in "ad_creative_body"
+load(here("data", "tidy", "fb_matched.Rda"))
 
-load(here("data/raw/fb/fb-house-raw-ads-2020.rda"))
-load(here("data/raw/fb/fb-senate-raw-ads-2020.rda"))
-
-FBH <- fb_house %>% map_dfr("tbl", .id = NULL)
-FBS <- fb_senate %>% map_dfr("tbl", .id = NULL)
-
-rm(fb_house)
-rm(fb_senate)
-
-# Text is in "ad_creative_body":
-
-FBH_unique <-
-  FBH %>%
-  select(
-    page_id,
-    page_name,
-    ad_creative_body,
-    ad_creative_link_caption
+## Deduplicate ads if body is the same
+fb_unique <- fb_matched %>%
+  map(
+    ~ .x %>%
+      select(page_id, page_name, ad_creative_body, ad_creative_link_caption) %>%
+      distinct()
   ) %>%
-  distinct()
-
-FBS_unique <-
-  FBS %>%
-  select(
-    page_id,
-    page_name,
-    ad_creative_body,
-    ad_creative_link_caption
-  ) %>%
-  distinct()
-
-
-covariates_house <- read_csv(here("data/raw/fb/fb-house.csv")) %>%
-  mutate(voteshare = candidatevotes / totalvotes) %>%
-  select(
-    fb_ad_library_id,
-    candidate,
-    voteshare,
-    party,
-    office,
-    state_po,
-    year
-  )
-
-covariates_senate <- read_csv(here("data/raw/fb/fb-senate.csv")) %>%
-  mutate(voteshare = candidatevotes / totalvotes) %>%
-  select(
-    fb_ad_library_id,
-    candidate,
-    voteshare,
-    party_simplified,
-    office,
-    state_po,
-    year
-  )
-
-# Merge in covariates [but note that we need page_ids to be strings]
-FBS_forAnalysis <- left_join(
-  FBS_unique,
-  covariates_senate %>%
-    mutate(page_id = as.character(fb_ad_library_id))
-) %>%
-  filter(ad_creative_body != "")
-
-FBH_forAnalysis <- left_join(
-  FBH_unique,
-  covariates_house %>%
-    mutate(page_id = as.character(fb_ad_library_id))
-) %>%
   filter(ad_creative_body != "")
 
 # A Manual fix:
