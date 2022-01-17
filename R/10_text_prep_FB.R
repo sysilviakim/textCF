@@ -27,6 +27,7 @@ fb_unique <- fb_matched %>%
       simplify_ad_body() %>%
       ## Classify [ongoing!]
       mutate(
+        ## Is the typical platform links in the caption link?
         type = case_when(
           grepl("actblue.com", ad_creative_link_caption) ~ "ActBlue",
           grepl("winred.com", ad_creative_link_caption) ~ "WinRed",
@@ -41,6 +42,19 @@ fb_unique <- fb_matched %>%
             "conversation with |town hall|meet |tour stop |iwillvote.com",
             ad_creative_link_caption
           ) ~ "Non-financial"
+        ),
+        ## Or does the text contain references to donations?
+        donate = case_when(
+          grepl(
+            paste0(
+              "donate|donation|contribute|contribution|chip in|pitch in|",
+              "PAC money|corporate PAC|dollar| bucks|\\$|",
+              "end-of-month deadline|end-of-quarter deadline|",
+              "end-of-year deadline|match opportunity|match fund"
+            ),
+            tolower(ad_creative_body)
+          ) ~ TRUE,
+          TRUE ~ FALSE
         )
       ) %>%
       ungroup()
@@ -51,10 +65,70 @@ fb_unique %>% map_dbl(nrow)
 #  16828  43611
 
 ## Check nonclassified ad creative links
-temp1 <- fb_unique$senate %>% filter(is.na(type))
-View(sort(table(temp1$ad_creative_link_caption)))
-temp2 <- fb_unique$house %>% filter(is.na(type))
-View(sort(table(temp2$ad_creative_link_caption)))
+# temp1 <- fb_unique$senate %>% filter(is.na(type))
+# View(sort(table(temp1$ad_creative_link_caption)))
+# temp2 <- fb_unique$house %>% filter(is.na(type))
+# View(sort(table(temp2$ad_creative_link_caption)))
+
+## Compare with ad_creative_body keyword
+table(fb_unique$senate$type, fb_unique$senate$donate, useNA = "ifany")
+table(fb_unique$house$type, fb_unique$house$donate, useNA = "ifany")
+temp <- fb_unique %>%
+  map(
+    ~ .x %>%
+      filter(
+        !(
+          ## The only instances that the classification is double-verified
+          donate == TRUE &
+            type %in% c(
+              "ActBlue", "Anedot", "Misc.", 
+              "NGP VAN", "Victory Passport", "WinRed"
+            )
+          ## Those that are donate == TRUE but type is NA or non-financial
+          ## Some of it is that it is targeting both types of electorates
+        )
+      ) %>%
+      select(ad_creative_body, donate, type, everything())
+  )
+
+# Create keyword columns: Trump and COVID ======================================
+fb_unique <- fb_unique %>%
+  map(
+    ~ .x %>%
+      rowwise() %>%
+      mutate(
+        word_trump = case_when(
+          str_detect(str_to_lower(ad_creative_body), "trump") ~ 1,
+          !is.na(ad_creative_body) ~ 0
+        ),
+        word_covid = case_when(
+          str_detect(
+            str_to_lower(ad_creative_body),
+            paste(
+              c(
+                "covid", "#covid", "covid-19", "#covid19",
+                "coronavirus", "virus",
+                "infection", "infected",
+                "vaccine", "vaccines"
+              ),
+              collapse = "|"
+            )
+          ) ~ 1,
+          !is.na(ad_creative_body) ~ 0
+        ),
+        word_chinese = case_when(
+          str_detect(str_to_lower(ad_creative_body), "chinese|china") ~ 1,
+          !is.na(ad_creative_body) ~ 0
+        )
+      )
+  )
+
+prop(fb_unique$senate, vars = "word_trump") ## 16.6%
+prop(fb_unique$house, vars = "word_trump") ## 15.7%
+prop(fb_unique$senate, vars = "word_covid") ## 3.0%
+prop(fb_unique$house, vars = "word_covid") ## 4.4%
+prop(fb_unique$senate, vars = "word_chinese") ## 1.5%
+prop(fb_unique$house, vars = "word_chinese") ## 0.8%
 
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
 
