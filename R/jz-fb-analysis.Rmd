@@ -21,67 +21,38 @@ editor_options:
 ---
 
 ```{r Setup, include=FALSE}
-library(tidyverse)
-library(knitr)
-library(kableExtra)
-library(stargazer)
-library(haven)
-library(labelled)
-library(lubridate)
-library(RColorBrewer)
-library(ggpubr)
-library(stringr)
+source(here::here("R", "utilities.R"))
+opts_chunk$set(
+  fig.path = "figsFB/",
+  dev = c("pdf", "png"),
+  fig.width = 9,
+  fig.height = 4.5,
+  fig.pos = "H",
+  cache.path = "../cache/",
+  cache = TRUE,
+  echo = FALSE, # hide the source code
+  message = FALSE,
+  warning = FALSE
+)
 
-library(quanteda)
-library(quanteda.textplots)
-library(quanteda.textstats)  
-library(quanteda.dictionaries) # devtools::install_github("kbenoit/quanteda.dictionaries") 
-
-opts_chunk$set(fig.path="figsFB/",
-               dev=c("pdf","png"),
-               fig.width = 9,
-               fig.height = 4.5,
-               fig.pos = 'H',
-               cache.path="../cache/",
-               cache=TRUE,
-               echo=FALSE,     # hide the source code   
-               message=FALSE,
-               warning=FALSE) 
-```
-
-```{r}
 theme_set(theme_minimal())
-theme_update(text = element_text(size=12),
-             #text = element_text(family="Source Sans Pro"),
-             plot.title = element_text(face="bold", color="#1b5283"),
-             plot.subtitle = element_text(vjust=1.5))
+theme_update(
+  text = element_text(size = 12),
+  # text = element_text(family = "Source Sans Pro"),
+  plot.title = element_text(face = "bold", color = "#1b5283"),
+  plot.subtitle = element_text(vjust = 1.5)
+)
 
-jz_brewer3cats <- c("#1B9E77","#D95F02","#7570B3")
-jz_brewer <- c("#762A83","#C2A5CF","#D9F0D3","#A6DBA0","#5AAE61","#1B7837")
-myCol <- brewer.pal(3,"Set1")
+jz_brewer3cats <- c("#1B9E77", "#D95F02", "#7570B3")
+jz_brewer <- c("#762A83", "#C2A5CF", "#D9F0D3", "#A6DBA0", "#5AAE61", "#1B7837")
+myCol <- brewer.pal(3, "Set1")
+
+load(here("data", "tidy", "fb_unique.Rda"))
+load(here("output", "fb_quanteda.Rda"))
 ```
-
-```{r, cache=TRUE}
-source("jz-text-prep-FB.R")
-```
-
-
-```{r basic-tags-for-tibbles}
-FBH_forAnalysis$wordTrump <- ifelse(str_detect(str_to_lower(FBH_forAnalysis$ad_creative_body), 
-                                   "trump"),1,0)
-
-
-
-FBH_forAnalysis$wordsCovid <- ifelse(str_detect(str_to_lower(FBH_forAnalysis$ad_creative_body), 
-                                    paste(c("covid","#covid","covid-19","#covid19",
-                                            "coronavirus","virus",
-                                            "infection","infected",
-                                            "vaccine","vaccines"),collapse = '|')),1,0)
-```
-
 
 - Our FB dataset consists of `r nrow(FBH)` rows (House), and  `r nrow(FBS)` rows (Senate), but many of these ads are duplicates.
-- After removing duplicate texts, we have `r nrow(FBH_forAnalysis)` observations for the US House, and  `r nrow(FBS_forAnalysis)` observations for the US Senate. 
+- After removing duplicate texts, we have `r nrow(fb_unique$house)` observations for the US House, and  `r nrow(fb_unique$senate)` observations for the US Senate. 
 
 ### Pre-processing
 
@@ -108,20 +79,20 @@ The median number of words produced per candidate is `r ntoken(dfmCAND) %>% as.v
 
 
 ```{r}
-top30Housepage <- FBH_forAnalysis %>%
+top30Housepage <- fb_unique$house %>%
   group_by(page_name) %>%
   tally() %>%
   arrange(-n) %>%
   slice(1:30)
 
 congressTrumpTop30 <- 
-  FBH_forAnalysis %>%
+  fb_unique$house %>%
   group_by(page_name,wordTrump) %>%
   tally() %>%
   filter(page_name %in% top30Housepage$page_name)
 
 congressCovidTop30 <- 
-  FBH_forAnalysis %>%
+  fb_unique$house %>%
   group_by(page_name,wordsCovid) %>%
   tally() %>%
   filter(page_name %in% top30Housepage$page_name)

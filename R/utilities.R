@@ -3,6 +3,8 @@ library(plyr)
 library(tidyverse)
 library(lubridate)
 library(rvest)
+library(haven)
+library(labelled)
 
 # Text analysis packages =======================================================
 library(quanteda)
@@ -11,7 +13,7 @@ library(quanteda.textstats)
 library(quanteda.dictionaries)
 ## https://muellerstefan.net/files/quanteda-cheatsheet.pdf
 
-# Other packages ===============================================================
+# Other packages===============================================================
 library(here)
 library(ggpubr)
 library(janitor)
@@ -23,6 +25,10 @@ library(caret)
 library(RSelenium)
 library(netstat)
 library(Radlibrary)
+library(knitr)
+library(kableExtra)
+library(stargazer)
+library(RColorBrewer)
 
 ## devtools::install_github("hrbrmstr/wayback")
 library(wayback)
