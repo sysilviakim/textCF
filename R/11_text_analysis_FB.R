@@ -20,8 +20,8 @@ assert_that(
 )
 
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
-top_unique <- fb_unique %>% map(~ tally_by_cand(.x, 20))
-top_all <- fb_matched %>% map(~ tally_by_cand(.x, 20))
+top_unique <- fb_unique %>% map(tally_by_cand)
+top_all <- fb_matched %>% map(tally_by_cand)
 
 # Who among top candidates mention keywords the most? ==========================
 top_list <- list(
@@ -33,3 +33,13 @@ top_list <- list(
   chinese_all = top_freq(fb_unique, top_all, var = "word_chinese")
 )
 
+## Needs better distinction by party + state/district + better colors (not blue)
+top_freq_plot(
+  df = top_list$trump_unique$senate,
+  var = "word_trump", lab0 = "Does Not Mention Trump", lab1 = "Mentions Trump"
+)
+
+top_freq_plot(
+  df = top_list$trump_all$house,
+  var = "word_trump", lab0 = "Does Not Mention Trump", lab1 = "Mentions Trump"
+)

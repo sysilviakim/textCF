@@ -97,5 +97,18 @@ fb_matched <- fb_matched %>%
       select(fb_ad_library_id = page_id, everything())
   )
 
+# Organize party variable ======================================================
 fb_matched$senate <- fb_matched$senate %>% rename(party = party_simplified)
+fb_matched <- fb_matched %>%
+  map(
+    ~ .x %>%
+      mutate(
+        party = case_when(
+          ## DEMOCRATIC-FARMER-LABOR and also DEMOCRATIC-NONPARTISAN LEAGUE
+          grepl("DEMOCRAT", party) ~ "DEMOCRAT",
+          TRUE ~ party
+        )
+      )
+  )
+
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
