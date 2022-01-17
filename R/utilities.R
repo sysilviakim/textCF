@@ -1241,7 +1241,7 @@ top_freq <- function(l1, l2, var, party = TRUE) {
     c(senate = "senate", house = "house") %>%
       map(
         ~ l1[[.x]] %>%
-          group_by(candidate, !!as.name(var), group) %>%
+          group_by(candidate, !!as.name(var), party) %>%
           tally() %>%
           filter(candidate %in% l2[[.x]]$candidate) %>%
           ungroup()
@@ -1258,17 +1258,18 @@ top_freq <- function(l1, l2, var, party = TRUE) {
   }
 }
 
-top_freq_plot <- function(df, var, lab0, lab1, title = NULL, subtitle = NULL,
-                          xlab = "Number of Ads", party = TRUE) {
-  p <- df %>%
+top_freq_plot <- function(x, chamber, title = NULL, subtitle = NULL,
+                          xlab = "Number of Ads", party = TRUE, ...) {
+  p <- x$freq[[chamber]] %>%
     mutate(
       m = case_when(
-        !!as.name(var) == 0 ~ lab0,
-        !!as.name(var) == 1 ~ lab1
+        !!as.name(x$var) == 0 ~ x$lab0,
+        !!as.name(x$var) == 1 ~ x$lab1
       )
     ) %>%
-    filter(!is.na(word_trump)) %>%
-    ggplot(aes(x = n, y = fct_reorder(candidate, n), fill = fct_rev(m))) +
+    group_by(candidate) %>%
+    mutate(total = sum(n)) %>%
+    ggplot(aes(x = n, y = fct_reorder(candidate, total), fill = fct_rev(m))) +
     geom_col() +
     scale_fill_brewer(type = "qual", palette = 6) +
     scale_x_continuous(labels = scales::comma)
@@ -1280,7 +1281,7 @@ top_freq_plot <- function(df, var, lab0, lab1, title = NULL, subtitle = NULL,
     p <- p + labs(subtitle = subtitle)
   }
   if (party) {
-    p <- p + facet_wrap(~ party)
+    p <- p + facet_wrap(~ party, ...)
   }
   
   return(

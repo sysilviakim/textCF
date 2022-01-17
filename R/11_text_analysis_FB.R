@@ -6,8 +6,22 @@ load(here("data", "tidy", "fb_matched.Rda"))
 load(here("data", "tidy", "fb_unique.Rda"))
 load(here("output", "fb_quanteda.Rda"))
 
-# Top 30 diverse ads or number of ads ==========================================
+# Adjust candidate labels so that nchar is the same ============================
+fb_unique <- fb_unique %>%
+  map(
+    ~ .x %>%
+      rowwise() %>%
+      mutate(
+        candidate = str_pad(
+          simple_cap(tolower(candidate)), side = "left",
+          width = fb_unique %>% map_dbl(~ max(nchar(.x$candidate))) %>% max()
+        ),
+        party = simple_cap(tolower(party))
+      ) %>%
+      ungroup()
+  )
 
+# Top diverse ads or number of ads =============================================
 ## Note that candidate is the group-level marker, not page_name
 ## e.g., Luke Letlow For Congress != Luke Letlow, but same candidate
 assert_that(
@@ -20,26 +34,44 @@ assert_that(
 )
 
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
-top_unique <- fb_unique %>% map(tally_by_cand)
-top_all <- fb_matched %>% map(tally_by_cand)
+top_unique <- fb_unique %>%
+  map(tally_by_cand) %>%
+  map(~ .x %>% filter(party != "INDEPENDENT"))
+top_all <- fb_matched %>%
+  map(tally_by_cand) %>%
+  map(~ .x %>% filter(party != "INDEPENDENT"))
 
 # Who among top candidates mention keywords the most? ==========================
-top_list <- list(
-  trump_unique = top_freq(fb_unique, top_unique, var = "word_trump"),
-  trump_all = top_freq(fb_unique, top_all, var = "word_trump"),
-  covid_unique = top_freq(fb_unique, top_unique, var = "word_covid"),
-  covid_all = top_freq(fb_unique, top_all, var = "word_covid"),
-  chinese_unique = top_freq(fb_unique, top_unique, var = "word_chinese"),
-  chinese_all = top_freq(fb_unique, top_all, var = "word_chinese")
-)
+top_list <- cross2(c("trump", "covid", "chinese"), c("unique", "all")) %>%
+  set_names(., nm = {
+    .
+  } %>% map_chr(~ paste(.x, collapse = "_"))) %>%
+  imap(
+    ~ list(
+      freq = top_freq(
+        l1 = fb_unique, l2 = get(paste0("top_", .x[[2]]), envir = .GlobalEnv),
+        var = paste0("word_", .x[[1]])
+      ),
+      var = paste0("word_", .x[[1]]),
+      lab0 = case_when(
+        .x[[1]] == "trump" ~ "Does Not Mention Trump",
+        .x[[1]] == "covid" ~ "Does Not Mention COVID-19",
+        .x[[1]] == "chinese" ~ "Does Not Mention China"
+      ),
+      lab1 = case_when(
+        .x[[1]] == "trump" ~ "Mentions Trump",
+        .x[[1]] == "covid" ~ "Mentions COVID-19",
+        .x[[1]] == "chinese" ~ "Mentions China"
+      )
+    )
+  )
 
-## Needs better distinction by party + state/district + better colors (not blue)
-top_freq_plot(
-  df = top_list$trump_unique$senate,
-  var = "word_trump", lab0 = "Does Not Mention Trump", lab1 = "Mentions Trump"
-)
-
-top_freq_plot(
-  df = top_list$trump_all$house,
-  var = "word_trump", lab0 = "Does Not Mention Trump", lab1 = "Mentions Trump"
-)
+## Needs labels by state/district + better colors (not blue) +
+## unification of y-axis label size by paste + nchar
+p_list <- top_list %>%
+  map(
+    ~ list(
+      senate = top_freq_plot(x = .x, chamber = "senate", scales = "free_y"),
+      house = top_freq_plot(x = .x, chamber = "house", scales = "free_y")
+    )
+  )
