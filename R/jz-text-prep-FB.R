@@ -1,17 +1,18 @@
 source(here::here("R", "utilities.R"))
 
-# Load data and create unique dataframe ========================================
+# Load data ====================================================================
 ## Text is in "ad_creative_body"
 load(here("data", "tidy", "fb_matched.Rda"))
 fb_matched$senate <- fb_matched$senate %>% rename(party = party_simplified)
 
-## Deduplicate ads if body is the same
+# Deduplicated, simplified ad data =============================================
 fb_unique <- fb_matched %>%
   map(
     ~ .x %>%
       select(
-        fb_ad_library_id, page_name, party, inc, state_po,
-        ad_creative_body, ad_creative_link_caption
+        candidate,
+        fb_ad_library_id, page_name, party, inc, state_po, contains("state_cd"),
+        ad_creative_body, ad_creative_link_caption, vote_share
       ) %>%
       distinct() %>%
       filter(ad_creative_body != "") %>%
@@ -32,63 +33,52 @@ fb_unique <- fb_matched %>%
       ungroup()
   )
 
+fb_unique %>% map_dbl(nrow)
+# senate  house 
+#  16828  43611
 
-################
-# BUILD A CORPUS
-################
-CS <- corpus(FBS_forAnalysis$ad_creative_body,
-  docvars =
-    data.frame(
-      type = FBS_forAnalysis$type,
-      candidate = FBS_forAnalysis$candidate,
-      party = FBS_forAnalysis$party_simplified,
-      voteshare = FBS_forAnalysis$voteshare,
-      chamber = rep("senate", nrow(FBS_forAnalysis))
+save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
+
+# Building a corpus ============================================================
+fb_corpus <- fb_unique %>%
+  imap(
+    ~ corpus(
+      .x$ad_creative_body,
+      docvars = tibble(
+        type = .x$type,
+        candidate = .x$candidate,
+        party = .x$party,
+        vote_share = .x$vote_share,
+        chamber = .y
+      )
     )
-)
-# Rename the documents, adding a Senate prefix:
-docnames(CS) <- paste("Senate", 1:ndoc(CS), sep = "")
+  )
 
-CH <- corpus(FBH_forAnalysis$ad_creative_body,
-  docvars =
-    data.frame(
-      type = FBH_forAnalysis$type,
-      candidate = FBH_forAnalysis$candidate,
-      party = FBH_forAnalysis$party,
-      voteshare = FBH_forAnalysis$voteshare,
-      chamber = rep("house", nrow(FBH_forAnalysis))
-    )
-)
+## Rename the documents, adding by-chamber prefix:
+docnames(fb_corpus$house) <- paste0("house_", 1:ndoc(fb_corpus$house))
+docnames(fb_corpus$senate) <- paste0("senate_", 1:ndoc(fb_corpus$senate))
 
-# Rename the documents, adding a House prefix:
-docnames(CH) <- paste("House", 1:ndoc(CH), sep = "")
+## Combine two chambers
+CORP_FB <- fb_corpus$senate + fb_corpus$house
 
-
-CORP_FB <- CS + CH
-
-####################
-# TOKENIZE DOCUMENTS
-####################
+# TOKENIZE DOCUMENTS ===========================================================
 toks_FB <- tokens(CORP_FB) %>%
   tokens(
     remove_url = TRUE,
     remove_punct = TRUE,
     include_docvars = TRUE
   ) %>%
-  #  tokens_wordstem() %>%
+  # tokens_wordstem() %>%
+  tokens_tolower() %>%
   tokens_remove(stopwords("english")) %>%
   tokens_remove(stopwords("spanish")) %>%
-  tokens_remove(c("rt", "amp", "u8")) %>%
-  tokens_tolower()
+  # tokens_remove(c("rt", "amp", "u8")) %>%
+  tokens_remove(setdiff(removing_tokens, c("strong", "center")))
 
-##############################
-# Each document will be an AD
-##############################
-dfm_FB <- dfm(toks_FB)
-dfm_FBprop <- dfm_weight(dfm_FB, scheme = "prop")
+# Each document will be an AD ==================================================
+dfm_FB_ad <- dfm(toks_FB)
+dfm_FB_ad_prop <- dfm_weight(dfm_FB_ad, scheme = "prop")
 
-###################################
-# Each document will be a candidate
-###################################
-dfmCAND <- dfm_group(dfm_FB, groups = candidate)
-dfmCANDprop <- dfm_weight(dfmCAND, scheme = "prop")
+# Each document will be a candidate ============================================
+dfm_FB_cand <- dfm_group(dfm_FB_ad, groups = candidate)
+dfm_FB_cand_prop <- dfm_weight(dfm_FB_cand, scheme = "prop")
