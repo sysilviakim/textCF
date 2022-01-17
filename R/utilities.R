@@ -1219,22 +1219,79 @@ simplify_ad_body <- function(df) {
     )
 }
 
-tally_by_cand <- function(x, lim = 30) {
-  x %>%
-    group_by(candidate) %>%
-    tally() %>%
-    arrange(-n) %>%
-    slice(seq(lim))
+tally_by_cand <- function(x, lim = 10, party = TRUE) {
+  if (party) {
+    x %>%
+      group_by(candidate, party) %>%
+      tally() %>%
+      group_by(party) %>%
+      arrange(-n) %>%
+      slice(seq(lim))
+  } else {
+    x %>%
+      group_by(candidate) %>%
+      tally() %>%
+      arrange(-n) %>%
+      slice(seq(lim))
+  }
 }
 
-top_freq <- function(l1, l2, var) {
-  c(senate = "senate", house = "house") %>%
-    map(
-      ~ l1[[.x]] %>%
-        group_by(candidate, !!as.name(var)) %>%
-        tally() %>%
-        filter(candidate %in% l2[[.x]]$candidate)
-    )
+top_freq <- function(l1, l2, var, party = TRUE) {
+  if (party) {
+    c(senate = "senate", house = "house") %>%
+      map(
+        ~ l1[[.x]] %>%
+          group_by(candidate, !!as.name(var), group) %>%
+          tally() %>%
+          filter(candidate %in% l2[[.x]]$candidate) %>%
+          ungroup()
+      )
+  } else {
+    c(senate = "senate", house = "house") %>%
+      map(
+        ~ l1[[.x]] %>%
+          group_by(candidate, !!as.name(var)) %>%
+          tally() %>%
+          filter(candidate %in% l2[[.x]]$candidate) %>%
+          ungroup()
+      )
+  }
+}
+
+top_freq_plot <- function(df, var, lab0, lab1, title = NULL, subtitle = NULL,
+                          xlab = "Number of Ads", party = TRUE) {
+  p <- df %>%
+    mutate(
+      m = case_when(
+        !!as.name(var) == 0 ~ lab0,
+        !!as.name(var) == 1 ~ lab1
+      )
+    ) %>%
+    filter(!is.na(word_trump)) %>%
+    ggplot(aes(x = n, y = fct_reorder(candidate, n), fill = fct_rev(m))) +
+    geom_col() +
+    scale_fill_brewer(type = "qual", palette = 6) +
+    scale_x_continuous(labels = scales::comma)
+  
+  if (!is.null(title)) {
+    p <- p + labs(title = title)
+  }
+  if (!is.null(subtitle)) {
+    p <- p + labs(subtitle = subtitle)
+  }
+  if (party) {
+    p <- p + facet_wrap(~ party)
+  }
+  
+  return(
+    pdf_default(p) + 
+      theme(
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.y = element_blank()
+      ) + 
+      xlab(xlab)
+  )
 }
 
 # Wayback-specific Functions ===================================================

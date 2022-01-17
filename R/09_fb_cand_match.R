@@ -97,4 +97,5 @@ fb_matched <- fb_matched %>%
       select(fb_ad_library_id = page_id, everything())
   )
 
+fb_matched$senate <- fb_matched$senate %>% rename(party = party_simplified)
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))

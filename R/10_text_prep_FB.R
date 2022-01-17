@@ -3,7 +3,6 @@ source(here::here("R", "utilities.R"))
 # Load data ====================================================================
 ## Text is in "ad_creative_body"
 load(here("data", "tidy", "fb_matched.Rda"))
-fb_matched$senate <- fb_matched$senate %>% rename(party = party_simplified)
 
 # Deduplicated, simplified ad data =============================================
 fb_unique <- fb_matched %>%
