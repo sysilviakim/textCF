@@ -4,7 +4,7 @@ library(tidyverse)
 library(lubridate)
 library(rvest)
 library(haven)
-library(labelled)
+library(glue)
 
 # Text analysis packages =======================================================
 library(quanteda)
@@ -15,6 +15,7 @@ library(quanteda.dictionaries)
 
 # Other packages===============================================================
 library(here)
+library(labelled)
 library(ggpubr)
 library(janitor)
 library(assertthat)
