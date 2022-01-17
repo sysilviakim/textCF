@@ -1202,6 +1202,16 @@ fb_short <- function(id, token, fields = "ad_data",
   return(list(query = query, resp = resp, tbl = out))
 }
 
+simplify_ad_body <- function(df) {
+  df %>% 
+    mutate(
+      ad_creative_link_caption = gsub(
+        "/es$|^www\\.|/$|^https://|^https://www.",
+        "", ad_creative_link_caption
+      )
+    )
+}
+
 # Wayback-specific Functions ===================================================
 wayback_memento <- function(files) {
   files %>%

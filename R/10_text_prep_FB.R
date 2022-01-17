@@ -21,21 +21,40 @@ fb_unique <- fb_matched %>%
       filter(!(page_name == "Antonio Delgado" & party == "REPUBLICAN")) %>%
       ## Label ad types by conduit/platform
       mutate(ad_creative_link_caption = tolower(ad_creative_link_caption)) %>%
-      rowwise() %>% 
+      rowwise() %>%
+      ## Perform twice to unify to similar patterns
+      simplify_ad_body() %>%
+      simplify_ad_body() %>%
+      ## Classify [ongoing!]
       mutate(
         type = case_when(
-          grepl(ad_creative_link_caption, "secure.actblue.com") ~ "ActBlue",
-          grepl(ad_creative_link_caption, "secure.winred.com") ~ "WinRed",
-          grepl(ad_creative_link_caption, "secure.ngpvan.com") ~ "NGP VAN",
-          is.na(ad_creative_link_caption) ~ "Non-financial"
+          grepl("actblue.com", ad_creative_link_caption) ~ "ActBlue",
+          grepl("winred.com", ad_creative_link_caption) ~ "WinRed",
+          grepl("ngpvan.com|myngp.com", ad_creative_link_caption) ~ "NGP VAN",
+          grepl("anedot.com", ad_creative_link_caption) ~ "Anedot",
+          grepl("victorypassport.com", ad_creative_link_caption) ~
+          "Victory Passport",
+          grepl("fundraiser", ad_creative_link_caption) ~ "Misc.",
+          is.na(ad_creative_link_caption) ~ "Non-financial",
+          # grepl(" ", ad_creative_link_caption) ~ "Non-financial",
+          grepl(
+            "conversation with |town hall|meet |tour stop |iwillvote.com",
+            ad_creative_link_caption
+          ) ~ "Non-financial"
         )
       ) %>%
       ungroup()
   )
 
 fb_unique %>% map_dbl(nrow)
-# senate  house 
+# senate  house
 #  16828  43611
+
+## Check nonclassified ad creative links
+temp1 <- fb_unique$senate %>% filter(is.na(type))
+View(sort(table(temp1$ad_creative_link_caption)))
+temp2 <- fb_unique$house %>% filter(is.na(type))
+View(sort(table(temp2$ad_creative_link_caption)))
 
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
 
@@ -82,3 +101,9 @@ dfm_FB_ad_prop <- dfm_weight(dfm_FB_ad, scheme = "prop")
 # Each document will be a candidate ============================================
 dfm_FB_cand <- dfm_group(dfm_FB_ad, groups = candidate)
 dfm_FB_cand_prop <- dfm_weight(dfm_FB_cand, scheme = "prop")
+
+# Save for import ==============================================================
+save(
+  fb_corpus, toks_FB, dfm_FB_ad, dfm_FB_ad_prop, dfm_FB_cand, dfm_FB_cand_prop,
+  file = here("output", "fb_quanteda.Rda")
+)
