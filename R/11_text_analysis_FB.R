@@ -7,19 +7,27 @@ load(here("data", "tidy", "fb_unique.Rda"))
 load(here("output", "fb_quanteda.Rda"))
 
 # Adjust candidate labels so that nchar is the same ============================
-fb_unique <- fb_unique %>%
-  map(
-    ~ .x %>%
-      rowwise() %>%
-      mutate(
-        candidate = str_pad(
-          simple_cap(tolower(candidate)), side = "left",
-          width = fb_unique %>% map_dbl(~ max(nchar(.x$candidate))) %>% max()
-        ),
-        party = simple_cap(tolower(party))
-      ) %>%
-      ungroup()
-  )
+temp <- function(x) {
+  x %>%
+    map(
+      ~ .x %>%
+        rowwise() %>%
+        mutate(
+          candidate = str_pad(
+            simple_cap(tolower(candidate)),
+            side = "left",
+            width = fb_unique %>% map_dbl(~ max(nchar(.x$candidate))) %>% max()
+          ),
+          party = simple_cap(tolower(party))
+        ) %>%
+        ungroup() %>%
+        ## For now
+        filter(party != "Independent")
+    )
+}
+
+fb_unique <- temp(fb_unique)
+fb_matched <- temp(fb_matched)
 
 # Top diverse ads or number of ads =============================================
 ## Note that candidate is the group-level marker, not page_name
@@ -36,10 +44,14 @@ assert_that(
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
 top_unique <- fb_unique %>%
   map(tally_by_cand) %>%
-  map(~ .x %>% filter(party != "INDEPENDENT"))
+  map(~ .x)
 top_all <- fb_matched %>%
   map(tally_by_cand) %>%
-  map(~ .x %>% filter(party != "INDEPENDENT"))
+  map(
+    ~ .x %>%
+      filter(party != "INDEPENDENT") %>%
+      mutate(party = simple_cap(tolower(party)))
+  )
 
 # Who among top candidates mention keywords the most? ==========================
 top_list <- cross2(c("trump", "covid", "chinese"), c("unique", "all")) %>%
