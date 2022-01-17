@@ -77,34 +77,34 @@ The median number of words produced per candidate is `r ntoken(dfm_FB_cand) %>% 
 
 ```{r}
 top30Housepage <- fb_unique$house %>%
-  group_by(page_name) %>%
+  group_by(candidate) %>%
   tally() %>%
   arrange(-n) %>%
   slice(1:30)
 
-congressTrumpTop30 <-
-  fb_unique$house %>%
-  group_by(page_name, word_trump) %>%
+congressTrumpTop30 <- fb_unique$house %>%
+  group_by(candidate, word_trump) %>%
   tally() %>%
-  filter(page_name %in% top30Housepage$page_name)
+  filter(candidate %in% top30Housepage$candidate)
 
-congressCovidTop30 <-
-  fb_unique$house %>%
-  group_by(page_name, word_covid) %>%
+congressCovidTop30 <- fb_unique$house %>%
+  group_by(candidate, word_covid) %>%
   tally() %>%
-  filter(page_name %in% top30Housepage$page_name)
+  filter(candidate %in% top30Housepage$candidate)
 ```
 
 ```{r top30-trump, fig.cap="Mentions of Trump"}
 congressTrumpTop30 %>%
-  mutate(mTrump = case_when(
+  mutate(
+    mTrump = case_when(
     word_trump == 0 ~ "Doesn't mention Trump",
     word_trump == 1 ~ "Mentioned Trump"
-  )) %>%
+  )
+  ) %>%
   filter(!is.na(word_trump)) %>%
   ggplot(aes(
     x = n,
-    y = fct_reorder(page_name, n),
+    y = fct_reorder(candidate, n),
     fill = fct_rev(mTrump)
   )) +
   geom_col() +
@@ -126,7 +126,7 @@ congressCovidTop30 %>%
   filter(!is.na(word_covid)) %>%
   ggplot(aes(
     x = n,
-    y = fct_reorder(page_name, n),
+    y = fct_reorder(candidate, n),
     fill = fct_rev(cw)
   )) +
   geom_col() +

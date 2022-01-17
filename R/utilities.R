@@ -1219,6 +1219,24 @@ simplify_ad_body <- function(df) {
     )
 }
 
+tally_by_cand <- function(x, lim = 30) {
+  x %>%
+    group_by(candidate) %>%
+    tally() %>%
+    arrange(-n) %>%
+    slice(seq(lim))
+}
+
+top_freq <- function(l1, l2, var) {
+  c(senate = "senate", house = "house") %>%
+    map(
+      ~ l1[[.x]] %>%
+        group_by(candidate, !!as.name(var)) %>%
+        tally() %>%
+        filter(candidate %in% l2[[.x]]$candidate)
+    )
+}
+
 # Wayback-specific Functions ===================================================
 wayback_memento <- function(files) {
   files %>%
