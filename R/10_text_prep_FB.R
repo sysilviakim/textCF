@@ -119,7 +119,8 @@ fb_unique <- fb_unique %>%
           str_detect(str_to_lower(ad_creative_body), "chinese|china") ~ 1,
           !is.na(ad_creative_body) ~ 0
         )
-      )
+      ) %>%
+      ungroup()
   )
 
 prop(fb_unique$senate, vars = "word_trump") ## 16.6%
