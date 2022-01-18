@@ -1219,7 +1219,7 @@ simplify_ad_body <- function(df) {
     )
 }
 
-tally_by_cand <- function(x, lim = 10, party = TRUE) {
+tally_by_cand <- function(x, lim, party = TRUE) {
   if (party) {
     x %>%
       group_by(candidate, party) %>%
@@ -1258,8 +1258,10 @@ top_freq <- function(l1, l2, var, party = TRUE) {
   }
 }
 
-top_freq_plot <- function(x, chamber, title = NULL, subtitle = NULL,
-                          xlab = "Number of Ads", party = TRUE, ...) {
+top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
+                          party = TRUE, save = TRUE, 
+                          width = 7, height = 3.5, fxn = "bar", ...) {
+  xlab <- ifelse(fxn == "bar", "Number of Ads", "Percentage of Ads")
   p <- x$freq[[chamber]] %>%
     mutate(
       m = case_when(
@@ -1268,11 +1270,28 @@ top_freq_plot <- function(x, chamber, title = NULL, subtitle = NULL,
       )
     ) %>%
     group_by(candidate) %>%
-    mutate(total = sum(n)) %>%
-    ggplot(aes(x = n, y = fct_reorder(candidate, total), fill = fct_rev(m))) +
-    geom_col() +
-    scale_fill_brewer(type = "qual", palette = 6) +
-    scale_x_continuous(labels = scales::comma)
+    mutate(
+      total = sum(n),
+      perc = n / total
+    )
+  
+  if (fxn == "bar") {
+    p <- p %>%
+      ggplot(aes(x = n, y = fct_reorder(candidate, total), fill = fct_rev(m))) +
+      geom_col() + 
+      scale_x_continuous(labels = scales::comma)
+  } else {
+    p <- p %>% 
+      ggplot(
+        aes(x = perc, y = fct_reorder(candidate, total), fill = fct_rev(m))
+      ) +
+      geom_col() + 
+      scale_x_continuous(labels = scales::percent)
+  }
+  
+  p <- p +
+    ## scale_fill_brewer(type = "qual", palette = 6) +
+    scale_fill_manual(values = c("red", "gray"))
   
   if (!is.null(title)) {
     p <- p + labs(title = title)
@@ -1284,15 +1303,28 @@ top_freq_plot <- function(x, chamber, title = NULL, subtitle = NULL,
     p <- p + facet_wrap(~ party, ...)
   }
   
-  return(
-    pdf_default(p) + 
-      theme(
-        legend.position = "bottom",
-        legend.title = element_blank(),
-        axis.title.y = element_blank()
-      ) + 
-      xlab(xlab)
-  )
+  p <- pdf_default(p) + 
+    theme(
+      legend.position = "bottom",
+      legend.justification = "left",
+      legend.title = element_blank(),
+      axis.title.y = element_blank()
+    ) + 
+    xlab(xlab)
+  
+  if (save) {
+    pdf(
+      here(
+        "fig",
+        paste0(x$var, "_", chamber, "_", x$type, "_top_", top, "_", fxn, ".pdf")
+      ),
+      width = width, height = height
+    )
+    print(p)
+    dev.off()
+  }
+  
+  return(p)
 }
 
 # Wayback-specific Functions ===================================================

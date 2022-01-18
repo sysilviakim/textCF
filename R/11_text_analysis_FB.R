@@ -7,6 +7,7 @@ load(here("data", "tidy", "fb_unique.Rda"))
 load(here("output", "fb_quanteda.Rda"))
 
 # Adjust candidate labels so that nchar is the same ============================
+## Define function, adjust later
 temp <- function(x) {
   x %>%
     map(
@@ -26,9 +27,6 @@ temp <- function(x) {
     )
 }
 
-fb_unique <- temp(fb_unique)
-fb_matched <- temp(fb_matched)
-
 # Top diverse ads or number of ads =============================================
 ## Note that candidate is the group-level marker, not page_name
 ## e.g., Luke Letlow For Congress != Luke Letlow, but same candidate
@@ -42,48 +40,86 @@ assert_that(
 )
 
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
-top_unique <- fb_unique %>%
-  map(tally_by_cand) %>%
-  map(~ .x)
-top_all <- fb_matched %>%
-  map(tally_by_cand) %>%
-  map(
-    ~ .x %>%
-      filter(party != "INDEPENDENT") %>%
-      mutate(party = simple_cap(tolower(party)))
-  )
+fb_unique <- temp(fb_unique)
 
 # Who among top candidates mention keywords the most? ==========================
-top_list <- cross2(c("trump", "covid", "chinese"), c("unique", "all")) %>%
-  set_names(., nm = {
-    .
-  } %>% map_chr(~ paste(.x, collapse = "_"))) %>%
-  imap(
-    ~ list(
-      freq = top_freq(
-        l1 = fb_unique, l2 = get(paste0("top_", .x[[2]]), envir = .GlobalEnv),
-        var = paste0("word_", .x[[1]])
-      ),
-      var = paste0("word_", .x[[1]]),
-      lab0 = case_when(
-        .x[[1]] == "trump" ~ "Does Not Mention Trump",
-        .x[[1]] == "covid" ~ "Does Not Mention COVID-19",
-        .x[[1]] == "chinese" ~ "Does Not Mention China"
-      ),
-      lab1 = case_when(
-        .x[[1]] == "trump" ~ "Mentions Trump",
-        .x[[1]] == "covid" ~ "Mentions COVID-19",
-        .x[[1]] == "chinese" ~ "Mentions China"
+for (topn in c(10, 30)) {
+  topn <- 10
+  top_unique <- fb_unique %>% map(~ tally_by_cand(.x, lim = topn))
+  top_all <- fb_matched %>% map(~ tally_by_cand(.x, lim = topn)) %>% temp()
+  top_all <- temp(top_all)
+  
+  top_list <- cross2(c("trump", "covid", "chinese"), c("unique", "all")) %>%
+    set_names(., nm = {
+      .
+    } %>% map_chr(~ paste(.x, collapse = "_"))) %>%
+    imap(
+      ~ list(
+        freq = top_freq(
+          l1 = fb_unique, l2 = get(paste0("top_", .x[[2]]), envir = .GlobalEnv),
+          var = paste0("word_", .x[[1]])
+        ) %>%
+          map(
+            ~ .x %>%
+              mutate(
+                ## There must be a smarter way :)
+                candidate = gsub("-c", "-C", candidate),
+                candidate = gsub("Laturner", "LaTurner", candidate),
+                candidate = gsub("Mcsally", "McSally", candidate),
+                candidate = gsub("Mcg", "McG", candidate),
+                candidate = gsub("Mcc", "McC", candidate),
+                candidate = gsub("Mcmorris", "McMorris", candidate),
+                candidate = gsub("Mcadams", "McAdams", candidate),
+                candidate = gsub("Iii", "III", candidate),
+                candidate = gsub("O¬íhalleran", "O'Halleran", candidate),
+                candidate = gsub("-n", "-N", candidate),
+                candidate = gsub("-g", "-G", candidate),
+                candidate = gsub("-s", "-S", candidate),
+                candidate = gsub("-p", "-P", candidate)
+              )
+          ),
+        type = .x[[2]],
+        var = paste0("word_", .x[[1]]),
+        lab0 = case_when(
+          .x[[1]] == "trump" ~ "Does Not Mention Trump",
+          .x[[1]] == "covid" ~ "Does Not Mention COVID-19",
+          .x[[1]] == "chinese" ~ "Does Not Mention China"
+        ),
+        lab1 = case_when(
+          .x[[1]] == "trump" ~ "Mentions Trump",
+          .x[[1]] == "covid" ~ "Mentions COVID-19",
+          .x[[1]] == "chinese" ~ "Mentions China"
+        )
       )
     )
-  )
-
-## Needs labels by state/district + better colors (not blue) +
-## unification of y-axis label size by paste + nchar
-p_list <- top_list %>%
-  map(
-    ~ list(
-      senate = top_freq_plot(x = .x, chamber = "senate", scales = "free_y"),
-      house = top_freq_plot(x = .x, chamber = "house", scales = "free_y")
+  
+  ## Visualize -----------------------------------------------------------------
+  ## Needs labels by state/district
+  p1 <- top_list %>%
+    map(
+      ~ list(
+        senate = top_freq_plot(
+          x = .x, chamber = "senate", top = topn, scales = "free_y",
+          height = ifelse(topn == 10, 3.5, 5.2)
+        ),
+        house = top_freq_plot(
+          x = .x, chamber = "house", top = topn, scales = "free_y",
+          height = ifelse(topn == 10, 3.5, 5.2)
+        )
+      )
     )
-  )
+  
+  p2 <- top_list %>%
+    map(
+      ~ list(
+        senate = top_freq_plot(
+          x = .x, chamber = "senate", top = topn, scales = "free_y",
+          height = ifelse(topn == 10, 3.5, 5.2), fxn = "perc"
+        ),
+        house = top_freq_plot(
+          x = .x, chamber = "house", top = topn, scales = "free_y",
+          height = ifelse(topn == 10, 3.5, 5.2), fxn = "perc"
+        )
+      )
+    )
+}
