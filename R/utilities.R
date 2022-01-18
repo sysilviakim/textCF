@@ -1238,24 +1238,28 @@ tally_by_cand <- function(x, lim, party = TRUE) {
 
 top_freq <- function(l1, l2, var, party = TRUE) {
   if (party) {
-    c(senate = "senate", house = "house") %>%
-      map(
+    out <- c(senate = "senate", house = "house") %>%
+      imap(
         ~ l1[[.x]] %>%
-          group_by(candidate, !!as.name(var), party) %>%
-          tally() %>%
-          filter(candidate %in% l2[[.x]]$candidate) %>%
-          ungroup()
+          group_by(candidate, !!as.name(var), party)
       )
   } else {
-    c(senate = "senate", house = "house") %>%
-      map(
+    out <- c(senate = "senate", house = "house") %>%
+      imap(
         ~ l1[[.x]] %>%
-          group_by(candidate, !!as.name(var)) %>%
-          tally() %>%
-          filter(candidate %in% l2[[.x]]$candidate) %>%
-          ungroup()
+          group_by(candidate, !!as.name(var))
       )
   }
+  out <- out %>%
+    imap(
+      ~ .x %>%
+        tally() %>%
+        filter(candidate %in% l2[[.y]]$candidate) %>%
+        ungroup() %>% 
+        complete(candidate, !!as.name(var), fill = list(n = 0)) %>%
+        group_by(candidate) %>%
+        mutate(party = Mode(party))
+    )
 }
 
 top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
@@ -1268,11 +1272,6 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
         !!as.name(x$var) == 0 ~ x$lab0,
         !!as.name(x$var) == 1 ~ x$lab1
       )
-    ) %>%
-    group_by(candidate) %>%
-    mutate(
-      total = sum(n),
-      perc = n / total
     )
   
   if (fxn == "bar") {
@@ -1283,7 +1282,7 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
   } else {
     p <- p %>% 
       ggplot(
-        aes(x = perc, y = fct_reorder(candidate, total), fill = fct_rev(m))
+        aes(x = perc, y = fct_reorder(candidate, perc1), fill = fct_rev(m))
       ) +
       geom_col() + 
       scale_x_continuous(labels = scales::percent)
@@ -1311,6 +1310,14 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
       axis.title.y = element_blank()
     ) + 
     xlab(xlab)
+  
+  if (top > 30) {
+    p <- p + 
+      theme(
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()
+      )
+  }
   
   if (save) {
     pdf(

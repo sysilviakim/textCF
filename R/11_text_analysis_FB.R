@@ -8,7 +8,7 @@ load(here("output", "fb_quanteda.Rda"))
 
 # Adjust candidate labels so that nchar is the same ============================
 ## Define function, adjust later
-temp <- function(x) {
+temp_fxn <- function(x) {
   x %>%
     map(
       ~ .x %>%
@@ -40,62 +40,74 @@ assert_that(
 )
 
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
-fb_unique <- temp(fb_unique)
+fb_unique <- temp_fxn(fb_unique)
 
 # Who among top candidates mention keywords the most? ==========================
-for (topn in c(10, 30)) {
-  topn <- 10
+top_list <- list()
+for (topn in c(10, 30, 1000)) {
   top_unique <- fb_unique %>% map(~ tally_by_cand(.x, lim = topn))
-  top_all <- fb_matched %>% map(~ tally_by_cand(.x, lim = topn)) %>% temp()
-  top_all <- temp(top_all)
+  top_all <- fb_matched %>% map(~ tally_by_cand(.x, lim = topn)) %>% temp_fxn()
+  top_all <- temp_fxn(top_all)
   
-  top_list <- cross2(c("trump", "covid", "chinese"), c("unique", "all")) %>%
+  temp <- cross2(c("trump", "covid", "chinese"), c("unique", "all")) %>%
     set_names(., nm = {
       .
     } %>% map_chr(~ paste(.x, collapse = "_"))) %>%
     imap(
-      ~ list(
-        freq = top_freq(
-          l1 = fb_unique, l2 = get(paste0("top_", .x[[2]]), envir = .GlobalEnv),
-          var = paste0("word_", .x[[1]])
-        ) %>%
-          map(
-            ~ .x %>%
-              mutate(
-                ## There must be a smarter way :)
-                candidate = gsub("-c", "-C", candidate),
-                candidate = gsub("Laturner", "LaTurner", candidate),
-                candidate = gsub("Mcsally", "McSally", candidate),
-                candidate = gsub("Mcg", "McG", candidate),
-                candidate = gsub("Mcc", "McC", candidate),
-                candidate = gsub("Mcmorris", "McMorris", candidate),
-                candidate = gsub("Mcadams", "McAdams", candidate),
-                candidate = gsub("Iii", "III", candidate),
-                candidate = gsub("O¬íhalleran", "O'Halleran", candidate),
-                candidate = gsub("-n", "-N", candidate),
-                candidate = gsub("-g", "-G", candidate),
-                candidate = gsub("-s", "-S", candidate),
-                candidate = gsub("-p", "-P", candidate)
-              )
+      ~ {
+        var <- paste0("word_", .x[[1]])
+        list(
+          freq = top_freq(
+            l1 = fb_unique, 
+            l2 = get(paste0("top_", .x[[2]]), envir = .GlobalEnv),
+            var = var
+          ) %>%
+            map(
+              ~ .x %>%
+                mutate(
+                  ## There must be a smarter way :)
+                  candidate = gsub("-c", "-C", candidate),
+                  candidate = gsub("Laturner", "LaTurner", candidate),
+                  candidate = gsub("Mcsally", "McSally", candidate),
+                  candidate = gsub("Mcg", "McG", candidate),
+                  candidate = gsub("Mcc", "McC", candidate),
+                  candidate = gsub("Mcmorris", "McMorris", candidate),
+                  candidate = gsub("Mcadams", "McAdams", candidate),
+                  candidate = gsub("Iii", "III", candidate),
+                  candidate = gsub("O¬íhalleran", "O'Halleran", candidate),
+                  candidate = gsub("-n", "-N", candidate),
+                  candidate = gsub("-g", "-G", candidate),
+                  candidate = gsub("-s", "-S", candidate),
+                  candidate = gsub("-p", "-P", candidate)
+                ) %>%
+                group_by(candidate) %>%
+                mutate(
+                  total = sum(n),
+                  perc = n / total,
+                  perc1 = perc[!!as.name(var) == 1]
+                ) %>%
+                ungroup()
+            ),
+          type = .x[[2]],
+          var = var,
+          lab0 = case_when(
+            .x[[1]] == "trump" ~ "Does Not Mention Trump",
+            .x[[1]] == "covid" ~ "Does Not Mention COVID-19",
+            .x[[1]] == "chinese" ~ "Does Not Mention China"
           ),
-        type = .x[[2]],
-        var = paste0("word_", .x[[1]]),
-        lab0 = case_when(
-          .x[[1]] == "trump" ~ "Does Not Mention Trump",
-          .x[[1]] == "covid" ~ "Does Not Mention COVID-19",
-          .x[[1]] == "chinese" ~ "Does Not Mention China"
-        ),
-        lab1 = case_when(
-          .x[[1]] == "trump" ~ "Mentions Trump",
-          .x[[1]] == "covid" ~ "Mentions COVID-19",
-          .x[[1]] == "chinese" ~ "Mentions China"
+          lab1 = case_when(
+            .x[[1]] == "trump" ~ "Mentions Trump",
+            .x[[1]] == "covid" ~ "Mentions COVID-19",
+            .x[[1]] == "chinese" ~ "Mentions China"
+          )
         )
-      )
+      }
     )
+  top_list[[paste0("top_", topn)]] <- temp
   
   ## Visualize -----------------------------------------------------------------
   ## Needs labels by state/district
-  p1 <- top_list %>%
+  p1 <- temp %>%
     map(
       ~ list(
         senate = top_freq_plot(
@@ -109,7 +121,7 @@ for (topn in c(10, 30)) {
       )
     )
   
-  p2 <- top_list %>%
+  p2 <- temp %>%
     map(
       ~ list(
         senate = top_freq_plot(
@@ -123,3 +135,44 @@ for (topn in c(10, 30)) {
       )
     )
 }
+save(top_list, file = here("output", "word_top_list.Rda"))
+
+## Summary statistics --------------------------------------------------------
+top_list %>%
+  map_dfr(
+    function(x) x %>%
+      map_dfr(
+        ~ bind_rows(
+          .x$freq$senate %>%
+            filter(!!as.name(.x$var) == 1) %>%
+            group_by(party) %>%
+            summarise(perc = mean(perc)) %>%
+            mutate(chamber = "Senate"),
+          .x$freq$house %>%
+            filter(!!as.name(.x$var) == 1) %>%
+            group_by(party) %>%
+            summarise(perc = mean(perc)) %>%
+            mutate(chamber = "House")
+        ),
+        .id = "case"
+      ),
+    .id = "topn"
+  ) %>%
+  filter(grepl("unique", case)) %>%
+  filter(grepl("1000", topn))
+
+# # A tibble: 12 x 5
+# topn     case           party          perc chamber
+# <chr>    <chr>          <chr>         <dbl> <chr>  
+#  1 top_1000 trump_unique   Democrat   0.133    Senate 
+#  2 top_1000 trump_unique   Republican 0.206    Senate 
+#  3 top_1000 trump_unique   Democrat   0.151    House  
+#  4 top_1000 trump_unique   Republican 0.158    House  
+#  5 top_1000 covid_unique   Democrat   0.0396   Senate 
+#  6 top_1000 covid_unique   Republican 0.0465   Senate 
+#  7 top_1000 covid_unique   Democrat   0.0569   House  
+#  8 top_1000 covid_unique   Republican 0.0415   House  
+#  9 top_1000 chinese_unique Democrat   0.00300  Senate 
+# 10 top_1000 chinese_unique Republican 0.0463   Senate 
+# 11 top_1000 chinese_unique Democrat   0.000895 House  
+# 12 top_1000 chinese_unique Republican 0.0177   House 
