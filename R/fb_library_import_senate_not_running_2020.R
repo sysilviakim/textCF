@@ -50,7 +50,8 @@ for (i in seq(length(senate_other_list))) {
     }
   }
   save(fb_senate_other, file = fname)
-  message(paste0("Finished for ", cand, ", ", senate_other_list[[i]]$state, "."))
+  message(paste0("Finished for ", cand, ", ", 
+                 senate_other_list[[i]]$state, "."))
   message(paste0("Row ", i, " out of ", length(senate_other_list), "."))
 }
 
@@ -91,14 +92,46 @@ for (i in idx_retry) {
     if (!is.null(nrow(fb_senate_other[[cand]][[x]]$tbl))) {
       assert_that(nrow(fb_senate_other[[cand]][[x]]$tbl) < 5000)
       message(paste0("1mo interval starting from ", date_breaks[x], " done."))
-      message(paste0("Number of rows was ", nrow(fb_senate_other[[cand]][[x]]$tbl)))
+      message(paste0("Number of rows was ", 
+                     nrow(fb_senate_other[[cand]][[x]]$tbl)))
     }
     Sys.sleep(5)
   }
-  fb_senate_other[[cand]]$tbl <- fb_senate_other[[cand]] %>% map("tbl") %>% bind_rows()
+  fb_senate_other[[cand]]$tbl <- fb_senate_other[[cand]] %>% map("tbl") %>% 
+    bind_rows()
   assert_that(!is.null(fb_senate_other[[cand]]))
   assert_that(nrow(fb_senate_other[[cand]]$tbl) > 5000)
   save(fb_senate_other, file = fname)
-  message(paste0("Finished for ", cand, ", ", senate_other_list[[i]]$state, "."))
+  message(paste0("Finished for ", cand, ", ", 
+                 senate_other_list[[i]]$state, "."))
 }
+# Running into an error:
+## Error: nrow(fb_senate_other[[cand]][[x]]$tbl) not less than 5000
+# It runs for one go, but then it gives the error:
+## 1mo interval starting from 2019-01-01 done.
+## Number of rows was 226
+## Error: nrow(fb_senate_other[[cand]][[x]]$tbl) not less than 5000
 
+## There's a weird thing going on here...
+## Going back and re-running the code -- the `vec` line on -- does some more
+## It looks like Bernie Sanders was coded? 
+## Inspecting the list item, Bernie now has more than 5,000 ads...
+## I got the same error as before, but instead of running for one go, it ran for
+## nine first...
+## Hold up a second.
+## The 226 from the first run is added to Bernie's list.
+## And the new intervals -- 744, 1026, 2675, 1997, 2203, 2296, 1812, 3728 --
+## these are the numbers of ads in the new lists in Elizabeth Warren's item in
+## fb_senate_other. Now, the question becomes, are these properly their ads?
+## It looks like they are. What's more, it looks like a lot of these are 
+## Presidential ads.
+## So, what I'm going to do is re-run the vec line on and see if this gets us
+## all the ads we need for Gillibrand and Bennet.
+## Looks like it's working for Bennet...
+## And it looks like it worked for Gillibrand.
+
+## So, at this point, fb_senate_other should have all the ads for these Senators
+
+# Final check ==================================================================
+fb_senate_other %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
+# [1] 35...is this what this ought to be?
