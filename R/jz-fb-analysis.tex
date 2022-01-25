@@ -100,13 +100,11 @@
 \begin{itemize}
 \tightlist
 \item
-  Our FB dataset consists of 293960 rows (House), and 219888 rows (Senate), but many of these ads are duplicates.
-\item
-  After removing duplicate texts, we have 43694 observations for the US House, and 16828 observations for the US Senate.
+  After removing duplicate texts, we have 43611 observations for the US House, and 16828 observations for the US Senate.
 \end{itemize}
 
 \hypertarget{pre-processing}{%
-\subsubsection{Pre-processing}\label{pre-processing}}
+\section{Pre-processing}\label{pre-processing}}
 
 \begin{itemize}
 \tightlist
@@ -135,17 +133,16 @@
 \item
   We currently do not apply a stemmer.
 \item
-  We create a document feature matrix, stacking the House and Senate data into one large martix.
+  We create a document feature matrix, stacking the House and Senate data into one large matrix.
 \item
-  The dimensions of this matrix are: 60522 x 46417.
+  The dimensions of this matrix are: 60439 x 46400.
 \item
-  That is, we there are 46417 features (types). The total number of tokens is 1853508.
+  That is, there are 46400 features (types). The total number of tokens is 1835742.
 \end{itemize}
 
-Some of the analyses are at the ad level, but we also produce candidate level analyses.
-When each ``document'' is a candidate, and we prepare a document-feature matrix whose dimensions are: 716 x 46417.
+Some of the analyses are at the ad level, but we also produce candidate level analyses. When each ``document'' is a candidate, and we prepare a document-feature matrix whose dimensions are: 721 x 46400.
 
-The median number of words produced per candidate is 1120, the average number is 2549.2, but the maximum is 77537, so we will generally report ``\% of words'' for a given candidate that meet some condition (e.g.~belong to a particular dictionary).
+The median number of words produced per candidate is 1110, the average number is 2546.1, but the maximum is 74402, so we will generally report ``\% of words'' for a given candidate that meet some condition (e.g.~belong to a particular dictionary).
 
 \hypertarget{mentions-of-salient-topicsfigures}{%
 \section{Mentions of salient topics/figures}\label{mentions-of-salient-topicsfigures}}
@@ -169,8 +166,8 @@ The median number of words produced per candidate is 1120, the average number is
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-5-1.pdf}
-\caption{\label{fig:unnamed-chunk-5}Candidate-level usage of selected words (\% of all words used in ads)}
+\includegraphics{figsFB/unnamed-chunk-3-1.pdf}
+\caption{\label{fig:unnamed-chunk-3}Candidate-level usage of selected words (\% of all words used in ads)}
 \end{figure}
 
 \hypertarget{who-produced-most-words-for-fb-ads}{%
@@ -178,8 +175,8 @@ The median number of words produced per candidate is 1120, the average number is
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-6-1.pdf}
-\caption{\label{fig:unnamed-chunk-6}Number of tokens by the 30 most prolific candidates}
+\includegraphics{figsFB/unnamed-chunk-4-1.pdf}
+\caption{\label{fig:unnamed-chunk-4}Number of tokens by the 30 most prolific candidates}
 \end{figure}
 
 \pagebreak
@@ -191,38 +188,38 @@ The median number of words produced per candidate is 1120, the average number is
 \paragraph{All FB ads}\label{all-fb-ads}}
 
 \begin{verbatim}
-##      help       can         $         >       now        us      need  congress 
-##     18245     15426     14861     14423     14001     13606     13065     11510 
-##  campaign     today     trump     fight    senate      back   support    people 
-##     10789     10544     10079      9592      9238      9017      8526      8467 
-##      chip      vote president      make 
-##      7962      7791      7579      7340
+##      help       can         $       now        us      need  congress  campaign 
+##     18198     15392     14848     13992     13590     13045     11491     10767 
+##     today     trump     fight    senate      back   support    people      chip 
+##     10538     10067      9586      9237      9006      8508      8446      7930 
+##      vote president      make      join 
+##      7789      7572      7329      7323
 \end{verbatim}
 
 \hypertarget{democrats}{%
 \paragraph{Democrats}\label{democrats}}
 
 \begin{verbatim}
-##     help      can        >        $      now     need       us campaign 
-##    12294    11411    10752    10638    10152     9751     9696     8148 
-##   senate    today congress    fight     chip   people     back    trump 
-##     6935     6874     6791     6303     6159     6052     5638     5466 
-##     make     take     join     just 
-##     5405     4959     4731     4549
+##     help      can        $      now     need       us campaign    today 
+##    12627    11707    10854    10318     9956     9879     8374     7064 
+##   senate congress    fight     chip   people     back    trump     make 
+##     6934     6887     6424     6250     6188     5711     5573     5520 
+##     take     join     just  support 
+##     4966     4787     4622     4613
 \end{verbatim}
 
 \hypertarget{republicans}{%
 \paragraph{Republicans}\label{republicans}}
 
 \begin{verbatim}
-##         help    president        trump     congress            $      support 
-##         5434         4837         4297         4240         3928         3729 
-##            >          now           us          can        today         vote 
-##         3598         3563         3560         3474         3270         3176 
-##         back        fight         need conservative        stand         join 
-##         3149         2997         2966         2476         2420         2401 
-##       senate     campaign 
-##         2300         2294
+##         help    president     congress        trump            $      support 
+##         5568         5077         4596         4494         3992         3889 
+##           us          now          can        today         back         vote 
+##         3677         3668         3659         3456         3291         3275 
+##        fight         need conservative        stand         join    democrats 
+##         3160         3084         2583         2579         2527         2418 
+##         like     campaign 
+##         2398         2389
 \end{verbatim}
 
 \hypertarget{dictionary-anlysis}{%
@@ -235,14 +232,14 @@ When a donation link is included, the language is on average more aggressive:
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-12-1.pdf}
-\caption{\label{fig:unnamed-chunk-12}Percent of trolling words per ad, broken down by ad type}
+\includegraphics{figsFB/unnamed-chunk-10-1.pdf}
+\caption{\label{fig:unnamed-chunk-10}Percent of trolling words per ad, broken down by ad type}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-13-1.pdf}
-\caption{\label{fig:unnamed-chunk-13}Percent of trolling words per ad, broken down by ad type and by Party ID}
+\includegraphics{figsFB/unnamed-chunk-11-1.pdf}
+\caption{\label{fig:unnamed-chunk-11}Percent of trolling words per ad, broken down by ad type and by Party ID}
 \end{figure}
 
 \pagebreak
@@ -253,20 +250,20 @@ When a donation link is included, the language is on average more aggressive:
 
 \begin{figure}
 \centering
+\includegraphics{figsFB/unnamed-chunk-12-1.pdf}
+\caption{\label{fig:unnamed-chunk-12}Distribution of candidate-level average of trolling usage (broken down by Party ID)}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{figsFB/unnamed-chunk-13-1.pdf}
+\caption{\label{fig:unnamed-chunk-13}Distribution of candidate-level average of trolling usage (broken down by Party ID and chamber of Congress)}
+\end{figure}
+
+\begin{figure}
+\centering
 \includegraphics{figsFB/unnamed-chunk-14-1.pdf}
-\caption{\label{fig:unnamed-chunk-14}Distribution of candidate-level average of trolling usage (broken down by Party ID)}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{figsFB/unnamed-chunk-15-1.pdf}
-\caption{\label{fig:unnamed-chunk-15}Distribution of candidate-level average of trolling usage (broken down by Party ID and chamber of Congress)}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{figsFB/unnamed-chunk-16-1.pdf}
-\caption{\label{fig:unnamed-chunk-16}Candidate-level average usage of trolling words, broken down by chamber}
+\caption{\label{fig:unnamed-chunk-14}Candidate-level average usage of trolling words, broken down by chamber}
 \end{figure}
 
 \pagebreak
@@ -277,14 +274,14 @@ When a donation link is included, the language is on average more aggressive:
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-17-1.pdf}
-\caption{\label{fig:unnamed-chunk-17}Average proportion of trolling words per ad, broken down by party ID and chamber}
+\includegraphics{figsFB/unnamed-chunk-15-1.pdf}
+\caption{\label{fig:unnamed-chunk-15}Average proportion of trolling words per ad, broken down by party ID and chamber}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-18-1.pdf}
-\caption{\label{fig:unnamed-chunk-18}Distribution of trolling words per ad, broken down by party ID and chamber}
+\includegraphics{figsFB/unnamed-chunk-16-1.pdf}
+\caption{\label{fig:unnamed-chunk-16}Distribution of trolling words per ad, broken down by party ID and chamber}
 \end{figure}
 
 \pagebreak
@@ -295,8 +292,8 @@ When a donation link is included, the language is on average more aggressive:
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-19-1.pdf}
-\caption{\label{fig:unnamed-chunk-19}Average number of trolling words by party and chamber}
+\includegraphics{figsFB/unnamed-chunk-17-1.pdf}
+\caption{\label{fig:unnamed-chunk-17}Average number of trolling words by party and chamber}
 \end{figure}
 
 \pagebreak
@@ -307,20 +304,20 @@ When a donation link is included, the language is on average more aggressive:
 
 \begin{figure}
 \centering
+\includegraphics{figsFB/unnamed-chunk-18-1.pdf}
+\caption{\label{fig:unnamed-chunk-18}Distribtion of candidate-level trolling words counts (totals)}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{figsFB/unnamed-chunk-19-1.pdf}
+\caption{\label{fig:unnamed-chunk-19}Distribtion of candidate-level trolling words counts (totals)}
+\end{figure}
+
+\begin{figure}
+\centering
 \includegraphics{figsFB/unnamed-chunk-20-1.pdf}
-\caption{\label{fig:unnamed-chunk-20}Distribtion of candidate-level trolling words counts (totals)}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{figsFB/unnamed-chunk-21-1.pdf}
-\caption{\label{fig:unnamed-chunk-21}Distribtion of candidate-level trolling words counts (totals)}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{figsFB/unnamed-chunk-22-1.pdf}
-\caption{\label{fig:unnamed-chunk-22}Total number of trolling words in the corpus produced by candidates}
+\caption{\label{fig:unnamed-chunk-20}Total number of trolling words in the corpus produced by candidates}
 \end{figure}
 
 \clearpage
@@ -331,21 +328,21 @@ When a donation link is included, the language is on average more aggressive:
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-23-1.pdf}
-\caption{\label{fig:unnamed-chunk-23}Distribution of Moral foundations words in FB ads, by party}
+\includegraphics{figsFB/unnamed-chunk-21-1.pdf}
+\caption{\label{fig:unnamed-chunk-21}Distribution of Moral foundations words in FB ads, by party}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{figsFB/unnamed-chunk-24-1.pdf}
-\caption{\label{fig:unnamed-chunk-24}Candidate-level usage of moral words (MFD)}
+\includegraphics{figsFB/unnamed-chunk-22-1.pdf}
+\caption{\label{fig:unnamed-chunk-22}Candidate-level usage of moral words (MFD)}
 \end{figure}
 
 \includegraphics{figsFB/Candidate-level usage of moral words (MFD)-1.pdf}
 
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-25}Average Usage of words across candidates, broken down by Party ID}
+\caption{\label{tab:unnamed-chunk-23}Average Usage of words across candidates, broken down by Party ID}
 \centering
 \begin{tabular}[t]{lrr}
 \toprule
@@ -353,14 +350,14 @@ Average Usage of the dimension Per Candidate (in \%) & DEMOCRAT & REPUBLICAN\\
 \midrule
 authority.vice & 0.06 & 0.16\\
 authority.virtue & 1.41 & 2.53\\
-care.vice & 1.36 & 1.21\\
-care.virtue & 2.94 & 2.33\\
+care.vice & 1.37 & 1.22\\
+care.virtue & 2.93 & 2.33\\
 fairness.vice & 0.13 & 0.14\\
 \addlinespace
 fairness.virtue & 0.65 & 0.56\\
 loyalty.vice & 0.01 & 0.03\\
-loyalty.virtue & 1.56 & 1.52\\
-sanctity.vice & 0.38 & 0.28\\
+loyalty.virtue & 1.57 & 1.54\\
+sanctity.vice & 0.38 & 0.27\\
 sanctity.virtue & 0.24 & 0.30\\
 \bottomrule
 \end{tabular}

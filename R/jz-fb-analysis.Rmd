@@ -85,15 +85,19 @@ load(here("output", "fb_quanteda.Rda"))
 # Pre-processing
 
 - We download the Facebook ads for both chambers of US Congress.
-- We remove duplicates (in the ad-text sense)
+- We remove duplicates
+  - The approach here is defensible but maybe worth checking this again (fields other than text are considered for identifying duplicates)
 - We merge in covariates, namely:
   - Party ID
   - Office
   - State
   - Vote share (a proxy for competitiveness)
 - We create a corpus with the above mentioned document variables appended as covariates.
-- We tokenize the text, removing English and Spanish stopwords, lower-casing the words, a removing most punctuation.
-- We currently do not apply a stemmer.
+- We tokenize the text, pre-processing the inputs as follows:
+  - Removing English and Spanish stopwords
+  - lower-casing the words
+  - Removing most punctuation.
+- We currently do not apply a stemmer (the trolling dictionary includes all inflection of stems, so this is currently preferred).
 - We create a document feature matrix, stacking the House and Senate data into one large matrix.
 - The dimensions of this matrix are: `r nrow(dfm_FB_ad)` x `r nfeat(dfm_FB_ad)`.
 - That is, there are `r nfeat(dfm_FB_ad)` features (types). The total number of tokens is `r ntoken(dfm_FB_ad) %>% sum()`.
