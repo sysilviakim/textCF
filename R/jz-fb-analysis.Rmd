@@ -47,6 +47,8 @@ jz_brewer3cats <- c("#1B9E77", "#D95F02", "#7570B3")
 jz_brewer <- c("#762A83", "#C2A5CF", "#D9F0D3", "#A6DBA0", "#5AAE61", "#1B7837")
 myCol <- brewer.pal(3, "Set1")
 
+
+# Produce with: "10_text_prep_FB.R"
 load(here("data", "tidy", "fb_unique.Rda"))
 load(here("output", "fb_quanteda.Rda"))
 ```
