@@ -21,69 +21,39 @@ editor_options:
 ---
 
 ```{r Setup, include=FALSE}
-library(tidyverse)
-library(knitr)
-library(kableExtra)
-library(stargazer)
-library(haven)
-library(labelled)
-library(lubridate)
-library(RColorBrewer)
-library(ggpubr)
-library(stringr)
+source(here::here("R", "utilities.R"))
+opts_chunk$set(
+  fig.path = "figsFB/",
+  dev = c("pdf", "png"),
+  fig.width = 9,
+  fig.height = 4.5,
+  fig.pos = "H",
+  cache.path = "../cache/",
+  cache = TRUE,
+  echo = FALSE, # hide the source code
+  message = FALSE,
+  warning = FALSE
+)
 
-library(quanteda)
-library(quanteda.textplots)
-library(quanteda.textstats)  
-library(quanteda.dictionaries) # devtools::install_github("kbenoit/quanteda.dictionaries") 
-
-opts_chunk$set(fig.path="figsFB/",
-               dev=c("pdf","png"),
-               fig.width = 9,
-               fig.height = 4.5,
-               fig.pos = 'H',
-               cache.path="../cache/",
-               cache=TRUE,
-               echo=FALSE,     # hide the source code   
-               message=FALSE,
-               warning=FALSE) 
-```
-
-```{r}
 theme_set(theme_minimal())
-theme_update(text = element_text(size=12),
-             #text = element_text(family="Source Sans Pro"),
-             plot.title = element_text(face="bold", color="#1b5283"),
-             plot.subtitle = element_text(vjust=1.5))
+theme_update(
+  text = element_text(size = 12),
+  # text = element_text(family = "Source Sans Pro"),
+  plot.title = element_text(face = "bold", color = "#1b5283"),
+  plot.subtitle = element_text(vjust = 1.5)
+)
 
-jz_brewer3cats <- c("#1B9E77","#D95F02","#7570B3")
-jz_brewer <- c("#762A83","#C2A5CF","#D9F0D3","#A6DBA0","#5AAE61","#1B7837")
-myCol <- brewer.pal(3,"Set1")
+jz_brewer3cats <- c("#1B9E77", "#D95F02", "#7570B3")
+jz_brewer <- c("#762A83", "#C2A5CF", "#D9F0D3", "#A6DBA0", "#5AAE61", "#1B7837")
+myCol <- brewer.pal(3, "Set1")
+
+load(here("data", "tidy", "fb_unique.Rda"))
+load(here("output", "fb_quanteda.Rda"))
 ```
 
-```{r, cache=TRUE}
-source("jz-text-prep-FB.R")
-```
+- After removing duplicate texts, we have `r nrow(fb_unique$house)` observations for the US House, and  `r nrow(fb_unique$senate)` observations for the US Senate. 
 
-
-```{r basic-tags-for-tibbles}
-FBH_forAnalysis$wordTrump <- ifelse(str_detect(str_to_lower(FBH_forAnalysis$ad_creative_body), 
-                                   "trump"),1,0)
-
-
-
-FBH_forAnalysis$wordsCovid <- ifelse(str_detect(str_to_lower(FBH_forAnalysis$ad_creative_body), 
-                                    paste(c("covid","#covid","covid-19","#covid19",
-                                            "coronavirus","virus",
-                                            "infection","infected",
-                                            "vaccine","vaccines"),collapse = '|')),1,0)
-```
-
-
-- Our FB dataset consists of `r nrow(FBH)` rows (House), and  `r nrow(FBS)` rows (Senate), but many of these ads are duplicates.
-- After removing duplicate texts, we have `r nrow(FBH_forAnalysis)` observations for the US House, and  `r nrow(FBS_forAnalysis)` observations for the US Senate. 
-
-### Pre-processing
+# Pre-processing
 
 - We download the Facebook ads for both chambers of US Congress.
 - We remove duplicates (in the ad-text sense)
@@ -95,72 +65,77 @@ FBH_forAnalysis$wordsCovid <- ifelse(str_detect(str_to_lower(FBH_forAnalysis$ad_
 - We create a corpus with the above mentioned document variables appended as covariates.
 - We tokenize the text, removing English and Spanish stopwords, lower-casing the words, a removing most punctuation.
 - We currently do not apply a stemmer.
-- We create a document feature matrix, stacking the House and Senate data into one large martix.
-- The dimensions of this matrix are: `r nrow(dfm_FB)` x `r nfeat(dfm_FB)`.
-- That is, we there are `r nfeat(dfm_FB)` features (types). The total number of tokens is `r ntoken(dfm_FB) %>% sum()`.
+- We create a document feature matrix, stacking the House and Senate data into one large matrix.
+- The dimensions of this matrix are: `r nrow(dfm_FB_ad)` x `r nfeat(dfm_FB_ad)`.
+- That is, there are `r nfeat(dfm_FB_ad)` features (types). The total number of tokens is `r ntoken(dfm_FB_ad) %>% sum()`.
 
-Some of the analyses are at the ad level, but we also produce candidate level analyses. 
-When each "document" is a candidate, and we prepare a document-feature matrix whose dimensions are: `r nrow(dfmCAND)` x `r nfeat(dfmCAND)`.
+Some of the analyses are at the ad level, but we also produce candidate level analyses. When each "document" is a candidate, and we prepare a document-feature matrix whose dimensions are: `r nrow(dfm_FB_cand)` x `r nfeat(dfm_FB_cand)`.
 
-The median number of words produced per candidate is `r ntoken(dfmCAND) %>% as.vector() %>% median()`, the average number is `r ntoken(dfmCAND) %>% as.vector() %>% mean() %>% round(1)`, but the maximum is `r ntoken(dfmCAND) %>% as.vector() %>% max()`, so we will generally report "% of words" for a given candidate that meet some condition (e.g. belong to a particular dictionary).
+The median number of words produced per candidate is `r ntoken(dfm_FB_cand) %>% as.vector() %>% median()`, the average number is `r ntoken(dfm_FB_cand) %>% as.vector() %>% mean() %>% round(1)`, but the maximum is `r ntoken(dfm_FB_cand) %>% as.vector() %>% max()`, so we will generally report "% of words" for a given candidate that meet some condition (e.g. belong to a particular dictionary).
 
 # Mentions of salient topics/figures
 
-
 ```{r}
-top30Housepage <- FBH_forAnalysis %>%
-  group_by(page_name) %>%
+top30Housepage <- fb_unique$house %>%
+  group_by(candidate) %>%
   tally() %>%
   arrange(-n) %>%
   slice(1:30)
 
-congressTrumpTop30 <- 
-  FBH_forAnalysis %>%
-  group_by(page_name,wordTrump) %>%
+congressTrumpTop30 <- fb_unique$house %>%
+  group_by(candidate, word_trump) %>%
   tally() %>%
-  filter(page_name %in% top30Housepage$page_name)
+  filter(candidate %in% top30Housepage$candidate)
 
-congressCovidTop30 <- 
-  FBH_forAnalysis %>%
-  group_by(page_name,wordsCovid) %>%
+congressCovidTop30 <- fb_unique$house %>%
+  group_by(candidate, word_covid) %>%
   tally() %>%
-  filter(page_name %in% top30Housepage$page_name)
+  filter(candidate %in% top30Housepage$candidate)
 ```
 
 ```{r top30-trump, fig.cap="Mentions of Trump"}
 congressTrumpTop30 %>%
-  mutate(mTrump = case_when(
-    wordTrump==0 ~ "Doesn't mention Trump",
-    wordTrump==1 ~ "Mentioned Trump"
-  )) %>%
-  filter(!is.na(wordTrump)) %>%
-  ggplot(aes(x=n,
-             y=fct_reorder(page_name,n),
-             fill=fct_rev(mTrump))) +
+  mutate(
+    mTrump = case_when(
+    word_trump == 0 ~ "Doesn't mention Trump",
+    word_trump == 1 ~ "Mentioned Trump"
+  )
+  ) %>%
+  filter(!is.na(word_trump)) %>%
+  ggplot(aes(
+    x = n,
+    y = fct_reorder(candidate, n),
+    fill = fct_rev(mTrump)
+  )) +
   geom_col() +
   scale_fill_brewer(type = "qual", palette = 6) +
-  labs(fill = "", x = "Number of ads",
-       y = "",
-       title = "Frequency of Trump mentions in Facebook ads",
-       subtitle = "Top political 30 ad producers (US House)")
+  labs(
+    fill = "", x = "Number of ads",
+    y = "",
+    title = "Frequency of Trump mentions in Facebook ads",
+    subtitle = "Top political 30 ad producers (US House)"
+  )
 ```
 
 ```{r top30-covid, fig.cap="Mentions of Covid"}
 congressCovidTop30 %>%
   mutate(cw = case_when(
-    wordsCovid==0 ~ "Doesn't mention Covid",
-    wordsCovid==1 ~ "Mentioned Covid"
+    word_covid == 0 ~ "Doesn't mention Covid",
+    word_covid == 1 ~ "Mentioned Covid"
   )) %>%
-  filter(!is.na(wordsCovid)) %>%
-  ggplot(aes(x=n,
-             y=fct_reorder(page_name,n),
-             fill=fct_rev(cw))) +
+  filter(!is.na(word_covid)) %>%
+  ggplot(aes(
+    x = n,
+    y = fct_reorder(candidate, n),
+    fill = fct_rev(cw)
+  )) +
   geom_col() +
   scale_fill_brewer(type = "qual", palette = 1) +
-  labs(fill = "", x = "Number of ads",
-       y = "",
-       title = "Mentions of Covid / virus / infections",
-       subtitle = "Top political 30 ad producers (US House)") +
+  labs(
+    fill = "", x = "Number of ads", y = "",
+    title = "Mentions of Covid / virus / infections",
+    subtitle = "Top political 30 ad producers (US House)"
+  ) +
   theme_bw()
 ```
 
@@ -169,45 +144,50 @@ congressCovidTop30 %>%
 ## Usage of salient words, broken down by PID
 
 ```{r}
-DF_features_manual <- dfmCANDprop[,c("fight","socialist","economy",
-                                     "defeat","grassroots",
-                                     "attack","stop")] %>% convert(to = "data.frame")
-DF_features_manual$party <- docvars(dfmCANDprop,"party")
+DF_features_manual <- dfm_FB_cand_prop[, c(
+  "fight", "socialist", "economy",
+  "defeat", "grassroots",
+  "attack", "stop"
+)] %>% 
+  convert(to = "data.frame")
+DF_features_manual$party <- docvars(dfm_FB_cand_prop, "party")
 ```
 
 ```{r, fig.cap="Candidate-level usage of selected words (% of all words used in ads)"}
 DF_features_manual %>%
   filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  pivot_longer(cols = c("fight","socialist","economy",
-                                     "defeat","grassroots",
-                                     "attack","stop")) %>%
-  ggplot(aes(x = value*100,
-             y = name)) +
+  pivot_longer(
+    cols = c(
+      "fight", "socialist", "economy",
+      "defeat", "grassroots",
+      "attack", "stop"
+    )
+  ) %>%
+  ggplot(aes(x = value * 100, y = name)) +
   geom_boxplot() +
-  xlim(c(0,5)) +
+  xlim(c(0, 5)) +
   facet_wrap(~party) +
   theme_bw() +
-  labs(y = "",
-       x = "% of all words")
+  labs(y = "", x = "% of all words")
 ```
-
-
 
 ## Who produced most words for FB ads?
 
 ```{r, fig.cap="Number of tokens by the 30 most prolific candidates", fig.width=4.5, fig.height=4}
-temp1 <- dfmCAND %>% ntoken() %>% data.frame(n=.)
-toplot1 <- data.frame(candidate = rownames(temp1),
-                      temp1) %>% tibble()
+temp1 <- dfm_FB_cand %>%
+  ntoken() %>%
+  data.frame(n = .)
+toplot1 <- tibble(
+  candidate = rownames(temp1),
+  temp1
+) 
 
-toplot1 %>% 
+toplot1 %>%
   arrange(-n) %>%
   slice(1:30) %>%
-  ggplot(aes(x=n,
-             y=fct_reorder(candidate,n))) +
+  ggplot(aes(x = n, y = fct_reorder(candidate, n))) +
   geom_col() +
-  labs(y= "",
-       x = "Number of tokens (FB corpus)")
+  labs(y = "", x = "Number of tokens (FB corpus)")
 ```
 
 \pagebreak
@@ -217,25 +197,22 @@ toplot1 %>%
 #### All FB ads
 
 ```{r}
-topfeatures(dfm_FB, n = 20)
+topfeatures(dfm_FB_ad, n = 20)
 ```
 
 #### Democrats
 
 ```{r}
-topfeatures(dfm_subset(dfm_FB, party == "DEMOCRAT"), n = 20)
+topfeatures(dfm_subset(dfm_FB_ad, party == "DEMOCRAT"), n = 20)
 ```
 
 #### Republicans
 
 ```{r}
-topfeatures(dfm_subset(dfm_FB, party == "REPUBLICAN"), n = 20)
+topfeatures(dfm_subset(dfm_FB_ad, party == "REPUBLICAN"), n = 20)
 ```
 
-
-
 # Dictionary anlysis
-
 
 ```{r}
 ###########################
@@ -243,10 +220,15 @@ topfeatures(dfm_subset(dfm_FB, party == "REPUBLICAN"), n = 20)
 ###########################
 
 # Read in the Moral foundations dictionary
-MFD <- dictionary(file = "../data/raw/dictionaries/mfd2.0.dic")
+MFD <- dictionary(file = here("data/raw/dictionaries/mfd2.0.dic"))
 
 # Read in the Trolling dictionary:
-troll <- read_csv(file = "../data/raw/dictionaries/troll_and_divide/troll_and_divide_Glove_Expansion_Raters_phase_2.csv") %>%
+troll <- read_csv(
+  file = here(
+    "data", "raw", "dictionaries",
+    "troll_and_divide/troll_and_divide_Glove_Expansion_Raters_phase_2.csv"
+  )
+) %>%
   pull(Word) %>%
   list(troll = .) %>%
   dictionary()
@@ -258,68 +240,84 @@ troll <- read_csv(file = "../data/raw/dictionaries/troll_and_divide/troll_and_di
 # Apply dictionaries to DFMs [ADS]
 ##################################
 
-lookup_trolling <- dfm_lookup(dfm_FB, troll)
-lookup_MFD <- dfm_lookup(dfm_FB, MFD)
+lookup_trolling <- dfm_lookup(dfm_FB_ad, troll)
+lookup_MFD <- dfm_lookup(dfm_FB_ad, MFD)
 
-lookup_trolling_prop <- dfm_lookup(dfm_FBprop, troll)
-lookup_MFD_prop <- dfm_lookup(dfm_FBprop, MFD)
+lookup_trolling_prop <- dfm_lookup(dfm_FB_ad_prop, troll)
+lookup_MFD_prop <- dfm_lookup(dfm_FB_ad_prop, MFD)
 
 #########################################
 # Apply dictionaries to DFMs [candidates]
 #########################################
 
-CANDlookup_trolling <- dfm_lookup(dfmCAND, troll)
-CANDlookup_MFD <- dfm_lookup(dfmCAND, MFD)
+CANDlookup_trolling <- dfm_lookup(dfm_FB_cand, troll)
+CANDlookup_MFD <- dfm_lookup(dfm_FB_cand, MFD)
 
-CANDlookup_trollingPROP <- dfm_lookup(dfmCANDprop, troll)
-CANDlookup_MFDPROP <- dfm_lookup(dfmCANDprop, MFD)
+CANDlookup_trollingPROP <- dfm_lookup(dfm_FB_cand_prop, troll)
+CANDlookup_MFDPROP <- dfm_lookup(dfm_FB_cand_prop, MFD)
 
 ##############################
 # Export look-up tables [ADS]
 #############################
 
-data_troll <- quanteda::convert(lookup_trolling,to="data.frame") %>%
-  cbind(docvars(dfm_FB))
+data_troll <- quanteda::convert(lookup_trolling, to = "data.frame") %>%
+  cbind(docvars(dfm_FB_ad))
 
-data_trollPROP <- quanteda::convert(lookup_trolling_prop,to="data.frame") %>%
-  cbind(docvars(dfm_FB))
+data_trollPROP <- quanteda::convert(lookup_trolling_prop, to = "data.frame") %>%
+  cbind(docvars(dfm_FB_ad))
 
-data_MFD <- quanteda::convert(lookup_MFD,to="data.frame") %>%
-                      cbind(docvars(dfm_FB))
+data_MFD <- quanteda::convert(lookup_MFD, to = "data.frame") %>%
+  cbind(docvars(dfm_FB_ad))
 
-L_data_MFD <- data_MFD %>% pivot_longer(cols = 
-                                          c("care.virtue","care.vice","fairness.virtue" ,
-                                            "fairness.vice","loyalty.virtue" ,"loyalty.vice",
-                                            "authority.virtue", "authority.vice" ,
-                                            "sanctity.virtue" , "sanctity.vice"))
+L_data_MFD <- data_MFD %>%
+  pivot_longer(
+    cols =
+      c(
+        "care.virtue", "care.vice", "fairness.virtue",
+        "fairness.vice", "loyalty.virtue", "loyalty.vice",
+        "authority.virtue", "authority.vice",
+        "sanctity.virtue", "sanctity.vice"
+      )
+  )
 
 ####################################
 # Export look-up tables [candidates]
 ####################################
 
-CANDdata_troll <- quanteda::convert(CANDlookup_trolling,to="data.frame") %>%
-  cbind(docvars(dfmCAND))
+CANDdata_troll <- quanteda::convert(CANDlookup_trolling, to = "data.frame") %>%
+  cbind(docvars(dfm_FB_cand))
 
-CANDdata_trollPROP <- quanteda::convert(CANDlookup_trollingPROP,to="data.frame") %>%
-  cbind(docvars(dfmCANDprop))
+CANDdata_trollPROP <-
+  quanteda::convert(CANDlookup_trollingPROP, to = "data.frame") %>%
+  cbind(docvars(dfm_FB_cand_prop))
 
-CANDdata_MFD <- quanteda::convert(CANDlookup_MFD,to="data.frame") %>%
-                      cbind(docvars(CANDlookup_MFD))
+CANDdata_MFD <- quanteda::convert(CANDlookup_MFD, to = "data.frame") %>%
+  cbind(docvars(CANDlookup_MFD))
 
-CANDdata_MFDPROP <- quanteda::convert(CANDlookup_MFDPROP,to="data.frame") %>%
+CANDdata_MFDPROP <- quanteda::convert(CANDlookup_MFDPROP, to = "data.frame") %>%
   cbind(docvars(CANDlookup_MFDPROP))
 
-CANDL_data_MFD <- CANDdata_MFD %>% pivot_longer(cols = 
-                                          c("care.virtue","care.vice","fairness.virtue" ,
-                                            "fairness.vice","loyalty.virtue" ,"loyalty.vice",
-                                            "authority.virtue", "authority.vice" ,
-                                            "sanctity.virtue" , "sanctity.vice"))
+CANDL_data_MFD <- CANDdata_MFD %>%
+  pivot_longer(
+    cols =
+      c(
+        "care.virtue", "care.vice", "fairness.virtue",
+        "fairness.vice", "loyalty.virtue", "loyalty.vice",
+        "authority.virtue", "authority.vice",
+        "sanctity.virtue", "sanctity.vice"
+      )
+  )
 
-CANDL_data_MFDPROP <- CANDdata_MFDPROP %>% pivot_longer(cols = 
-                                          c("care.virtue","care.vice","fairness.virtue" ,
-                                            "fairness.vice","loyalty.virtue" ,"loyalty.vice",
-                                            "authority.virtue", "authority.vice" ,
-                                            "sanctity.virtue" , "sanctity.vice"))
+CANDL_data_MFDPROP <- CANDdata_MFDPROP %>%
+  pivot_longer(
+    cols =
+      c(
+        "care.virtue", "care.vice", "fairness.virtue",
+        "fairness.vice", "loyalty.virtue", "loyalty.vice",
+        "authority.virtue", "authority.vice",
+        "sanctity.virtue", "sanctity.vice"
+      )
+  )
 ```
 
 ## Trolling words by ad type
@@ -328,34 +326,28 @@ When a donation link is included, the language is on average more aggressive:
 
 ```{r, fig.cap = "Percent of trolling words per ad, broken down by ad type"}
 data_trollPROP %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-      filter(!is.na(type)) %>%
-  ggplot(aes(x = troll*100,
-             y = type,
-             fill = type)) +
-  geom_boxplot(width=.4) +
-  #scale_fill_manual(values = myCol[2:1]) +
-  labs(y= "",
-       x = "% trolling words per ad") +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  filter(!is.na(type)) %>%
+  ggplot(aes(x = troll * 100, y = type, fill = type)) +
+  geom_boxplot(width = .4) +
+  # scale_fill_manual(values = myCol[2:1]) +
+  labs(y = "", x = "% trolling words per ad") +
   theme(legend.position = "none") +
-  xlim(c(0,25)) +
+  xlim(c(0, 25)) +
   scale_fill_brewer(palette = 4, type = "qual", direction = -1) +
   theme_minimal()
 ```
 
 ```{r, fig.cap = "Percent of trolling words per ad, broken down by ad type and by Party ID"}
 data_trollPROP %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-      filter(!is.na(type)) %>%
-  ggplot(aes(x = troll*100,
-             y = type,
-             fill = type)) +
-  geom_boxplot(width=.4) +
-  #scale_fill_manual(values = myCol[2:1]) +
-  labs(y= "",
-       x = "% trolling words per ad") +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  filter(!is.na(type)) %>%
+  ggplot(aes(x = troll * 100, y = type, fill = type)) +
+  geom_boxplot(width = .4) +
+  # scale_fill_manual(values = myCol[2:1]) +
+  labs(y = "", x = "% trolling words per ad") +
   theme(legend.position = "none") +
-  xlim(c(0,25)) +
+  xlim(c(0, 25)) +
   scale_fill_brewer(palette = 4, type = "qual", direction = -1) +
   facet_grid(~party) +
   theme_minimal()
@@ -367,85 +359,77 @@ data_trollPROP %>%
 ## Trolling words [candidate-level analysis - PROPRTIONS]
 
 ```{r, fig.cap="Distribution of candidate-level average of trolling usage (broken down by Party ID)"}
-library(glue)
-
 CANDdata_trollPROP %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = troll*100,
-             y = party,
-             fill = party)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll * 100, y = party, fill = party)) +
   ggridges::geom_density_ridges() +
   scale_fill_manual(values = myCol[2:1]) +
-  labs(y= "",
-       x = "% Trolling words") +
+  labs(y = "", x = "% trolling words per ad") +
   theme(legend.position = "none") +
-  xlim(c(0,20))
+  xlim(c(0, 20))
 ```
 
 ```{r, fig.cap="Distribution of candidate-level average of trolling usage (broken down by Party ID and chamber of Congress)"}
 CANDdata_trollPROP %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = troll*100,
-             y = party,
-             fill = party)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll * 100, y = party, fill = party)) +
   ggridges::geom_density_ridges() +
-  facet_wrap(~ chamber) +
+  facet_wrap(~chamber) +
   scale_fill_manual(values = myCol[2:1]) +
-  xlim(c(0,20)) +
-  labs(y= "",
-       x = "% Trolling words") +
+  xlim(c(0, 20)) +
+  labs(y = "", x = "% trolling words per ad") +
   theme(legend.position = "none")
 ```
 
 ```{r, fig.cap="Candidate-level average usage of trolling words, broken down by chamber"}
 CANDdata_trollPROP %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = troll*100,
-             y = chamber)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll * 100, y = chamber)) +
   ggridges::geom_density_ridges() +
-  xlim(c(0,20)) +
-  labs(y= "",
-       x = "% Trolling words") +
+  xlim(c(0, 20)) +
+  labs(y = "", x = "% trolling words per ad") +
   theme(legend.position = "none")
 ```
 
 \pagebreak
 \clearpage
 
-
 ## Trolling words [ad-level analysis]
 
 ```{r, fig.cap="Average proportion of trolling words per ad, broken down by party ID and chamber"}
-data_trollPROP %>% 
+data_trollPROP %>%
   group_by(party, chamber) %>%
   filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  summarise(average_trolling_words = mean(troll)*100) %>%
-  ggplot(aes(x=party, y = average_trolling_words, fill = party)) +
-  geom_col(alpha=.8, width = .5) +
-    scale_fill_manual(values = myCol[c(2,1)]) +
-  facet_grid(~ chamber) +
-  labs(x = "", 
-       y = "Percent of dict. words per document",
-  title = "",
-  subtitle = "Corpus: FB ads") +
+  summarise(average_trolling_words = mean(troll) * 100) %>%
+  ggplot(aes(x = party, y = average_trolling_words, fill = party)) +
+  geom_col(alpha = .8, width = .5) +
+  scale_fill_manual(values = myCol[c(2, 1)]) +
+  facet_grid(~chamber) +
+  labs(
+    x = "", y = "Percent of dict. words per document",
+    title = "", subtitle = "Corpus: FB ads"
+  ) +
   theme(legend.position = "none")
 ```
 
 ```{r, fig.cap="Distribution of trolling words per ad, broken down by party ID and chamber"}
 data_trollPROP %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = troll*100,
-             y = party,
-             fill = party)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll * 100, y = party, fill = party)) +
   ggridges::geom_density_ridges() +
-  facet_wrap(~ chamber) +
+  facet_wrap(~chamber) +
   scale_fill_manual(values = myCol[2:1]) +
-  xlim(c(0,20)) +
-  labs(y= "",
-       x = "% Trolling words (distribution ads with a given proportion of trolling words out of all words in a given ad)") +
+  xlim(c(0, 20)) +
+  labs(
+    y = "",
+    x = paste0(
+      "% Trolling words ", 
+      "(distribution ads with a given proportion of trolling words ", 
+      "out of all words in a given ad)"
+    )
+  ) +
   theme(legend.position = "none")
 ```
-
 
 \pagebreak
 \clearpage
@@ -460,19 +444,23 @@ data_trollPROP %>%
 # Trolling
 ##########
 
-data_troll %>% 
+data_troll %>%
   group_by(party, chamber) %>%
-    filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
   summarise(average_trolling_words = mean(troll)) %>%
-  ggplot(aes(x=party, y = average_trolling_words, fill = party)) +
-  geom_col(alpha=.8, width = .5) +
-    scale_fill_manual(values = myCol[c(2,1)]) +
-  facet_grid(~ chamber) +
-  labs(x = "", 
-       y = "Average number of dict. words per document",
-  title = "Occurence or words from the trolling-and-incivility dictionary
-broken down by Party and chamber of US Congress",
-  subtitle = "Corpus: FB ads")
+  ggplot(aes(x = party, y = average_trolling_words, fill = party)) +
+  geom_col(alpha = .8, width = .5) +
+  scale_fill_manual(values = myCol[c(2, 1)]) +
+  facet_grid(~chamber) +
+  labs(
+    x = "",
+    y = "Average number of dict. words per document",
+    title = paste0(
+      "Occurence or words from the trolling-and-incivility dictionary ",
+      "broken down by Party and chamber of US Congress"
+    ),
+    subtitle = "Corpus: FB ads"
+  )
 ```
 
 \pagebreak
@@ -482,39 +470,33 @@ broken down by Party and chamber of US Congress",
 
 ```{r, fig.cap="Distribtion of candidate-level trolling words counts (totals)"}
 CANDdata_troll %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = troll,
-             y = party,
-             fill = party)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll, y = party, fill = party)) +
   ggridges::geom_density_ridges() +
   scale_fill_manual(values = myCol[2:1]) +
-  xlim(c(0,800)) +
-  labs(y= "",
-       x = "Trolling words")
+  xlim(c(0, 800)) +
+  labs(y = "", x = "Trolling words")
 ```
 
 
 ```{r, fig.cap="Distribtion of candidate-level trolling words counts (totals)"}
 CANDdata_troll %>%
-      filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = troll,
-             y = party)) +
-  geom_boxplot(width=.4) +
-  xlim(c(0,800)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll, y = party)) +
+  geom_boxplot(width = .4) +
+  xlim(c(0, 800)) +
   theme_bw() +
-  labs(y= "",
-       x = "Trolling words")
+  labs(y = "", x = "Trolling words")
 ```
 
 ```{r, fig.cap="Total number of trolling  words in the corpus produced by candidates"}
-CANDdata_troll %>% 
+CANDdata_troll %>%
   filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x=troll)) + 
+  ggplot(aes(x = troll)) +
   geom_histogram() +
   facet_wrap(~party, scales = "free") +
   xlab("Total number of words from the trolling dictionary")
 ```
-
 
 \clearpage
 \pagebreak
@@ -524,56 +506,47 @@ CANDdata_troll %>%
 ```{r, fig.cap="Distribution of Moral foundations words in FB ads, by party"}
 CANDL_data_MFDPROP %>%
   filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-   ggplot(aes(x=value*100,
-             y=party, 
-             fill = party)) + 
+  ggplot(aes(x = value * 100, y = party, fill = party)) +
   ggridges::geom_density_ridges(stat = "binline") +
   xlab("% of Words") +
   ylab("") +
-  scale_fill_manual(values = myCol[c(2,1)]) +
+  scale_fill_manual(values = myCol[c(2, 1)]) +
   facet_wrap(~name) +
-    theme_minimal() +
-  xlim(c(0,15)) +
+  theme_minimal() +
+  xlim(c(0, 15)) +
   theme(legend.position = "none")
 ```
 
 
 ```{r, fig.cap="Candidate-level usage of moral words (MFD)"}
 CANDL_data_MFDPROP %>%
-    filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = value*100,
-             y = name)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = value * 100, y = name)) +
   ggridges::geom_density_ridges() +
   facet_grid(~party) +
-  xlim(c(0,10)) +
+  xlim(c(0, 10)) +
   labs(y = "Dimension", x = "% of words used by a candidate")
 ```
 
 ```{r, "Candidate-level usage of moral words (MFD)"}
 CANDL_data_MFDPROP %>%
-    filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(x = value*100,
-             y = name)) +
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = value * 100, y = name)) +
   geom_boxplot() +
-    xlim(c(0,15)) +
+  xlim(c(0, 15)) +
   facet_grid(~party) +
   labs(y = "Dimension", x = "% of words used by a candidate")
 ```
 
 ```{r}
 CANDL_data_MFDPROP %>%
-    filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  group_by(name,party) %>%
-  summarise(M = mean(value)*100) %>%
-  pivot_wider(names_from = "party",
-              values_from = M) %>%
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  group_by(name, party) %>%
+  summarise(M = mean(value) * 100) %>%
+  pivot_wider(names_from = "party", values_from = "M") %>%
   rename(`Average Usage of the dimension Per Candidate (in %)` = 1) %>%
-  kable(booktabs =T, format = "latex", digits=2, 
-        caption = "Average Usage of words across candidates, broken down by Party ID")
+  kable(
+    booktabs = T, format = "latex", digits = 2,
+    caption = "Average Usage of words across candidates, broken down by Party ID"
+  )
 ```
-
-
-
-
-
-

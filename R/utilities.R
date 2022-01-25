@@ -3,14 +3,20 @@ library(plyr)
 library(tidyverse)
 library(lubridate)
 library(rvest)
+library(haven)
+library(glue)
 
 # Text analysis packages =======================================================
 library(quanteda)
 library(quanteda.textplots)
 library(quanteda.textstats)
+library(quanteda.dictionaries)
+## https://muellerstefan.net/files/quanteda-cheatsheet.pdf
 
-# Other packages ===============================================================
+# Other packages===============================================================
 library(here)
+library(labelled)
+library(ggpubr)
 library(janitor)
 library(assertthat)
 library(stringdist)
@@ -20,6 +26,10 @@ library(caret)
 library(RSelenium)
 library(netstat)
 library(Radlibrary)
+library(knitr)
+library(kableExtra)
+library(stargazer)
+library(RColorBrewer)
 
 ## devtools::install_github("hrbrmstr/wayback")
 library(wayback)
@@ -1199,6 +1209,131 @@ fb_short <- function(id, token, fields = "ad_data",
   return(list(query = query, resp = resp, tbl = out))
 }
 
+simplify_ad_body <- function(df) {
+  df %>% 
+    mutate(
+      ad_creative_link_caption = gsub(
+        "/es$|^www\\.|/$|^https://|^https://www.",
+        "", ad_creative_link_caption
+      )
+    )
+}
+
+tally_by_cand <- function(x, lim, party = TRUE) {
+  if (party) {
+    x %>%
+      group_by(candidate, party) %>%
+      tally() %>%
+      group_by(party) %>%
+      arrange(-n) %>%
+      slice(seq(lim))
+  } else {
+    x %>%
+      group_by(candidate) %>%
+      tally() %>%
+      arrange(-n) %>%
+      slice(seq(lim))
+  }
+}
+
+top_freq <- function(l1, l2, var, party = TRUE) {
+  if (party) {
+    out <- c(senate = "senate", house = "house") %>%
+      imap(
+        ~ l1[[.x]] %>%
+          group_by(candidate, !!as.name(var), party)
+      )
+  } else {
+    out <- c(senate = "senate", house = "house") %>%
+      imap(
+        ~ l1[[.x]] %>%
+          group_by(candidate, !!as.name(var))
+      )
+  }
+  out <- out %>%
+    imap(
+      ~ .x %>%
+        tally() %>%
+        filter(candidate %in% l2[[.y]]$candidate) %>%
+        ungroup() %>% 
+        complete(candidate, !!as.name(var), fill = list(n = 0)) %>%
+        group_by(candidate) %>%
+        mutate(party = Mode(party))
+    )
+}
+
+top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
+                          party = TRUE, save = TRUE, 
+                          width = 7, height = 3.5, fxn = "bar", ...) {
+  xlab <- ifelse(fxn == "bar", "Number of Ads", "Percentage of Ads")
+  p <- x$freq[[chamber]] %>%
+    mutate(
+      m = case_when(
+        !!as.name(x$var) == 0 ~ x$lab0,
+        !!as.name(x$var) == 1 ~ x$lab1
+      )
+    )
+  
+  if (fxn == "bar") {
+    p <- p %>%
+      ggplot(aes(x = n, y = fct_reorder(candidate, total), fill = fct_rev(m))) +
+      geom_col() + 
+      scale_x_continuous(labels = scales::comma)
+  } else {
+    p <- p %>% 
+      ggplot(
+        aes(x = perc, y = fct_reorder(candidate, perc1), fill = fct_rev(m))
+      ) +
+      geom_col() + 
+      scale_x_continuous(labels = scales::percent)
+  }
+  
+  p <- p +
+    ## scale_fill_brewer(type = "qual", palette = 6) +
+    scale_fill_manual(values = c("red", "gray"))
+  
+  if (!is.null(title)) {
+    p <- p + labs(title = title)
+  }
+  if (!is.null(subtitle)) {
+    p <- p + labs(subtitle = subtitle)
+  }
+  if (party) {
+    p <- p + facet_wrap(~ party, ...)
+  }
+  
+  p <- pdf_default(p) + 
+    theme(
+      legend.position = "bottom",
+      legend.justification = "left",
+      legend.title = element_blank(),
+      axis.title.y = element_blank()
+    ) + 
+    xlab(xlab)
+  
+  if (top > 30) {
+    p <- p + 
+      theme(
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()
+      )
+  }
+  
+  if (save) {
+    pdf(
+      here(
+        "fig",
+        paste0(x$var, "_", chamber, "_", x$type, "_top_", top, "_", fxn, ".pdf")
+      ),
+      width = width, height = height
+    )
+    print(p)
+    dev.off()
+  }
+  
+  return(p)
+}
+
 # Wayback-specific Functions ===================================================
 wayback_memento <- function(files) {
   files %>%
@@ -1591,6 +1726,12 @@ fb_fields <- c(
   "ad_snapshot_url", "currency", "demographic_distribution", "funding_entity",
   "impressions", "page_id", "page_name", "potential_reach",
   "publisher_platforms", "region_distribution", "spend"
+)
+
+removing_tokens <- c(
+  "rt", "amp", "u8", "<p>", "<", ">", "div", "img", "alt", "br",
+  "text-align", "li", "=", "b", "nbsp", "style",
+  "em", "p", "strong", "center", "u", "href", "rel"
 )
 
 ## https://facebookresearch.github.io/Radlibrary/index.html
