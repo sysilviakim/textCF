@@ -28,8 +28,6 @@ docnames(c2) <- paste0("winred",seq(1:length(c2)))
 
 c2$platform <- "WinRed"
 
-# TO DO: READ IN ACTBLUE [but where exactly is the text field?]
-# act_blurb <- actblue_federal$js_rest$contribution_blurb
 
 # Get text from ActBlue
 c1 <- corpus(actblue_federal %>% select(text = contribution_blurb,
