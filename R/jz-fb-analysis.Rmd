@@ -21,7 +21,34 @@ editor_options:
 ---
 
 ```{r Setup, include=FALSE}
-source(here::here("R", "utilities.R"))
+# source(here::here("R", "utilities.R"))
+# Tidyverse ====================================================================
+library(plyr)
+library(tidyverse)
+library(lubridate)
+library(rvest)
+library(haven)
+library(glue)
+
+# Text analysis packages =======================================================
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+library(quanteda.dictionaries)
+## https://muellerstefan.net/files/quanteda-cheatsheet.pdf
+
+# Other packages===============================================================
+library(here)
+library(knitr)
+library(knitr)
+library(kableExtra)
+library(stargazer)
+library(RColorBrewer)
+library(labelled)
+library(ggpubr)
+library(janitor)
+library(assertthat)
+
 opts_chunk$set(
   fig.path = "figsFB/",
   dev = c("pdf", "png"),
