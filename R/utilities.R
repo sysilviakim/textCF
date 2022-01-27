@@ -1737,3 +1737,57 @@ removing_tokens <- c(
 ## https://facebookresearch.github.io/Radlibrary/index.html
 ## See also
 ## https://disinfo.quaidorsay.fr/en/facebook-ads-library-assessment
+
+# Converts Radlibrary response object to tibble, creating list columns for list fields
+parse_response <- function(response, list_cols = c(
+                             "demographic_distribution",
+                             "impressions",
+                             "potential_reach",
+                             "publisher_platforms",
+                             "region_distribution",
+                             "spend"
+                           )) {
+  stopifnot("'response' must be an 'adlib_data_response' object" = inherits(response, "adlib_data_response"))
+  response_data <- response$data
+  purrr::map(response_data, list2tibble, list_cols = list_cols) %>%
+    dplyr::bind_rows()
+}
+
+# Convert demographic data fields to tibbles and extract upper-lower bound fields into separate columns. Fills missing fields with explicit NULL.
+list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
+  missing <- setdiff(list_cols, names(l))
+  present <- setdiff(list_cols, missing)
+
+  # Different types of list field
+  multivalued <- c("demographic_distribution", "region_distribution")
+  upper_lower <- c("potential_reach", "spend", "impressions")
+  bounds <- c("lower_bound", "upper_bound")
+  l[missing] <- list(NULL)
+
+  # Convert demographic data fields to tibbles, fill in missing fields for upper-lower bound fields, and don't modify unnamed list fields
+  l[present] <- purrr::map2(l[present], present, function(col, col_name) {
+    if (col_name %in% upper_lower) {
+      col[bounds] <- lapply(col[bounds], as.numeric)
+      col[setdiff(names(col), bounds)] <- NA_real_
+      out <- col
+    } else if (col_name %in% multivalued) {
+      out <- dplyr::bind_rows(col)
+      # Recode numeric values if present
+      if (length(numerics <- intersect(numeric_cols, colnames(out))) > 0) {
+        out <- list(dplyr::mutate(out, across(!!!numerics, as.numeric)))
+      }
+      # Just treat unknown kind as list column
+    } else {
+      out <- list(col)
+    }
+    out
+  })
+  # Least offensive way I could find to flatten these fields, which are lists with elements named "upper_bound" and "lower_bound"
+  bound_cols <- intersect(upper_lower, present)
+  if (length(bound_cols) > 0) {
+    flattened <- unlist(l[bound_cols], recursive = FALSE)
+    names(flattened) <- gsub("\\.", "_", names(flattened))
+    l[bound_cols] <- NULL
+    c(l, flattened)
+  }
+}
