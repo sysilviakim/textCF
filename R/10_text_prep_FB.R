@@ -40,7 +40,12 @@ fb_unique <- fb_matched %>%
           grepl(
             "conversation with |town hall|meet |tour stop |iwillvote.com",
             ad_creative_link_caption
-          ) ~ "Non-financial"
+            ) ~ "Non-financial",
+          grepl(".gov", ad_creative_link_caption) ~ "Government Information",
+          grepl("secure.|act.|action.|go.", ad_creative_link_caption
+                ) ~ "Personal Contribution Link",
+          grepl("facebook.com|fb.me", ad_creative_link_caption
+                ) ~ "Facebook Page",
         ),
         ## Or does the text contain references to donations?
         donate = case_when(
