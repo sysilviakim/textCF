@@ -33,19 +33,19 @@ fb_unique <- fb_matched %>%
           grepl("ngpvan.com|myngp.com", ad_creative_link_caption) ~ "NGP VAN",
           grepl("anedot.com", ad_creative_link_caption) ~ "Anedot",
           grepl("victorypassport.com", ad_creative_link_caption) ~
-          "Victory Passport",
+            "Victory Passport",
           grepl("fundraiser", ad_creative_link_caption) ~ "Misc.",
           is.na(ad_creative_link_caption) ~ "Non-financial",
           # grepl(" ", ad_creative_link_caption) ~ "Non-financial",
           grepl(
             "conversation with |town hall|meet |tour stop |iwillvote.com",
             ad_creative_link_caption
-            ) ~ "Non-financial",
+          ) ~ "Non-financial",
           grepl(".gov", ad_creative_link_caption) ~ "Government Information",
           grepl("secure.|act.|action.|go.", ad_creative_link_caption
-                ) ~ "Personal Contribution Link",
+          ) ~ "Personal Contribution Link",
           grepl("facebook.com|fb.me", ad_creative_link_caption
-                ) ~ "Facebook Page",
+          ) ~ "Facebook Page",
         ),
         ## Or does the text contain references to donations?
         donate = case_when(
@@ -59,7 +59,15 @@ fb_unique <- fb_matched %>%
             tolower(ad_creative_body)
           ) ~ TRUE,
           TRUE ~ FALSE
-        )
+        ),
+        ## Overall Financial/non-Financial Classifier
+        financial = case_when(
+          grepl("ActBlue|WinRed|NGP VAN|Anedot|Victory Passport|Misc.|Personal Contribution Link", type) ~ "Financial",
+          isTRUE(donate) ~ "Financial",
+          grepl("Non-financial|Government Information|Facebook Page",
+                type) ~ "Non-Financial",
+          is.na(type) ~ "Non-Financial",
+        )        
       ) %>%
       ungroup()
   )
