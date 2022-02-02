@@ -1186,7 +1186,33 @@ save_text_df <- function(platform) {
     )
 }
 
-fb_short <- function(id, token, fields = "ad_data",
+fb_short <- function(id, token,
+                     ## https://www.facebook.com/ads/library/api/releasenotes
+                     ## Still v12.0 for now: use ?adlib_build_query
+                     ## Full fields give error:
+                     ## Please reduce the amount of data you're asking for,
+                     ## then retry your request
+                     fields,
+                     # fields = c(
+                     #   "ad_creation_time",
+                     #   "ad_creative_body",
+                     #   "ad_creative_link_caption",
+                     #   "ad_creative_link_description",
+                     #   "ad_creative_link_title",
+                     #   "ad_delivery_start_time",
+                     #   "ad_delivery_stop_time",
+                     #   "ad_snapshot_url",
+                     #   "currency",
+                     #   "demographic_distribution",
+                     #   "funding_entity",
+                     #   "impressions",
+                     #   "page_id",
+                     #   "page_name",
+                     #   "potential_reach",
+                     #   "publisher_platforms",
+                     #   "region_distribution",
+                     #   "spend"
+                     # ),
                      max_date = "2020-12-31",
                      min_date = "2019-01-01",
                      limit = 5000) {
@@ -1210,7 +1236,7 @@ fb_short <- function(id, token, fields = "ad_data",
 }
 
 simplify_ad_body <- function(df) {
-  df %>% 
+  df %>%
     mutate(
       ad_creative_link_caption = gsub(
         "/es$|^www\\.|/$|^https://|^https://www.",
@@ -1255,7 +1281,7 @@ top_freq <- function(l1, l2, var, party = TRUE) {
       ~ .x %>%
         tally() %>%
         filter(candidate %in% l2[[.y]]$candidate) %>%
-        ungroup() %>% 
+        ungroup() %>%
         complete(candidate, !!as.name(var), fill = list(n = 0)) %>%
         group_by(candidate) %>%
         mutate(party = Mode(party))
@@ -1263,7 +1289,7 @@ top_freq <- function(l1, l2, var, party = TRUE) {
 }
 
 top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
-                          party = TRUE, save = TRUE, 
+                          party = TRUE, save = TRUE,
                           width = 7, height = 3.5, fxn = "bar", ...) {
   xlab <- ifelse(fxn == "bar", "Number of Ads", "Percentage of Ads")
   p <- x$freq[[chamber]] %>%
@@ -1273,25 +1299,25 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
         !!as.name(x$var) == 1 ~ x$lab1
       )
     )
-  
+
   if (fxn == "bar") {
     p <- p %>%
       ggplot(aes(x = n, y = fct_reorder(candidate, total), fill = fct_rev(m))) +
-      geom_col() + 
+      geom_col() +
       scale_x_continuous(labels = scales::comma)
   } else {
-    p <- p %>% 
+    p <- p %>%
       ggplot(
         aes(x = perc, y = fct_reorder(candidate, perc1), fill = fct_rev(m))
       ) +
-      geom_col() + 
+      geom_col() +
       scale_x_continuous(labels = scales::percent)
   }
-  
+
   p <- p +
     ## scale_fill_brewer(type = "qual", palette = 6) +
     scale_fill_manual(values = c("red", "gray"))
-  
+
   if (!is.null(title)) {
     p <- p + labs(title = title)
   }
@@ -1299,26 +1325,26 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
     p <- p + labs(subtitle = subtitle)
   }
   if (party) {
-    p <- p + facet_wrap(~ party, ...)
+    p <- p + facet_wrap(~party, ...)
   }
-  
-  p <- pdf_default(p) + 
+
+  p <- pdf_default(p) +
     theme(
       legend.position = "bottom",
       legend.justification = "left",
       legend.title = element_blank(),
       axis.title.y = element_blank()
-    ) + 
+    ) +
     xlab(xlab)
-  
+
   if (top > 30) {
-    p <- p + 
+    p <- p +
       theme(
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank()
       )
   }
-  
+
   if (save) {
     pdf(
       here(
@@ -1330,7 +1356,7 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
     print(p)
     dev.off()
   }
-  
+
   return(p)
 }
 
@@ -1747,13 +1773,18 @@ parse_response <- function(response, list_cols = c(
                              "region_distribution",
                              "spend"
                            )) {
-  stopifnot("'response' must be an 'adlib_data_response' object" = inherits(response, "adlib_data_response"))
+  stopifnot(
+    "'response' must be an 'adlib_data_response' object" =
+      inherits(response, "adlib_data_response")
+  )
   response_data <- response$data
   purrr::map(response_data, list2tibble, list_cols = list_cols) %>%
     dplyr::bind_rows()
 }
 
-# Convert demographic data fields to tibbles and extract upper-lower bound fields into separate columns. Fills missing fields with explicit NULL.
+# Convert demographic data fields to tibbles
+# and extract upper-lower bound fields into separate columns.
+# Fills missing fields with explicit NULL.
 list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
   missing <- setdiff(list_cols, names(l))
   present <- setdiff(list_cols, missing)
@@ -1764,7 +1795,9 @@ list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
   bounds <- c("lower_bound", "upper_bound")
   l[missing] <- list(NULL)
 
-  # Convert demographic data fields to tibbles, fill in missing fields for upper-lower bound fields, and don't modify unnamed list fields
+  # Convert demographic data fields to tibbles, 
+  # fill in missing fields for upper-lower bound fields, 
+  # and don't modify unnamed list fields
   l[present] <- purrr::map2(l[present], present, function(col, col_name) {
     if (col_name %in% upper_lower) {
       col[bounds] <- lapply(col[bounds], as.numeric)
@@ -1782,12 +1815,15 @@ list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
     }
     out
   })
-  # Least offensive way I could find to flatten these fields, which are lists with elements named "upper_bound" and "lower_bound"
+  # Least offensive way I could find to flatten these fields, 
+  # which are lists with elements named "upper_bound" and "lower_bound"
   bound_cols <- intersect(upper_lower, present)
   if (length(bound_cols) > 0) {
     flattened <- unlist(l[bound_cols], recursive = FALSE)
     names(flattened) <- gsub("\\.", "_", names(flattened))
     l[bound_cols] <- NULL
     c(l, flattened)
+  } else {
+    l
   }
 }
