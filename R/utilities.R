@@ -1216,6 +1216,11 @@ fb_short <- function(id, token,
                      max_date = "2020-12-31",
                      min_date = "2019-01-01",
                      limit = 5000) {
+  
+  if (!(fields %in% c("ad_data", "demographic_data", "region_data"))) {
+    stop("Use the specified set of columns for now.")
+  }
+  
   query <- adlib_build_query(
     ad_reached_countries = "US",
     ad_active_status = "ALL",
@@ -1227,11 +1232,22 @@ fb_short <- function(id, token,
     fields = fields
   )
   resp <- adlib_get(params = query, token = token)
-  if (length(resp$data) > 0) {
-    out <- as_tibble(resp, type = "ad")
-  } else {
-    out <- NULL
+  
+  if (fields == "ad_data") {
+    if (length(resp$data) > 0) {
+      out <- as_tibble(resp, type = "ad")
+    } else {
+      out <- NULL
+    }
+  } else if (fields == "demographic_data") {
+    ## later, perform
+    ## unnest(out, cols = c(demographic_distribution))
+    out <- parse_response(resp, list_cols = "demographic_distribution")
+  } else if (fields == "region_data") {
+    out <- parse_response(resp, list_cols = "region_distribution")
   }
+  
+  ## Return all query, response object itself, and tibble
   return(list(query = query, resp = resp, tbl = out))
 }
 
@@ -1765,14 +1781,7 @@ removing_tokens <- c(
 ## https://disinfo.quaidorsay.fr/en/facebook-ads-library-assessment
 
 # Converts Radlibrary response object to tibble, creating list columns for list fields
-parse_response <- function(response, list_cols = c(
-                             "demographic_distribution",
-                             "impressions",
-                             "potential_reach",
-                             "publisher_platforms",
-                             "region_distribution",
-                             "spend"
-                           )) {
+parse_response <- function(response, list_cols) {
   stopifnot(
     "'response' must be an 'adlib_data_response' object" =
       inherits(response, "adlib_data_response")
