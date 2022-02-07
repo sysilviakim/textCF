@@ -52,14 +52,21 @@ house_list <- house %>%
   `names<-`({.} %>% map(~ .x$candidate[1]) %>% unlist())
 
 # Run FB Graph API =============================================================
-fname <- here("data", "raw", "fb", "fb-house-raw-ads-2020.Rda")
-if (file.exists(fname)) {
-  load(fname)
+fname1 <- here("data", "raw", "fb", "fb-house-raw-ad-data-2020.Rda")
+fname2 <- here("data", "raw", "fb", "fb-house-raw-demo-data-2020.Rda")
+fname3 <- here("data", "raw", "fb", "fb-house-raw-region-data-2020.Rda")
+if (file.exists(fname1)) {
+  load(fname1)
+  load(fname2)
+  load(fname3)
 } else {
-  fb_house <- vector("list", length(house_list))
-  names(fb_house) <- names(house_list)
+  ad_house <- vector("list", length(house_list))
+  names(ad_house) <- names(house_list)
+  region_house <- demo_house <- ad_house
 }
 
+## 129 ADAM B. SCHIFF, CALIFORNIA?
+## Please reduce the amount of data you're asking for, then retry your request
 for (i in seq(length(house_list))) {
   idx <- house_list[[i]]$id
   cand <- house_list[[i]]$candidate
@@ -67,23 +74,41 @@ for (i in seq(length(house_list))) {
   Sys.sleep(3)
   
   if (!grepl("e", tolower(idx))) {
-    if (is.null(fb_house[[cand]])) {
-      fb_house[[cand]] <- fb_short(id = idx, token = token)
-      assert_that(!is.null(fb_house[[cand]]))
-      print(head(fb_house[[cand]]$tbl))
-      Sys.sleep(5)
+    if (is.null(ad_house[[cand]])) {
+      ## Three chunks of preset groups of data
+      ad_house[[cand]] <-
+        fb_short(id = idx, token = token, fields = "ad_data")
+      assert_that(!is.null(ad_house[[cand]]))
+      Sys.sleep(3)
+      
+      demo_house[[cand]] <- 
+        fb_short(id = idx, token = token, fields = "demographic_data")
+      assert_that(!is.null(demo_house[[cand]]))
+      Sys.sleep(3)
+      
+      region_house[[cand]] <- 
+        fb_short(id = idx, token = token, fields = "region_data")
+      assert_that(!is.null(region_house[[cand]]))
+      Sys.sleep(3)
+      
+      print(head(ad_house[[cand]]$tbl))
     }
   }
-  save(fb_house, file = fname)
+  save(ad_house, file = fname1)
+  save(demo_house, file = fname2)
+  save(region_house, file = fname3)
   message(paste0("Finished for ", cand, ", ", house_list[[i]]$state, "."))
   message(paste0("Row ", i, " out of ", length(house_list), "."))
 }
 
-# fb_house$`C. ANTONIO DELGADO`$tbl <- 
-#   fb_house$`C. ANTONIO DELGADO` %>% map("tbl") %>% bind_rows() %>% dedup()
+# ad_house$`C. ANTONIO DELGADO`$tbl <- 
+#   ad_house$`C. ANTONIO DELGADO` %>% map("tbl") %>% bind_rows() %>% dedup()
+
+# Accidentally left out candidates? ============================================
+ad_house %>% map("tbl") %>% map_lgl(is.null) %>% which()
 
 # Which candidates go over 5,000? ==============================================
-vec <- fb_house %>%
+vec <- ad_house %>%
   map("tbl") %>%
   map(nrow) %>% 
   ## map_lgl gives type compliance errors:
@@ -106,27 +131,37 @@ date_breaks <- c(
 for (i in idx_retry) {
   idx <- house_list[[i]]$id
   cand <- house_list[[i]]$candidate
-  fb_house[[cand]] <- list() 
+  ad_house[[cand]] <- list() 
   ## Run by two months intervals then combine the rows
   for (x in seq(length(date_breaks) - 1)) {
-    fb_house[[cand]][[x]] <- fb_short(
-      id = idx, token = token, 
+    ad_house[[cand]][[x]] <- fb_short(
+      id = idx, token = token, fields = "ad_data", 
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
-    if (!is.null(nrow(fb_house[[cand]][[x]]$tbl))) {
-      assert_that(nrow(fb_house[[cand]][[x]]$tbl) < 5000)
-      message(paste0("1mo interval starting from ", date_breaks[x], " done."))
-      message(paste0("Number of rows was ", nrow(fb_house[[cand]][[x]]$tbl)))
+    demo_house[[cand]][[x]] <- fb_short(
+      id = idx, token = token, fields = "demographic_data", 
+      min_date = date_breaks[x],
+      max_date = date_breaks[x + 1]
+    )
+    region_house[[cand]][[x]] <- fb_short(
+      id = idx, token = token, fields = "region_data", 
+      min_date = date_breaks[x],
+      max_date = date_breaks[x + 1]
+    )
+    if (!is.null(nrow(ad_house[[cand]][[x]]$tbl))) {
+      assert_that(nrow(ad_house[[cand]][[x]]$tbl) < 5000)
+      message(paste0("2-week interval from ", date_breaks[x], " done."))
+      message(paste0("Number of rows was ", nrow(ad_house[[cand]][[x]]$tbl)))
     }
     Sys.sleep(5)
   }
-  fb_house[[cand]]$tbl <- fb_house[[cand]] %>% map("tbl") %>% bind_rows()
-  assert_that(!is.null(fb_house[[cand]]))
-  assert_that(nrow(fb_house[[cand]]$tbl) > 5000)
-  save(fb_house, file = fname)
+  ad_house[[cand]]$tbl <- ad_house[[cand]] %>% map("tbl") %>% bind_rows()
+  assert_that(!is.null(ad_house[[cand]]))
+  assert_that(nrow(ad_house[[cand]]$tbl) > 5000)
+  save(ad_house, file = fname1)
   message(paste0("Finished for ", cand, ", ", house_list[[i]]$state, "."))
 }
 
 # Final check ==================================================================
-fb_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
+ad_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
