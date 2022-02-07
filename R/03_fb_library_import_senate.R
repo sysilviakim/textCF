@@ -139,7 +139,13 @@ for (i in idx_retry) {
     }
     Sys.sleep(5)
   }
+
+    ## Bind rows
   ad_senate[[cand]]$tbl <- ad_senate[[cand]] %>% map("tbl") %>% bind_rows()
+  demo_senate[[cand]]$tbl <- demo_senate[[cand]] %>% map("tbl") %>% bind_rows()
+  region_senate[[cand]]$tbl <- 
+    region_senate[[cand]] %>% map("tbl") %>% bind_rows()
+  
   assert_that(!is.null(ad_senate[[cand]]))
   assert_that(nrow(ad_senate[[cand]]$tbl) > 5000)
   save(ad_senate, file = fname)
