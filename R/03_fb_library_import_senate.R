@@ -148,9 +148,7 @@ for (i in idx_retry) {
   
   assert_that(!is.null(ad_senate[[cand]]))
   assert_that(nrow(ad_senate[[cand]]$tbl) > 5000)
-  save(ad_house, file = fname1)
-  save(demo_house, file = fname2)
-  save(region_house, file = fname3)
+  save(ad_senate, file = fname)
   message(paste0("Finished for ", cand, ", ", senate_list[[i]]$state, "."))
 }
 

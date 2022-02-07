@@ -124,32 +124,17 @@ idx_retry <- house_list %>%
   which()
 
 # [1] "WENDY R. DAVIS"           "ALEXANDRIA OCASIO-CORTEZ" "PETER A. DEFAZIO"
-## Ended up re-doing work with a 1-week interval for AOC;
-## Still ended up with errors for 87, 93, 94, 95 at region_house
-## "Please reduce the amount of data you're asking for, then retry your request"
-## Sometimes it works when re-run after some time (e.g., 93, 95)
-## sometimes... it doesn't.
-## It's unfortunately bit random
-
-## Manually re-run region_house for "2020-08-25" -- "2020-08-26" ---> 87
-##                                  "2020-08-27" -- "2020-08-28" ---> 106
-##                                  "2020-08-29" -- "2020-08-30" ---> 107
-##                                  "2020-08-31" -- "2020-09-01" ---> 108
-##                                  "2020-10-13" -- "2020-10-15" ---> 94
-##                                  "2020-10-16" -- "2020-10-18" ---> 109
-##                                  "2020-10-19" -- "2020-10-20" ---> 110
-
-## Best course of action is to use two-day or one-day interval for AOC :)
+## Stuck at 37th 2-week interval of AOC
 
 date_breaks <- c(
   ## Due to AOC, 1mo not sufficiently small interval
-  seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "1 week"),
+  seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "2 weeks"),
   as.Date("2020-12-31")
 )
 for (i in idx_retry) {
   idx <- house_list[[i]]$id
   cand <- house_list[[i]]$candidate
-  region_house[[cand]] <- demo_house[[cand]] <- ad_house[[cand]] <- list() 
+  ad_house[[cand]] <- list() 
   ## Run by two months intervals then combine the rows
   for (x in seq(length(date_breaks) - 1)) {
     ad_house[[cand]][[x]] <- fb_short(
@@ -169,7 +154,7 @@ for (i in idx_retry) {
     )
     if (!is.null(nrow(ad_house[[cand]][[x]]$tbl))) {
       assert_that(nrow(ad_house[[cand]][[x]]$tbl) < 5000)
-      message(paste0("1-week interval from ", date_breaks[x], " done."))
+      message(paste0("2-week interval from ", date_breaks[x], " done."))
       message(paste0("Number of rows was ", nrow(ad_house[[cand]][[x]]$tbl)))
     }
     Sys.sleep(5)
@@ -184,13 +169,8 @@ for (i in idx_retry) {
   assert_that(!is.null(ad_house[[cand]]))
   assert_that(nrow(ad_house[[cand]]$tbl) > 5000)
   save(ad_house, file = fname1)
-  save(demo_house, file = fname2)
-  save(region_house, file = fname3)
   message(paste0("Finished for ", cand, ", ", house_list[[i]]$state, "."))
 }
 
 # Final check ==================================================================
-## They must all equal and be 654
 ad_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
-demo_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
-region_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
