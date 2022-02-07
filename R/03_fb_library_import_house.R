@@ -123,6 +123,9 @@ idx_retry <- house_list %>%
   map_lgl(~ .x %in% vec) %>%
   which()
 
+# [1] "WENDY R. DAVIS"           "ALEXANDRIA OCASIO-CORTEZ" "PETER A. DEFAZIO"
+## Stuck at 37th 2-week interval of AOC
+
 date_breaks <- c(
   ## Due to AOC, 1mo not sufficiently small interval
   seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "2 weeks"),
