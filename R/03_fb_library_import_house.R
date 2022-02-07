@@ -8,7 +8,8 @@ token <- readline()
 
 # Data Importing/wrangling =====================================================
 house <- read_csv(
-  here("data", "raw", "fb", "fb-house.csv"), col_types = cols(.default = "c")
+  here("data", "raw", "fb", "fb-house.csv"),
+  col_types = cols(.default = "c")
 ) %>%
   select(candidate, state, id = fb_ad_library_id) %>%
   ## 868 ---> 736
@@ -30,7 +31,7 @@ house <- read_csv(
       candidate == "GENEVIEVE COLLINS" & grepl("E", id) ~ "2338979479650120",
       candidate == "NICHOLAS A. BETTS" & grepl("E", id) ~ "1911027705653860",
       candidate == "DONALD S. BEYER,  JR." & grepl("E", id) ~
-        "1411983362382190",
+      "1411983362382190",
       TRUE ~ id
     )
   )
@@ -47,9 +48,11 @@ assert_that(!any(is.na(house$id)))
 ## Group by ID but name with candidate
 house_list <- house %>%
   group_by(id) %>%
-  slice(1) %>% 
+  slice(1) %>%
   group_split() %>%
-  `names<-`({.} %>% map(~ .x$candidate[1]) %>% unlist())
+  `names<-`({
+    .
+  } %>% map(~ .x$candidate[1]) %>% unlist())
 
 # Run FB Graph API =============================================================
 fname1 <- here("data", "raw", "fb", "fb-house-raw-ad-data-2020.Rda")
@@ -72,7 +75,7 @@ for (i in seq(length(house_list))) {
   cand <- house_list[[i]]$candidate
   message(paste0("Queued for ", cand, ", ", house_list[[i]]$state, "."))
   Sys.sleep(3)
-  
+
   if (!grepl("e", tolower(idx))) {
     if (is.null(ad_house[[cand]])) {
       ## Three chunks of preset groups of data
@@ -80,17 +83,17 @@ for (i in seq(length(house_list))) {
         fb_short(id = idx, token = token, fields = "ad_data")
       assert_that(!is.null(ad_house[[cand]]))
       Sys.sleep(3)
-      
-      demo_house[[cand]] <- 
+
+      demo_house[[cand]] <-
         fb_short(id = idx, token = token, fields = "demographic_data")
       assert_that(!is.null(demo_house[[cand]]))
       Sys.sleep(3)
-      
-      region_house[[cand]] <- 
+
+      region_house[[cand]] <-
         fb_short(id = idx, token = token, fields = "region_data")
       assert_that(!is.null(region_house[[cand]]))
       Sys.sleep(3)
-      
+
       print(head(ad_house[[cand]]$tbl))
     }
   }
@@ -101,16 +104,19 @@ for (i in seq(length(house_list))) {
   message(paste0("Row ", i, " out of ", length(house_list), "."))
 }
 
-# ad_house$`C. ANTONIO DELGADO`$tbl <- 
+# ad_house$`C. ANTONIO DELGADO`$tbl <-
 #   ad_house$`C. ANTONIO DELGADO` %>% map("tbl") %>% bind_rows() %>% dedup()
 
 # Accidentally left out candidates? ============================================
-ad_house %>% map("tbl") %>% map_lgl(is.null) %>% which()
+ad_house %>%
+  map("tbl") %>%
+  map_lgl(is.null) %>%
+  which()
 
 # Which candidates go over 5,000? ==============================================
 vec <- ad_house %>%
   map("tbl") %>%
-  map(nrow) %>% 
+  map(nrow) %>%
   ## map_lgl gives type compliance errors:
   ## must be a single logical, not a logical vector of length 0
   map(~ .x >= 5000) %>%
@@ -118,7 +124,7 @@ vec <- ad_house %>%
   which() %>%
   names()
 
-idx_retry <- house_list %>% 
+idx_retry <- house_list %>%
   map("candidate") %>%
   map_lgl(~ .x %in% vec) %>%
   which()
@@ -149,21 +155,21 @@ date_breaks <- c(
 for (i in idx_retry) {
   idx <- house_list[[i]]$id
   cand <- house_list[[i]]$candidate
-  region_house[[cand]] <- demo_house[[cand]] <- ad_house[[cand]] <- list() 
+  region_house[[cand]] <- demo_house[[cand]] <- ad_house[[cand]] <- list()
   ## Run by two months intervals then combine the rows
   for (x in seq(length(date_breaks) - 1)) {
     ad_house[[cand]][[x]] <- fb_short(
-      id = idx, token = token, fields = "ad_data", 
+      id = idx, token = token, fields = "ad_data",
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
     demo_house[[cand]][[x]] <- fb_short(
-      id = idx, token = token, fields = "demographic_data", 
+      id = idx, token = token, fields = "demographic_data",
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
     region_house[[cand]][[x]] <- fb_short(
-      id = idx, token = token, fields = "region_data", 
+      id = idx, token = token, fields = "region_data",
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
@@ -176,11 +182,17 @@ for (i in idx_retry) {
   }
 
   ## Bind rows
-  ad_house[[cand]]$tbl <- ad_house[[cand]] %>% map("tbl") %>% bind_rows()
-  demo_house[[cand]]$tbl <- demo_house[[cand]] %>% map("tbl") %>% bind_rows()
-  region_house[[cand]]$tbl <- 
-    region_house[[cand]] %>% map("tbl") %>% bind_rows()
-  
+  ad_house[[cand]]$tbl <- ad_house[[cand]] %>%
+    map("tbl") %>%
+    bind_rows()
+  demo_house[[cand]]$tbl <- demo_house[[cand]] %>%
+    map("tbl") %>%
+    bind_rows()
+  region_house[[cand]]$tbl <-
+    region_house[[cand]] %>%
+    map("tbl") %>%
+    bind_rows()
+
   assert_that(!is.null(ad_house[[cand]]))
   assert_that(nrow(ad_house[[cand]]$tbl) > 5000)
   save(ad_house, file = fname1)
@@ -191,6 +203,90 @@ for (i in idx_retry) {
 
 # Final check ==================================================================
 ## They must all equal and be 654
-ad_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
-demo_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
-region_house %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
+ad_house %>%
+  map("tbl") %>%
+  map(nrow) %>%
+  unlist() %>%
+  length()
+demo_house %>%
+  map("tbl") %>%
+  map(nrow) %>%
+  unlist() %>%
+  length()
+region_house %>%
+  map("tbl") %>%
+  map(nrow) %>%
+  unlist() %>%
+  length()
+
+# Prep to merge with ID ========================================================
+## ad's adlib_id is demo's and region's id
+## API token accidentally included in URL for demo and region; delete
+ad <- ad_house %>%
+  map_dfr("tbl", .id = "candidate") %>%
+  dedup() %>%
+  rename(id = adlib_id)
+
+demo <- demo_house %>%
+  map_dfr("tbl", .id = "candidate") %>%
+  dedup() %>%
+  select(-ad_snapshot_url)
+
+region <- region_house %>%
+  map_dfr("tbl", .id = "candidate") %>%
+  dedup() %>%
+  select(-ad_snapshot_url)
+
+# Sanity checks ================================================================
+assert_that(!any(duplicated(ad$id)))
+assert_that(!any(duplicated(demo$id)))
+assert_that(!any(duplicated(region$id)))
+
+nrow(ad) ## 260934
+nrow(demo) ## 260934
+nrow(region) ## 260934
+
+assert_that(length(setdiff(ad$id, demo$id)) == 0)
+assert_that(length(setdiff(demo$id, ad$id)) == 0)
+assert_that(length(setdiff(region$id, ad$id)) == 0)
+assert_that(length(setdiff(ad$id, region$id)) == 0)
+
+# Unnest and pivot demo and region =============================================
+## Note that there are actually no-target ads by demo/region
+## e.g., 672752909991155 by Amy Kennedy
+demo <- demo %>%
+  unnest(cols = c(demographic_distribution)) %>%
+  unite("demo", c("gender", "age"), sep = ", ") %>%
+  pivot_wider(
+    id_cols = c(candidate, id), names_from = "demo", values_from = "percentage"
+  ) %>%
+  clean_names()
+
+region <- region %>%
+  unnest(cols = c(region_distribution)) %>%
+  rename(stname = region) %>%
+  mutate(stname = tolower(stname)) %>%
+  left_join(
+    ., Kmisc::fips %>%
+      select(stname, stabb) %>%
+      mutate(
+        stname = ifelse(
+          stname == "district of columbia", 
+          "washington, district of columbia", stname
+        )
+      )
+  ) %>%
+  ## Those without state names: either "unknown" or outside U.S. mainland
+  ## e.g., British Columbia, Ontario, England, ... 
+  select(-stname) %>%
+  ## So it requires grouping and combining percentages due to NAs
+  group_by(candidate, id, stabb) %>% 
+  summarise(percentage = sum(percentage, na.rm = TRUE)) %>%
+  pivot_wider(
+    id_cols = c(candidate, id), names_from = "stabb", values_from = "percentage"
+  ) %>%
+  clean_names()
+
+# Final merge and save =========================================================
+fb_house <- left_join(ad, left_join(demo, region))
+save(fb_house, file = here("data", "tidy", "fb_house_merged.Rda"))
