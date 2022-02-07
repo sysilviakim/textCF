@@ -3,15 +3,11 @@ source(here::here("R", "utilities.R"))
 vec <- c(senate = "senate", house = "house")
 
 # Import data ==================================================================
-fb_list <- vec %>%
-  map(
-    function(x) {
-      loadRData(paste0("data/raw/fb/fb-", x, "-raw-ads-2020.Rda")) %>%
-        map_dfr("tbl", .id = "candidate")
-    }
-  ) %>%
-  map(dedup)
+fb_list <- vec %>% 
+  map(~ loadRData(here("data", "tidy", paste0("fb_", .x, "_merged.Rda")))) %>%
+  map(~ .x %>% rename(adlib_id = id))
 
+# Candidate list ===============================================================
 cand_list <- vec %>%
   map(
     ~ read_csv(

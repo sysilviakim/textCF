@@ -85,6 +85,9 @@ for (i in seq(length(senate_list))) {
 }
 
 # Accidentally left out candidates? ============================================
+## Results are odd, considering ads like 
+## https://www.facebook.com/ads/library/?id=296408818376585
+## Barrasso in 2020 cycle
 ad_senate %>% map("tbl") %>% map_lgl(is.null) %>% which()
 
 # Which candidates go over 5,000? ==============================================
@@ -103,9 +106,11 @@ idx_retry <- senate_list %>%
   map_lgl(~ .x %in% vec) %>%
   which()
 
-# [1] "AMY MCGRATH"          "CAL CUNNINGHAM"       "MARK KELLY"          
-# [4] "LINDSEY GRAHAM"       "SARA I. GIDEON"       "CORY BOOKER"         
-# [7] "JEFF MERKLEY"         "JOHN W. HICKENLOOPER"
+# [1] "STEVE BULLOCK"        "AMY MCGRATH"          "CAL CUNNINGHAM"      
+# [4] "Bernie Sanders"       "MARK KELLY"           "LINDSEY GRAHAM"      
+# [7] "SARA I. GIDEON"       "CORY BOOKER"          "Elizabeth Warren"    
+# [10] "JEFF MERKLEY"         "Michael Bennet"       "Kirsten Gillibrand"  
+# [13] "JOHN W. HICKENLOOPER"
 
 date_breaks <- c(
   seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "1 month"),
@@ -148,11 +153,98 @@ for (i in idx_retry) {
   
   assert_that(!is.null(ad_senate[[cand]]))
   assert_that(nrow(ad_senate[[cand]]$tbl) > 5000)
-  save(ad_house, file = fname1)
-  save(demo_house, file = fname2)
-  save(region_house, file = fname3)
+  save(ad_senate, file = fname1)
+  save(demo_senate, file = fname2)
+  save(region_senate, file = fname3)
   message(paste0("Finished for ", cand, ", ", senate_list[[i]]$state, "."))
 }
 
 # Final check ==================================================================
-ad_senate %>% map("tbl") %>% map(nrow) %>% unlist() %>% length()
+## They must all equal
+ad_senate %>%
+  map("tbl") %>%
+  map(nrow) %>%
+  unlist() %>%
+  length()
+demo_senate %>%
+  map("tbl") %>%
+  map(nrow) %>%
+  unlist() %>%
+  length()
+region_senate %>%
+  map("tbl") %>%
+  map(nrow) %>%
+  unlist() %>%
+  length()
+
+# Prep to merge with ID ========================================================
+## ad's adlib_id is demo's and region's id
+## API token accidentally included in URL for demo and region; delete
+ad <- ad_senate %>%
+  map_dfr("tbl", .id = "candidate") %>%
+  dedup() %>%
+  rename(id = adlib_id)
+
+demo <- demo_senate %>%
+  map_dfr("tbl", .id = "candidate") %>%
+  dedup() %>%
+  select(-ad_snapshot_url)
+
+region <- region_senate %>%
+  map_dfr("tbl", .id = "candidate") %>%
+  dedup() %>%
+  select(-ad_snapshot_url)
+
+# Sanity checks ================================================================
+assert_that(!any(duplicated(ad$id)))
+assert_that(!any(duplicated(demo$id)))
+assert_that(!any(duplicated(region$id)))
+
+nrow(ad) ## 260934
+nrow(demo) ## 260934
+nrow(region) ## 260934
+
+assert_that(length(setdiff(ad$id, demo$id)) == 0)
+assert_that(length(setdiff(demo$id, ad$id)) == 0)
+assert_that(length(setdiff(region$id, ad$id)) == 0)
+assert_that(length(setdiff(ad$id, region$id)) == 0)
+
+# Unnest and pivot demo and region =============================================
+## Note that there are actually no-target ads by demo/region
+## e.g., 672752909991155 by Amy Kennedy
+demo <- demo %>%
+  unnest(cols = c(demographic_distribution)) %>%
+  unite("demo", c("gender", "age"), sep = ", ") %>%
+  pivot_wider(
+    id_cols = c(candidate, id), names_from = "demo", values_from = "percentage"
+  ) %>%
+  clean_names()
+
+region <- region %>%
+  unnest(cols = c(region_distribution)) %>%
+  rename(stname = region) %>%
+  mutate(stname = tolower(stname)) %>%
+  left_join(
+    ., Kmisc::fips %>%
+      select(stname, stabb) %>%
+      mutate(
+        stname = ifelse(
+          stname == "district of columbia", 
+          "washington, district of columbia", stname
+        )
+      )
+  ) %>%
+  ## Those without state names: either "unknown" or outside U.S. mainland
+  ## e.g., British Columbia, Ontario, England, ... 
+  select(-stname) %>%
+  ## So it requires grouping and combining percentages due to NAs
+  group_by(candidate, id, stabb) %>% 
+  summarise(percentage = sum(percentage, na.rm = TRUE)) %>%
+  pivot_wider(
+    id_cols = c(candidate, id), names_from = "stabb", values_from = "percentage"
+  ) %>%
+  clean_names()
+
+# Final merge and save =========================================================
+fb_senate <- left_join(ad, left_join(demo, region))
+save(fb_senate, file = here("data", "tidy", "fb_senate_merged.Rda"))
