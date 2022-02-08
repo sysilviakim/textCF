@@ -113,9 +113,13 @@ idx_retry <- senate_list %>%
 # [13] "JOHN W. HICKENLOOPER"
 
 date_breaks <- c(
-  seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "1 month"),
+  seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "1 week"),
   as.Date("2020-12-31")
 )
+## Bullock/McGrath/Cunningham/Kelly/Merkley/Hickenlooper okay with monthly cuts
+## Graham okay with 2-week cuts
+## Bennet/Gillibrand/Booker/Gideon okay with 1-week cuts
+## Sanders/Warren too much data
 for (i in idx_retry) {
   idx <- senate_list[[i]]$id
   cand <- senate_list[[i]]$candidate
@@ -127,17 +131,25 @@ for (i in idx_retry) {
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
+    Sys.sleep(3)
+
     demo_senate[[cand]][[x]] <- fb_short(
       id = idx, token = token, fields = "demographic_data", 
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
+    Sys.sleep(3)
+    
     region_senate[[cand]][[x]] <- fb_short(
       id = idx, token = token, fields = "region_data", 
       min_date = date_breaks[x],
       max_date = date_breaks[x + 1]
     )
+    Sys.sleep(3)
+    
     if (!is.null(nrow(ad_senate[[cand]][[x]]$tbl))) {
+      ## This checks that the smaller interval is safe and not 
+      ## overflowing with ads
       assert_that(nrow(ad_senate[[cand]][[x]]$tbl) < 5000)
       message(paste0("1mo interval starting from ", date_breaks[x], " done."))
       message(paste0("Number of rows was ", nrow(ad_senate[[cand]][[x]]$tbl)))
@@ -152,7 +164,7 @@ for (i in idx_retry) {
     region_senate[[cand]] %>% map("tbl") %>% bind_rows()
   
   assert_that(!is.null(ad_senate[[cand]]))
-  assert_that(nrow(ad_senate[[cand]]$tbl) > 5000)
+  ## assert_that(nrow(ad_senate[[cand]]$tbl) > 5000)
   save(ad_senate, file = fname1)
   save(demo_senate, file = fname2)
   save(region_senate, file = fname3)
