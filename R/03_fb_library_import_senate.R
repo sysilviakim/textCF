@@ -118,14 +118,54 @@ date_breaks <- c(
 )
 ## Bullock/McGrath/Cunningham/Kelly/Merkley/Hickenlooper okay with monthly cuts
 ## Graham okay with 2-week cuts
-## Bennet/Gillibrand/Booker/Gideon okay with 1-week cuts
-## Sanders/Warren too much data
+## Bennet/Gillibrand/Booker/Gideon/Warren okay with 1-week cuts
+## Sanders too much data (apparently 1 day is too much for Sanders)
+## Weeks 8, 9, 13, 23, 26, 29, 44, 60, 61, 62
+
+# incomplete_weeks <- date_breaks[c(8, 9, 13, 23, 26, 29, 44, 60, 61, 62)]
+# incomplete_days <- incomplete_weeks %>%
+#   map(~ seq(.x, .x + 7, by = "1 day")) %>%
+#   unlist() %>%
+#   unique()
+# 
+# for (x in seq(length(incomplete_days))) {
+#   ad_senate[[cand]][[x + 200]] <- fb_short(
+#     id = idx, token = token, fields = "ad_data", 
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01")
+#   )
+#   Sys.sleep(3)
+#   
+#   demo_senate[[cand]][[x + 200]] <- fb_short(
+#     id = idx, token = token, fields = "demographic_data", 
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01")
+#   )
+#   Sys.sleep(3)
+#   
+#   region_senate[[cand]][[x + 200]] <- fb_short(
+#     id = idx, token = token, fields = "region_data", 
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01")
+#   )
+#   Sys.sleep(3)
+#   
+#   if (!is.null(nrow(ad_senate[[cand]][[x]]$tbl))) {
+#     ## This checks that the smaller interval is safe and not 
+#     ## overflowing with ads
+#     assert_that(nrow(ad_senate[[cand]][[x]]$tbl) < 5000)
+#     message(as.Date(incomplete_days[x], origin = "1970-01-01"), " done.")
+#     message(paste0("Number of rows was ", nrow(ad_senate[[cand]][[x]]$tbl)))
+#   }
+#   Sys.sleep(5)
+# }
+
 for (i in idx_retry) {
   idx <- senate_list[[i]]$id
   cand <- senate_list[[i]]$candidate
-  ad_senate[[cand]] <- list() 
+  region_senate[[cand]] <- demo_senate[[cand]] <- ad_senate[[cand]] <- list() 
   ## Run by two months intervals then combine the rows
-  for (x in seq(length(date_breaks) - 1)) {
+  for (x in (seq(length(date_breaks) - 1))) {
     ad_senate[[cand]][[x]] <- fb_short(
       id = idx, token = token, fields = "ad_data", 
       min_date = date_breaks[x],
@@ -151,13 +191,13 @@ for (i in idx_retry) {
       ## This checks that the smaller interval is safe and not 
       ## overflowing with ads
       assert_that(nrow(ad_senate[[cand]][[x]]$tbl) < 5000)
-      message(paste0("1mo interval starting from ", date_breaks[x], " done."))
+      message(paste0("1 week interval from ", date_breaks[x], " done."))
       message(paste0("Number of rows was ", nrow(ad_senate[[cand]][[x]]$tbl)))
     }
     Sys.sleep(5)
   }
 
-    ## Bind rows
+  ## Bind rows
   ad_senate[[cand]]$tbl <- ad_senate[[cand]] %>% map("tbl") %>% bind_rows()
   demo_senate[[cand]]$tbl <- demo_senate[[cand]] %>% map("tbl") %>% bind_rows()
   region_senate[[cand]]$tbl <- 
