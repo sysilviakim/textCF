@@ -93,7 +93,7 @@ image_download_logo_updated <- function(dat, image, name) {
 image_download_bgimg_updated <- function(dat, image, name) {
   path <- here("data/raw/2022/winred/bgimg")
   if (!dir.exists(path)) dir.create(path)
-
+  # Actually downloads .png, not .jpg
   for (i in 1:nrow(dat)) {
     download.file(
       url = dat[[image]][i],
@@ -101,7 +101,7 @@ image_download_bgimg_updated <- function(dat, image, name) {
         path,
         paste0(
           gsub("_{1,}$", "", gsub("_{2,}", "_", trimws(dat[[name]][i]))),
-          "_bgimg_", format(Sys.Date(), "%Y%m%d"), ".jpg"
+          "_bgimg_", format(Sys.Date(), "%Y%m%d"), ".png"
         )
       ),
       method = "curl"
@@ -127,6 +127,38 @@ image_download <- function(dat, image, name, pathway) {
       method = "curl"
     )
     Sys.sleep(3)
+  }
+}
+
+
+validate_img_dir <- function(path, extension) {
+  stopifnot(
+    "Path must be a directory" = dir.exists(path),
+    "Directory must contain at least one image with given extension" = length(imgs <- Sys.glob(file.path(path, paste0("*", extension)))) > 0
+  )
+  imgs
+}
+images_load <- function(path = here::here("data", "raw", "2022", "winred", "bgimg"),
+                        extension = c(".png", ".jpg")) {
+  extension <- match.arg(extension)
+  imgs <- validate_image_dir(path, extension)
+  if (extension == ".png") {
+    fun <- png::readPNG
+  } else if (extension == ".jpg") {
+    fun <- jpg::readJPEG
+  }
+  lapply(imgs[1:45], function(x) tryCatch(fun(x), error = function(e) {})) %>%
+    Filter(f = function(x) !is.null(x))
+}
+
+png2jpeg <- function(path, out_dir = path) {
+  imgs <- validate_image_dir(path, ".png")
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+  targets <- file.path(out_dir, tools::file_path_sans_ext(imgs), ".jpg")
+  for (i in seq_along(imgs)) {
+    jpeg::writeJPEG(imgs[i], target = targets[i], quality = 1)
   }
 }
 
@@ -416,13 +448,14 @@ ngp_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -491,13 +524,14 @@ raisethemoney_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -557,13 +591,14 @@ clickandpledge_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
@@ -606,13 +641,14 @@ transaxt_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
@@ -664,13 +700,14 @@ donorbox_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text_title <- read_html(remote$getPageSource()[[1]]) %>%
@@ -733,13 +770,14 @@ authorize_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -794,13 +832,14 @@ piryx_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -871,13 +910,14 @@ numero_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -946,13 +986,14 @@ efundraising_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1024,13 +1065,14 @@ fundhero_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1216,11 +1258,10 @@ fb_short <- function(id, token,
                      max_date = "2020-12-31",
                      min_date = "2019-01-01",
                      limit = 5000) {
-  
   if (!(fields %in% c("ad_data", "demographic_data", "region_data"))) {
     stop("Use the specified set of columns for now.")
   }
-  
+
   query <- adlib_build_query(
     ad_reached_countries = "US",
     ad_active_status = "ALL",
@@ -1232,7 +1273,7 @@ fb_short <- function(id, token,
     fields = fields
   )
   resp <- adlib_get(params = query, token = token)
-  
+
   if (fields == "ad_data") {
     if (length(resp$data) > 0) {
       out <- as_tibble(resp, type = "ad")
@@ -1246,7 +1287,7 @@ fb_short <- function(id, token,
   } else if (fields == "region_data") {
     out <- parse_response(resp, list_cols = "region_distribution")
   }
-  
+
   ## Return all query, response object itself, and tibble
   return(list(query = query, resp = resp, tbl = out))
 }
@@ -1625,13 +1666,14 @@ winred_text_scrape <- function(x) {
   meta_data <- landing_text <- landing_logo <- landing_bgimg <-
     landing_footer <- NA
 
-  meta_data <- temp %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- temp %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(x) %>%
@@ -1692,13 +1734,14 @@ anedot_text_scrape <- function(x) {
     html_nodes("meta")
   meta_data <- landing_text <- landing_logo <- landing_bgimg <- NA
 
-  meta_data <- temp %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- temp %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(x) %>%
@@ -1804,8 +1847,8 @@ list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
   bounds <- c("lower_bound", "upper_bound")
   l[missing] <- list(NULL)
 
-  # Convert demographic data fields to tibbles, 
-  # fill in missing fields for upper-lower bound fields, 
+  # Convert demographic data fields to tibbles,
+  # fill in missing fields for upper-lower bound fields,
   # and don't modify unnamed list fields
   l[present] <- purrr::map2(l[present], present, function(col, col_name) {
     if (col_name %in% upper_lower) {
@@ -1824,7 +1867,7 @@ list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
     }
     out
   })
-  # Least offensive way I could find to flatten these fields, 
+  # Least offensive way I could find to flatten these fields,
   # which are lists with elements named "upper_bound" and "lower_bound"
   bound_cols <- intersect(upper_lower, present)
   if (length(bound_cols) > 0) {
