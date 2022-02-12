@@ -268,6 +268,10 @@ for (i in idx_retry) {
   message(paste0("Finished for ", cand, ", ", senate_list[[i]]$state, "."))
 }
 
+for (cand in names(ad_senate)) {
+  assert_that(all(names(ad_senate[[cand]]) == names(demo_senate[[cand]])))
+}
+
 # Final check ==================================================================
 ## They must all equal
 ad_senate %>%
@@ -317,9 +321,9 @@ assert_that(!any(duplicated(ad$id)))
 assert_that(!any(duplicated(demo$id)))
 assert_that(!any(duplicated(region$id)))
 
-nrow(ad) ## 336082
+nrow(ad) ## 343999
 nrow(demo) ## 263068
-nrow(region) ## 262873
+nrow(region) ## 263156
 
 assert_that(length(setdiff(ad$id, demo$id)) == 0)
 assert_that(length(setdiff(demo$id, ad$id)) == 0)
