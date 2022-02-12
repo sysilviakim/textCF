@@ -26,22 +26,21 @@ class_ref <- read.csv(here::here(img_dir, "winred_images.csv")) %>%
   left_join(name_ref, by = "name") |>
   mutate(name_clean = replace_na(name_clean, "committee_to_elect_erin_paré"))
 
-images <- Sys.glob(file.path(img_dir, "bgimg", "*.png"))
+images <- union(Sys.glob(file.path(img_dir, "bgimg", "*.png")), Sys.glob(file.path(img_dir, "bgimg", "*.jpg"))) %>% sort()
 
 # Extract names of images to identify corresponding rows in dataset containing metadata for each image
 # 16 of 696 images failed to download, so can't use positional matching
 image_names <- str_match(images, "/(\\w+)_bgimg")[, 2]
 class_ref <- filter(class_ref, name_clean %in% image_names) %>%
+  arrange(name_clean) |>
   pull(bgimg_trump)
 
 # One-hot ecnoding, so add 1 to index levels
 class_ref <- classes[1 + class_ref]
 # Only 10 positive labels?
-print(class_ref)
 if (na_img <- sum(is.na(class_ref)) > 0) {
   print("Note: Class is NA for", na_img, "images", "\n")
 }
-table(class_ref)
 images <- split(images, class_ref)
 
 if (!dir.exists(dest_dir)) {

@@ -70,22 +70,34 @@ nested_df <- function(df, var = NULL) {
   }
 }
 
+download_with_extension <- function(path, url, name, tag) {
+  destfile <- file.path(
+    path,
+    paste0(
+      gsub("_{1,}$", "", gsub("_{2,}", "_", trimws(name))),
+      tag, format(Sys.Date(), "%Y%m%d")
+    )
+  )
+  download.file(
+    url = url,
+    destfile = destfile,
+    method = "curl"
+  )
+  if ((ext <- system(paste("file -b", destfile, "| cut -f1 -d ' '"), intern = TRUE)) == "JPEG") {
+    file.rename(destfile, paste0(destfile, ".jpg"))
+  } else if (ext == "PNG") {
+    file.rename(destfile, paste0(destfile, ".png"))
+  } else {
+    cat("Unknown image type", ext, "\n")
+  }
+}
+
 image_download_logo_updated <- function(dat, image, name) {
   path <- here("data/raw/2022/winred/logo")
   if (!dir.exists(path)) dir.create(path)
 
   for (i in 1:nrow(dat)) {
-    download.file(
-      url = dat[[image]][i],
-      destfile = file.path(
-        path,
-        paste0(
-          gsub("_{1,}$", "", gsub("_{2,}", "_", trimws(dat[[name]][i]))),
-          "_logo_", format(Sys.Date(), "%Y%m%d"), ".jpg"
-        )
-      ),
-      method = "curl"
-    )
+    download_with_extension(path, dat[[image]][[i]], dat[[name]][[i]], "_logo_")
     Sys.sleep(3)
   }
 }
@@ -95,17 +107,7 @@ image_download_bgimg_updated <- function(dat, image, name) {
   if (!dir.exists(path)) dir.create(path)
   # Actually downloads .png, not .jpg
   for (i in 1:nrow(dat)) {
-    download.file(
-      url = dat[[image]][i],
-      destfile = file.path(
-        path,
-        paste0(
-          gsub("_{1,}$", "", gsub("_{2,}", "_", trimws(dat[[name]][i]))),
-          "_bgimg_", format(Sys.Date(), "%Y%m%d"), ".png"
-        )
-      ),
-      method = "curl"
-    )
+    download_with_extension(path, dat[[image]][[i]], dat[[name]][[i]], "_bgimg_")
     Sys.sleep(3)
   }
 }
@@ -131,26 +133,29 @@ image_download <- function(dat, image, name, pathway) {
 }
 
 
-validate_img_dir <- function(path, extension) {
+validate_image_dir <- function(path, extension) {
   stopifnot(
     "Path must be a directory" = dir.exists(path),
     "Directory must contain at least one image with given extension" = length(imgs <- Sys.glob(file.path(path, paste0("*", extension)))) > 0
   )
   imgs
 }
+
 images_load <- function(path = here::here("data", "raw", "2022", "winred", "bgimg"),
                         extension = c(".png", ".jpg")) {
   extension <- match.arg(extension)
   imgs <- validate_image_dir(path, extension)
-  if (extension == ".png") {
-    fun <- png::readPNG
-  } else if (extension == ".jpg") {
-    fun <- jpg::readJPEG
+  funs <- list(
+    "png" = png::readPNG,
+    "jpg" = jpeg::readJPEG
+  )
+  if (any(is.na(funs <- funs[tools::file_ext(imgs)]))) {
+    stop("Unknown file extension")
   }
-  lapply(imgs[1:45], function(x) tryCatch(fun(x), error = function(e) {})) %>%
-    Filter(f = function(x) !is.null(x))
+  mapply(rlang::exec, funs[1:20], imgs[1:20])
 }
 
+# Untested because unused
 png2jpeg <- function(path, out_dir = path) {
   imgs <- validate_image_dir(path, ".png")
   if (!dir.exists(out_dir)) {

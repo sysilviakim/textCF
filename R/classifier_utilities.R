@@ -37,4 +37,16 @@ transform_image <- function(img, train = FALSE, dims = c(224, 224)) {
   do.call(transform_normalize, c(img, RESNET18_CONSTANTS))
 }
 
-
+# Adapted from https://stackoverflow.com/questions/23861000/displaying-images-in-r-in-version-3-1-0
+render_image <- function(path) {
+  if ((ext <- tools::file_ext(path)) == "jpg") {
+    image <- jpeg::readJPEG(path, native = TRUE)
+    plot(0:1, 0:1, type = "n", ann = FALSE, axes = FALSE)
+  } else if (ext == "png") {
+    image <- png::readPNG(path)
+    plot.new()
+  } else {
+    stop("Don't know how to handle extension 0", ext)
+  }
+  rasterImage(image, 0, 0, 1, 1)
+}
