@@ -1884,3 +1884,48 @@ list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
     l
   }
 }
+
+# Partition a directory containing directories for k image classes into test, train, and validation directories, each with a specified proportion (rounded) of images, stored in k subdirectories
+partition_data_dir <- function(data_dir = here::here("data", "classifier"),
+                               proportions = c(train = 0.7, test = 0.15, valid = 0.15),
+                               out_dir = file.path(data_dir, "trump_image")) {
+  stopifnot(
+    "Data directory must exist" = dir.exists(data_dir),
+    "Split proportions must sum to 1" = sum(proportions) == 1,
+    "Splits must be named 'train', 'test', and 'valid'" = identical(
+      sort(names(proportions)),
+      c("test", "train", "valid")
+    ),
+    "Values must be valid proportions" = all(proportions >= 0 & proportions <= 1),
+    "Directories must not already exist" = !any(dir.exists(dirs <- file.path(data_dir, names(proportions))))
+  )
+  splits <- lapply(list.dirs(data_dir, recursive = FALSE), partition_class_files, proportions = proportions) %>%
+    unlist(recursive = FALSE)
+  splits <- split(splits, names(splits))
+
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+
+  for (part in names(proportions)) {
+    dir.create(file.path(out_dir, part))
+    for (class_obs in splits[[part]]) {
+      stopifnot("Each directory must contain only one class" = length(cur_class <- unique(names(class_obs))) == 1)
+      # For each split, create containing directory, then add subdirectories for each class, the format expected by Torch
+      new_dir <- file.path(out_dir, part, cur_class)
+      dir.create(new_dir)
+      file.copy(class_obs, file.path(new_dir, basename(class_obs)))
+    }
+  }
+}
+
+partition_class_files <- function(class_dir, proportions) {
+  files <- list.files(class_dir, full.names = TRUE)
+  stopifnot("Must have at least 5 observations to split" = (n_obs <- length(files)) >= 5)
+  splits <- mapply(rep, names(proportions), each = pmax(floor(n_obs * proportions), 1)) %>%
+    unlist()
+  splits <- c(splits, rep("train", times = n_obs - length(splits)))[sample(n_obs, n_obs, replace = FALSE)]
+  stopifnot(length(unique(splits)) == 3)
+  names(files) <- rep(basename(class_dir), length(files))
+  split(files, splits)
+}
