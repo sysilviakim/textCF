@@ -300,3 +300,8 @@ region <- region %>%
 # Final merge and save =========================================================
 fb_senate <- left_join(ad, left_join(demo, region))
 save(fb_senate, file = here("data", "tidy", "fb_senate_merged.Rda"))
+
+## Issues arising with some candidates, notably Hawley and Barrasso
+## Checking the page IDs -- 
+### Hawley's is 1636216106590985 ...1636216106590980 here
+### Barrasso's is 1099779163410386 ...1099779163410380 here
