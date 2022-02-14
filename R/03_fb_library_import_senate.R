@@ -270,6 +270,7 @@ for (i in idx_retry) {
 
 for (cand in names(ad_senate)) {
   assert_that(all(names(ad_senate[[cand]]) == names(demo_senate[[cand]])))
+  assert_that(all(names(ad_senate[[cand]]) == names(region_senate[[cand]])))
 }
 
 # Final check ==================================================================
@@ -322,13 +323,27 @@ assert_that(!any(duplicated(demo$id)))
 assert_that(!any(duplicated(region$id)))
 
 nrow(ad) ## 343999
-nrow(demo) ## 263068
-nrow(region) ## 263156
+nrow(demo) ## 263156
+nrow(region) ## 262958
 
-assert_that(length(setdiff(ad$id, demo$id)) == 0)
+# Easier conditions to meet
 assert_that(length(setdiff(demo$id, ad$id)) == 0)
 assert_that(length(setdiff(region$id, ad$id)) == 0)
-assert_that(length(setdiff(ad$id, region$id)) == 0)
+
+# Harder conditions to meet
+assert_that(length(setdiff(region$id, demo$id)) == 0)
+assert_that(length(setdiff(demo$id, region$id)) == 0)
+
+# Normal
+# assert_that(length(setdiff(ad$id, demo$id)) == 0)
+# assert_that(length(setdiff(ad$id, region$id)) == 0)
+
+## No matter what I do, Hickenlooper's Aug 2020 demographic dist wouldn't scrape
+## Must be 590 rows ---> 56 rows(!) but just won't scrape further
+## They are there in individual ads...
+## Technically, though, these are presidential ads
+## https://www.facebook.com/ads/library/?active_status=all&ad_type=political_and_issue_ads&country=US&q=1267225883628514&sort_data[direction]=desc&sort_data[mode]=relevancy_monthly_grouped&search_type=keyword_unordered&media_type=all
+# assert_that(length(setdiff(region$id, demo$id)) == 0)
 
 # Unnest and pivot demo and region =============================================
 ## Note that there are actually no-target ads by demo/region
