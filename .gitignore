@@ -46,5 +46,6 @@ R/old/*
 fig/*.JPG
 doc/*.JPG
 data/fb_graph_api_token
+data/tidy/fb_matched.Rda
 
 .DS_Store
