@@ -246,10 +246,17 @@ nrow(ad) ## 260934
 nrow(demo) ## 260934
 nrow(region) ## 260934
 
-assert_that(length(setdiff(ad$id, demo$id)) == 0)
+# Easier conditions to meet
 assert_that(length(setdiff(demo$id, ad$id)) == 0)
 assert_that(length(setdiff(region$id, ad$id)) == 0)
-assert_that(length(setdiff(ad$id, region$id)) == 0)
+
+# Harder conditions to meet
+assert_that(length(setdiff(region$id, demo$id)) == 0)
+assert_that(length(setdiff(demo$id, region$id)) == 0)
+
+# Normal
+# assert_that(length(setdiff(ad$id, demo$id)) == 0)
+# assert_that(length(setdiff(ad$id, region$id)) == 0)
 
 # Unnest and pivot demo and region =============================================
 ## Note that there are actually no-target ads by demo/region

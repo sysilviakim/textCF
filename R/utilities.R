@@ -1215,7 +1215,8 @@ fb_short <- function(id, token,
                      # ),
                      max_date = "2020-12-31",
                      min_date = "2019-01-01",
-                     limit = 5000) {
+                     limit = 5000,
+                     ...) {
   
   if (!(fields %in% c("ad_data", "demographic_data", "region_data"))) {
     stop("Use the specified set of columns for now.")
@@ -1229,7 +1230,8 @@ fb_short <- function(id, token,
     ad_delivery_date_max = max_date,
     ad_delivery_date_min = min_date,
     limit = limit,
-    fields = fields
+    fields = fields,
+    ...
   )
   resp <- adlib_get(params = query, token = token)
   
