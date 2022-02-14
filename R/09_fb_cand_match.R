@@ -51,7 +51,7 @@ assert_that(!any(duplicated(cong_complete$house$candidate)))
 
 fb_list %>% map_dbl(nrow)
 # senate  house
-# 188699 260933
+# 344536 260934
 
 cand_list %>% map_dbl(nrow)
 # senate  house
@@ -82,7 +82,10 @@ assert_that(nrow(fb_list$house) == nrow(fb_matched$house))
 summary(fb_matched$senate$vote_share)
 summary(fb_matched$house$vote_share)
 assert_that(
-  !any(fb_matched$senate$page_id != fb_matched$senate$fb_ad_library_id)
+  !any(
+    fb_matched$senate$page_id != fb_matched$senate$fb_ad_library_id,
+    na.rm = TRUE ## Newly added candidates who didn't run in 2020
+  )
   ## Problem with things like 1.58529E+15
 )
 
