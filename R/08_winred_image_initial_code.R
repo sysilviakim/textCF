@@ -1,5 +1,5 @@
 source(here::here("R", "utilities.R"))
-
+print("test")
 # Import =======================================================================
 winred_dat <- loadRData(
   here("data", "raw", "2022", "winred", "winred_text_scraped.Rda")
@@ -26,8 +26,8 @@ bg_dat <- winred_dat %>%
   select(name_clean, bgimg) %>%
   filter(!is.na(bgimg) & !(bgimg == ""))
 
+# Updated to use newer version of image download function
 assert_that(!any(duplicated(bg_dat$name_clean)))
-image_download(
-  dat = bg_dat, image = "bgimg", name = "name_clean",
-  pathway = "data/raw/2022/winred/bgimg"
+image_download_bgimg_updated(
+  dat = bg_dat, image = "bgimg", name = "name_clean"
 )
