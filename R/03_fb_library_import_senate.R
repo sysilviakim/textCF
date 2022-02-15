@@ -89,6 +89,7 @@ for (i in seq(length(senate_list))) {
 ## https://www.facebook.com/ads/library/?id=296408818376585
 ## Barrasso in 2020 cycle
 ad_senate %>% map("tbl") %>% map_lgl(is.null) %>% which()
+ad_senate %>% map("tbl") %>% map(nrow) %>% map_lgl(is.null) %>% which()
 
 # Which candidates go over 5,000? ==============================================
 vec <- ad_senate %>%
@@ -116,16 +117,112 @@ date_breaks <- c(
   seq(as.Date("2019-01-01"), as.Date("2020-12-31"), by = "1 week"),
   as.Date("2020-12-31")
 )
-## Bullock/McGrath/Cunningham/Kelly/Merkley/Hickenlooper okay with monthly cuts
+## Candidates okay with monthly cuts:
+## Bullock/McGrath/Cunningham/Kelly/Merkley/Hickenlooper/McSally 
 ## Graham okay with 2-week cuts
-## Bennet/Gillibrand/Booker/Gideon okay with 1-week cuts
-## Sanders/Warren too much data
+## Bennet/Gillibrand/Booker/Gideon/Warren okay with 1-week cuts
+## Sanders too much data (apparently 1 day is too much for Sanders)
+## Weeks 8, 9, 13, 23, 26, 29, 44, 60, 61, 62
+
+## 5000 rows exceeded just for Feb 25, 2019, or incomplete_days[7]
+
+# incomplete_weeks <- date_breaks[c(8, 9, 13, 23, 26, 29, 44, 60, 61, 62)]
+# incomplete_days <- incomplete_weeks %>%
+#   map(~ seq(.x, .x + 7, by = "1 day")) %>%
+#   unlist() %>%
+#   unique()
+# 
+# for (x in seq(length(incomplete_days))) {
+#   ad_senate[[cand]][[x + 200]] <- fb_short(
+#     id = idx, token = token, fields = "ad_data", 
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01")
+#   )
+#   Sys.sleep(3)
+#   
+#   demo_senate[[cand]][[x + 200]] <- fb_short(
+#     id = idx, token = token, fields = "demographic_data", 
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01")
+#   )
+#   Sys.sleep(3)
+#   
+#   region_senate[[cand]][[x + 200]] <- fb_short(
+#     id = idx, token = token, fields = "region_data", 
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01")
+#   )
+#   Sys.sleep(3)
+#   
+#   if (!is.null(nrow(ad_senate[[cand]][[x + 200]]$tbl))) {
+#     ## This checks that the smaller interval is safe and not 
+#     ## overflowing with ads
+#     assert_that(nrow(ad_senate[[cand]][[x + 200]]$tbl) < 5000)
+#     message(as.Date(incomplete_days[x], origin = "1970-01-01"), " done.")
+#     message(
+#       paste0("Number of rows was ", nrow(ad_senate[[cand]][[x + 200]]$tbl))
+#     )
+#   }
+#   Sys.sleep(5)
+# }
+
+# x <- 7 ## Sanders, Feb 25, 2019
+## District of Columbia not accepted as a valid parameter; skipping
+## Not sure if a combination of them will be exhaustive, though
+
+# for (st in seq(51)) {
+#   stname <- c(state.name, "District of Columbia")[st]
+#   
+#   ad_senate[[cand]][[x + 300 + st - 1]] <- fb_short(
+#     id = idx, token = token, fields = "ad_data",
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     delivery_by_region = stname
+#   )
+#   Sys.sleep(3)
+#   
+#   demo_senate[[cand]][[x + 300 + st - 1]] <- fb_short(
+#     id = idx, token = token, fields = "demographic_data",
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     delivery_by_region = stname
+#   )
+#   Sys.sleep(3)
+#   
+#   region_senate[[cand]][[x + 300 + st - 1]] <- fb_short(
+#     id = idx, token = token, fields = "region_data",
+#     min_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     max_date = as.Date(incomplete_days[x], origin = "1970-01-01"),
+#     delivery_by_region = stname
+#   )
+#   Sys.sleep(3)
+#   
+#   if (!is.null(nrow(ad_senate[[cand]][[x + 300 + st - 1]]$tbl))) {
+#     ## This checks that the smaller interval is safe and not
+#     ## overflowing with ads
+#     assert_that(nrow(ad_senate[[cand]][[x + 300 + st - 1]]$tbl) < 5000)
+#     message(
+#       paste0(
+#         "Sanders ads for state ", stname, ", ",
+#         as.Date(incomplete_days[x], origin = "1970-01-01"),
+#         " done."
+#       )
+#     )
+#     message(
+#       paste0(
+#         "Number of rows was ", nrow(ad_senate[[cand]][[x + 300 + st - 1]]$tbl)
+#       )
+#     )
+#   }
+#   Sys.sleep(5)
+# }
+
 for (i in idx_retry) {
   idx <- senate_list[[i]]$id
   cand <- senate_list[[i]]$candidate
-  ad_senate[[cand]] <- list() 
+  region_senate[[cand]] <- demo_senate[[cand]] <- ad_senate[[cand]] <- list() 
   ## Run by two months intervals then combine the rows
-  for (x in seq(length(date_breaks) - 1)) {
+  for (x in (seq(length(date_breaks) - 1))) {
     ad_senate[[cand]][[x]] <- fb_short(
       id = idx, token = token, fields = "ad_data", 
       min_date = date_breaks[x],
@@ -151,13 +248,13 @@ for (i in idx_retry) {
       ## This checks that the smaller interval is safe and not 
       ## overflowing with ads
       assert_that(nrow(ad_senate[[cand]][[x]]$tbl) < 5000)
-      message(paste0("1mo interval starting from ", date_breaks[x], " done."))
+      message(paste0("1 week interval from ", date_breaks[x], " done."))
       message(paste0("Number of rows was ", nrow(ad_senate[[cand]][[x]]$tbl)))
     }
     Sys.sleep(5)
   }
 
-    ## Bind rows
+  ## Bind rows
   ad_senate[[cand]]$tbl <- ad_senate[[cand]] %>% map("tbl") %>% bind_rows()
   demo_senate[[cand]]$tbl <- demo_senate[[cand]] %>% map("tbl") %>% bind_rows()
   region_senate[[cand]]$tbl <- 
@@ -169,6 +266,11 @@ for (i in idx_retry) {
   save(demo_senate, file = fname2)
   save(region_senate, file = fname3)
   message(paste0("Finished for ", cand, ", ", senate_list[[i]]$state, "."))
+}
+
+for (cand in names(ad_senate)) {
+  assert_that(all(names(ad_senate[[cand]]) == names(demo_senate[[cand]])))
+  assert_that(all(names(ad_senate[[cand]]) == names(region_senate[[cand]])))
 }
 
 # Final check ==================================================================
@@ -200,26 +302,48 @@ ad <- ad_senate %>%
 demo <- demo_senate %>%
   map_dfr("tbl", .id = "candidate") %>%
   dedup() %>%
-  select(-ad_snapshot_url)
+  select(-ad_snapshot_url) %>%
+  dedup() %>%
+  rowwise() %>%
+  filter(!is.null(unlist(demographic_distribution))) %>%
+  ungroup()
 
 region <- region_senate %>%
   map_dfr("tbl", .id = "candidate") %>%
   dedup() %>%
-  select(-ad_snapshot_url)
+  select(-ad_snapshot_url) %>%
+  dedup() %>%
+  rowwise() %>%
+  filter(!is.null(unlist(region_distribution))) %>%
+  ungroup()
 
 # Sanity checks ================================================================
 assert_that(!any(duplicated(ad$id)))
 assert_that(!any(duplicated(demo$id)))
 assert_that(!any(duplicated(region$id)))
 
-nrow(ad) ## 260934
-nrow(demo) ## 260934
-nrow(region) ## 260934
+nrow(ad) ## 343999
+nrow(demo) ## 263156
+nrow(region) ## 262958
 
-assert_that(length(setdiff(ad$id, demo$id)) == 0)
+# Easier conditions to meet
 assert_that(length(setdiff(demo$id, ad$id)) == 0)
 assert_that(length(setdiff(region$id, ad$id)) == 0)
-assert_that(length(setdiff(ad$id, region$id)) == 0)
+
+# Harder conditions to meet
+assert_that(length(setdiff(region$id, demo$id)) == 0)
+assert_that(length(setdiff(demo$id, region$id)) == 0)
+
+# Normal
+# assert_that(length(setdiff(ad$id, demo$id)) == 0)
+# assert_that(length(setdiff(ad$id, region$id)) == 0)
+
+## No matter what I do, Hickenlooper's Aug 2020 demographic dist wouldn't scrape
+## Must be 590 rows ---> 56 rows(!) but just won't scrape further
+## They are there in individual ads...
+## Technically, though, these are presidential ads
+## https://www.facebook.com/ads/library/?active_status=all&ad_type=political_and_issue_ads&country=US&q=1267225883628514&sort_data[direction]=desc&sort_data[mode]=relevancy_monthly_grouped&search_type=keyword_unordered&media_type=all
+# assert_that(length(setdiff(region$id, demo$id)) == 0)
 
 # Unnest and pivot demo and region =============================================
 ## Note that there are actually no-target ads by demo/region
@@ -260,3 +384,8 @@ region <- region %>%
 # Final merge and save =========================================================
 fb_senate <- left_join(ad, left_join(demo, region))
 save(fb_senate, file = here("data", "tidy", "fb_senate_merged.Rda"))
+
+## Issues arising with some candidates, notably Hawley and Barrasso
+## Checking the page IDs -- 
+### Hawley's is 1636216106590985 ...1636216106590980 here
+### Barrasso's is 1099779163410386 ...1099779163410380 here
