@@ -2,11 +2,13 @@ library(torch)
 library(torchdatasets)
 library(torchvision)
 
-# Much of this copied from R torch official site (https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/)
+# Much of this copied from R torch official site
+# (https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/)
 
 # apparently expected by pretrained classifier
 
-RESNET18_CONSTANTS <- list(mean = c(0.485, 0.456, 0.406), std = c(0.229, 0.224, 0.225))
+RESNET18_CONSTANTS <-
+  list(mean = c(0.485, 0.456, 0.406), std = c(0.229, 0.224, 0.225))
 DEVICE <- if (cuda_is_available()) torch_device("cuda:0") else "cpu"
 CLASS_NAMES <- c("no_trump", "trump")
 
@@ -45,7 +47,8 @@ transform_image <- function(img, train = FALSE, dims = c(224, 224)) {
   do.call(transform_normalize, c(img, RESNET18_CONSTANTS))
 }
 
-# Adapted from https://stackoverflow.com/questions/23861000/displaying-images-in-r-in-version-3-1-0
+# Adapted from
+# https://stackoverflow.com/questions/23861000/displaying-images-in-r-in-version-3-1-0
 render_image <- function(path) {
   if ((ext <- tools::file_ext(path)) == "jpg") {
     image <- jpeg::readJPEG(path, native = TRUE)
@@ -59,7 +62,8 @@ render_image <- function(path) {
   rasterImage(image, 0, 0, 1, 1)
 }
 # From https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
-find_lr <- function(train_dl, optimizer, init_value = 1e-8, final_value = 10, beta = 0.98) {
+find_lr <- function(train_dl, optimizer, init_value = 1e-8,
+                    final_value = 10, beta = 0.98) {
   num <- train_dl$.length()
   mult <- (final_value / init_value)^(1 / num)
   lr <- init_value
@@ -138,13 +142,15 @@ process_batches <- function(dl, batch_fun, loss_vec) {
   })
 }
 
-# Plot image tensor - mostly copied from https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
+# Plot image tensor - mostly copied from
+# https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
 inspect_image <- function(batch, plot_dims, class_names = CLASS_NAMES) {
   # Plot dimensions are row by columns
   classes <- batch[[2]]
   images <- as.array(batch[[1]]) %>%
     aperm(perm = c(1, 3, 4, 2)) %>%
-    images() <- (RESNET18_CONSTANTS$std * images + RESNET18_CONSTANTS$mean) * 255
+    images() <-
+    (RESNET18_CONSTANTS$std * images + RESNET18_CONSTANTS$mean) * 255
   images[images > 255] <- 255
   images[images < 0] <- 0
 

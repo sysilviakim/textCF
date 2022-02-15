@@ -3,13 +3,23 @@ library(torchvision)
 source(here::here("R", "utilities.R"))
 source(here::here("R", "classifier_utilities.R"))
 
-# Much of this is copied from https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
+# Much of this is copied from
+# https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
 # This script will take a few minutes to run
 data_dir <- here::here("data", "classifier", "trump_image")
 
-train_ds <- image_folder_dataset(file.path(data_dir, "train"), transform = function(x) transform_image(x, train = TRUE))
-test_ds <- image_folder_dataset(file.path(data_dir, "test"), transform = function(x) transform_image(x, train = FALSE))
-valid_ds <- image_folder_dataset(file.path(data_dir, "valid"), transform = function(x) transform_image(x, train = FALSE))
+train_ds <- image_folder_dataset(
+  file.path(data_dir, "train"),
+  transform = function(x) transform_image(x, train = TRUE)
+)
+test_ds <- image_folder_dataset(
+  file.path(data_dir, "test"),
+  transform = function(x) transform_image(x, train = FALSE)
+)
+valid_ds <- image_folder_dataset(
+  file.path(data_dir, "valid"),
+  transform = function(x) transform_image(x, train = FALSE)
+)
 
 batch_size <- 16
 
@@ -17,10 +27,12 @@ train_dl <- dataloader(train_ds, batch_size = batch_size, shuffle = TRUE)
 valid_dl <- dataloader(valid_ds, batch_size = batch_size)
 test_dl <- dataloader(test_ds, batch_size = batch_size)
 
-# For first attempt, just use preset weights and modify ResNet's output layer for two classes
+# For first attempt,
+# just use preset weights and modify ResNet's output layer for two classes
 model <- model_resnet18(pretrained = TRUE)
 
-# grad indicates used to compute gradient for each model pass, which we aren't doing
+# grad indicates used to compute gradient for each model pass,
+# which we aren't doing
 model$parameters %>% purrr::walk(function(param) param$requires_grad_(FALSE))
 
 # In-place modification
@@ -41,7 +53,9 @@ find_lr(train_dl, optimizer) %>%
 lr <- 1e-03
 num_epochs <- 10
 scheduler <- optimizer %>%
-  lr_one_cycle(max_lr = lr, epochs = num_epochs, steps_per_epoch = train_dl$.length())
+  lr_one_cycle(
+    max_lr = lr, epochs = num_epochs, steps_per_epoch = train_dl$.length()
+  )
 
 # Partially substituted expressions to reduce duplication
 train_loop <- process_batches(train_dl, train_batch, train_losses)
@@ -59,7 +73,12 @@ for (epoch in seq(num_epochs)) {
 
   eval(valid_loop)
 
-  cat(sprintf("\nLoss at epoch %d: training: %3f, validation: %3f\n", epoch, mean(train_losses), mean(valid_losses)))
+  cat(
+    sprintf(
+      "\nLoss at epoch %d: training: %3f, validation: %3f\n",
+      epoch, mean(train_losses), mean(valid_losses)
+    )
+  )
 }
 
 test_losses <- c()
