@@ -3,7 +3,7 @@ source(here::here("R", "utilities.R"))
 vec <- c(senate = "senate", house = "house")
 
 # Import data ==================================================================
-fb_list <- vec %>% 
+fb_list <- vec %>%
   map(~ loadRData(here("data", "tidy", paste0("fb_", .x, "_merged.Rda")))) %>%
   map(~ .x %>% rename(adlib_id = id))
 
@@ -91,7 +91,7 @@ assert_that(
 
 fb_matched <- fb_matched %>%
   map(
-    ~ .x %>% 
+    ~ .x %>%
       select(-fb_ad_library_id) %>%
       select(fb_ad_library_id = page_id, everything())
   )
@@ -111,3 +111,58 @@ fb_matched <- fb_matched %>%
   )
 
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
+
+# Generate and store metadata for ads, before taking out unique ads ============
+fb_simple <- fb_matched %>%
+  map(
+    ~ .x %>%
+      group_by(candidate, ad_creative_body) %>%
+      select(
+        matches(
+          ## Excluding NA values for demo/region target
+          paste0(
+            "unknown|male|impression|potential|spend|ad_creation_date|delivery|",
+            "^", tolower(state.abb) %>% paste(collapse = "$|^"), "$"
+          )
+        )
+      )
+  )
+
+## The list(mean, sd), .names = "{.col}.fn{.fn}" approach didn't work;
+## Not sure why; but since I also need na.rm = TRUE, just use the agg. approach
+fb_meta <- fb_simple %>%
+  map(
+    ~ {
+      out_mean <- .x %>% summarise(
+        across(
+          everything(), function(x) mean(as.numeric(x), na.rm = TRUE),
+          .names = "mean_{.col}"
+        )
+      )
+      out_min <- .x %>% summarise(
+        across(
+          everything(), function(x) min(as.numeric(x), na.rm = TRUE),
+          .names = "min_{.col}"
+        )
+      )
+      out_max <- .x %>% summarise(
+        across(
+          everything(), function(x) max(as.numeric(x), na.rm = TRUE),
+          .names = "max_{.col}"
+        )
+      )
+      out_sd <- .x %>% summarise(
+        across(
+          everything(), function(x) sd(as.numeric(x), na.rm = TRUE),
+          .names = "sd_{.col}"
+        )
+      )
+      return(
+        left_join(left_join(out_mean, out_sd), left_join(out_min, out_max))
+      )
+    }
+  )
+
+## Make sure to NA the NaN values
+## Make sure to as.Date(x, origin = "1970-01-01") for wrangled dates
+save(fb_meta, file = here("data", "tidy", "fb_meta.Rda"))
