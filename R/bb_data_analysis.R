@@ -97,7 +97,7 @@ s_dem_Lexicoder <- liwcalike(s_dem_corpus, dictionary = NRC)
          color = "", fill = "") +
     theme(axis.text.y=element_blank())
 )
-# Something's up here...
+# Something's up here...one of the rows has an impossible range...
 
 # 2: Senate Financial/Non-Financial, By Party
 
@@ -214,6 +214,20 @@ s_dem_nf_Lexicoder <- liwcalike(senate_dem_nf_corpus, dictionary = NRC)
 # detailed tables to present the main thrust of the results.
 # What sort of analysis should that be? A simple difference-in-means? Some form
 # of regression? Should talk about this with Silvia and Jan in the next meeting.
+
+## The issue for difference-in-means here is that, at present, I have not got
+## the sort of format where I can see for candidate. In the section below (early
+## in the coding words section; line numbers will undoubtedly change regularly),
+## the CANDdata_trollPROP and the functions leading up to it do give something
+## workable...
+## Otherwise, generating one row for each candidate name and putting all the ad
+## text in that row would work (i.e. getting the Lexicoders, and instead of
+## text 1-7000 or whatnot, having one for each candidate), at least in theory...
+
+## Now that I think about it, I think Jan had to do something similar with the
+## moral foundations side of things -- should take another look at that code.
+
+## This should be doable. Figure this out sooner rather than later.
   
 # Trolling Words ===============================================================
 
@@ -240,7 +254,110 @@ CANDdata_trollPROP <-
   quanteda::convert(CANDlookup_trollingPROP, to = "data.frame") %>%
   cbind(docvars(dfm_FB_cand_prop))
 
+myCol <- brewer.pal(3, "Set1")
 
+CANDdata_trollPROP %>%
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll * 100, y = party, fill = party)) +
+  ggridges::geom_density_ridges() +
+  scale_fill_manual(values = myCol[2:1]) +
+  labs(y = "", x = "% trolling words per ad") +
+  theme(legend.position = "none") +
+  xlim(c(0, 20))
+
+CANDdata_trollPROP %>%
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll * 100, y = party, fill = party)) +
+  ggridges::geom_density_ridges() +
+  facet_wrap(~chamber) +
+  scale_fill_manual(values = myCol[2:1]) +
+  xlim(c(0, 20)) +
+  labs(y = "", x = "% trolling words per ad") +
+  theme(legend.position = "none")
+
+CANDdata_trollPROP %>%
+  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  ggplot(aes(x = troll * 100, y = chamber)) +
+  ggridges::geom_density_ridges() +
+  xlim(c(0, 20)) +
+  labs(y = "", x = "% trolling words per ad") +
+  theme(legend.position = "none")
+## Difference-in-Means Test -- Very doable here
+## Can take mean-House, mean-Senate, for both parties, compare these --
+## No reason to overcomplicate matters
+
+## Let's get that out of the way right now! Or at least the setup.
+
+## NOTE -- at present (2/15/22, roughly 12:15pm EST), this data is incomplete,
+## because of the Senators who didn't run in 2020. However, let's set up the
+## code anyway -- can always rerun it
+
+library(dplyr)
+group_by(CANDdata_trollPROP, party) %>%
+  summarise(
+    count = n(),
+    median = median(troll, na.rm = TRUE),
+    IQR = IQR(troll, na.rm = TRUE)
+  )
+
+library("ggpubr")
+ggboxplot(CANDdata_trollPROP, x = "party", y = "troll", 
+          color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
+          ylab = "Proportion of Trolling Words", xlab = "Party")
+
+## Now, comparing copartisans in House/Senate
+dem_trollPROP <- CANDdata_trollPROP[CANDdata_trollPROP$party == "DEMOCRAT", ]
+gop_trollPROP <- CANDdata_trollPROP[CANDdata_trollPROP$party == "REPUBLICAN", ]
+# NA rows generated:
+dem_trollPROP <- dem_trollPROP[rowSums(is.na(dem_trollPROP)) != ncol(dem_trollPROP), ]
+gop_trollPROP <- gop_trollPROP[rowSums(is.na(gop_trollPROP)) != ncol(gop_trollPROP), ]
+
+
+group_by(dem_trollPROP, chamber) %>%
+  summarise(
+    count = n(),
+    median = median(troll, na.rm = TRUE),
+    IQR = IQR(troll, na.rm = TRUE)
+  )
+ggboxplot(dem_trollPROP, x = "chamber", y = "troll", 
+          color = "chamber", palette = c("#00AFBB", "#E7B800"),
+          ylab = "Proportion of Trolling Words among Democrats", 
+          xlab = "Chamber")
+
+group_by(gop_trollPROP, chamber) %>%
+  summarise(
+    count = n(),
+    median = median(troll, na.rm = TRUE),
+    IQR = IQR(troll, na.rm = TRUE)
+  )
+ggboxplot(gop_trollPROP, x = "chamber", y = "troll", 
+          color = "chamber", palette = c("#00AFBB", "#E7B800"),
+          ylab = "Proportion of Trolling Words among Republicans", 
+          xlab = "Chamber")
+
+# Now, comparing partisans within chamber
+house_trollPROP <- CANDdata_trollPROP[CANDdata_trollPROP$chamber == "house", ]
+sen_trollPROP <- CANDdata_trollPROP[CANDdata_trollPROP$chamber == "senate", ]
+
+group_by(house_trollPROP, party) %>%
+  summarise(
+    count = n(),
+    median = median(troll, na.rm = TRUE),
+    IQR = IQR(troll, na.rm = TRUE)
+  )
+ggboxplot(house_trollPROP, x = "party", y = "troll", 
+          color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
+          ylab = "Proportion of Trolling Words", xlab = "Party")
+
+group_by(sen_trollPROP, party) %>%
+  summarise(
+    count = n(),
+    median = median(troll, na.rm = TRUE),
+    IQR = IQR(troll, na.rm = TRUE)
+  )
+ggboxplot(sen_trollPROP, x = "party", y = "troll", 
+          color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
+          ylab = "Proportion of Trolling Words", xlab = "Party")
 # Moral Foundations ============================================================
 
 # General notes ================================================================
