@@ -69,9 +69,19 @@ render_image <- function(path, pause = FALSE) {
   if (pause) Sys.sleep(3)
 }
 
-crop_matrix <- function(mat) {
-  ext <- seq(min(dim(mat)))
-  mat[ext, ext]
+# Pad matrix along shorter dimension with fill init_value
+# Quick way of making square images for plotting
+pad_matrix <- function(mat, fill = "#FFFFFF") {
+  stopifnot("Fill must match type of matrix" = typeof(mat) == typeof(fill))
+  dims <- dim(mat)
+  out <- if ((difference <- dims[[1]] - dims[[2]]) > 0) {
+    cbind(mat, matrix(fill, nrow = dims[[1]], ncol = difference))
+  } else if (difference < 0) {
+    rbind(mat, matrix(fill, nrow = -difference, ncol = dims[[2]]))
+  } else {
+    mat
+  }
+  as.raster(mat)
 }
 
 read_image <- function(path, to_raster = TRUE) {
@@ -93,29 +103,44 @@ read_image <- function(path, to_raster = TRUE) {
 # Plots all images stored in a directory, chunked into plots of given dimension (default 4 x 4).
 # Crops to square dimensions
 # May cause memory error if given too many images
-inspect_image_directory <- function(path, plot_dims = c(4, 4)) {
+inspect_image_directory <- function(path, plot_dims = c(4, 4), shuffle = FALSE) {
   size <- prod(plot_dims)
   images <- list.files(path, full.names = TRUE)
   images <- images[tools::file_ext(images) %in% names(IMAGE_FUNS)]
+  if (shuffle) {
+    images <- images[sample(length(images), length(images), replace = FALSE)]
+  }
   n_plots <- ceiling(length(images) / size)
-  # Read each image file into raster
-  images <- setNames(images, basename(images)) %>%
-    lapply(read_image) %>%
-    split(rep(seq(n_plots), each = size)[seq_along(images)]) # %>%
-
+  old <- par(c("mar", "mfcol"))
   par(mfcol = plot_dims, mar = rep(1, 4))
-  # Recursion needed because images consists of multiple sublists if it has more elements
-  # than a single plot can fit
+
+  # Split list into chunks, each
+  images <- setNames(images, basename(images)) %>%
+    split(rep(seq(n_plots), each = size)[seq_along(images)])
+
+  # Recursively traverses possibly nested list of image rasters and plots them
   plot_image_list <- function(lst, pause = 0) {
     if (is.list(lst[[1]])) {
       lapply(lst, plot_image_list, pause)
     } else {
-      mapply(function(img, name) {{ plot(crop_matrix(img))
-        title(name) }}, lst, names(lst))
+      mapply(function(img, name) {
+        plot(pad_matrix(img))
+        title(name)
+      }, lst, names(lst))
       Sys.sleep(pause)
     }
   }
-  invisible(plot_image_list(images, pause = 3))
+
+  lapply(images, function(x) {
+    lapply(x, read_image) %>%
+      plot_image_list(pause = 3)
+  })
+  # Reset plot parameters
+  on.exit(do.call(par, old))
+
+  # Recursion needed because images consists of multiple sublists if it has more elements
+  # than a single plot can fit
+  # invisible(plot_image_list(images, pause = 3))
 }
 
 # Copied from https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
@@ -194,7 +219,7 @@ process_batches <- function(dl, batch_fun, loss_vec) {
   substitute({
     coro::loop(for (b in dl) {
       loss <- batch_fun(b)
-      .(loss_vec) <- c(loss_vec, loss)
+      loss_vec <- c(loss_vec, loss)
     })
   })
 }
