@@ -176,3 +176,31 @@ top_list %>%
 # 10 top_1000 chinese_unique Republican 0.0463   Senate 
 # 11 top_1000 chinese_unique Democrat   0.000895 House  
 # 12 top_1000 chinese_unique Republican 0.0177   House 
+
+# Top 3 references by percentage ===============================================
+## Limit to n > 10, because otherwise we have n = 1, n = 3 cases
+top_list$top_1000$trump_unique$freq %>%
+  map_dfr(
+    ~ .x %>%
+      filter(word_trump == 1) %>%
+      group_by(party) %>%
+      arrange(desc(perc)) %>% 
+      slice(1:3),
+    .id = "chamber"
+  )
+
+top_list$top_1000$chinese_unique$freq %>%
+  map_dfr(
+    ~ .x %>%
+      filter(word_chinese == 1) %>%
+      # Jim Risch, 3 out of 9 (33%), excluded
+      filter(total >= 10) %>%
+      group_by(party) %>%
+      arrange(desc(perc)) %>% 
+      slice(1:3),
+    .id = "chamber"
+  )
+
+fb_unique$senate %>% 
+  filter(grepl("Cotton", candidate)) %>%
+  .$ad_creative_body
