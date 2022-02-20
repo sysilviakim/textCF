@@ -1424,6 +1424,91 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
   return(p)
 }
 
+fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
+  p <- df %>%
+    ggplot(
+      aes(
+        y = type, x = !!as.name(xvar),
+        fill = type, color = type, shape = financial,
+        xmax = !!as.name(xvar) + 1.96 * !!as.name(se),
+        xmin = !!as.name(xvar) - 1.96 * !!as.name(se)
+      )
+    ) +
+    geom_pointrange(size = 0.5) +
+    facet_wrap(~chamber) +
+    scale_color_manual(
+      values = c(
+        "Republican,\nFinancial" = "#ca0020", ## dark red
+        "Republican,\nNon-financial" = "#f4a582", ## light red
+        "Democrat,\nFinancial" = "#0571b0", ## dark blue
+        "Democrat,\nNon-financial" = "#92c5de" ## light blue
+      )
+    ) +
+    labs(y = "", x = xlab)
+  
+  if (full) {
+    p <- p +
+      scale_color_manual(
+        values = c(
+          "WinRed" = "#ca0020", ## dark red
+          "Other Rep.\nPlatform" = "#f4a582", ## light red
+          "ActBlue" = "#0571b0", ## dark blue
+          "Other Dem.\nPlatform" = "#92c5de" ## light blue
+        )
+      )
+    pdf_default(p) +
+      theme(legend.position = "none") + 
+      scale_x_continuous(limits = c(0.06, 0.14))
+  } else {
+    pdf_default(p) +
+      theme(legend.position = "none") + 
+      scale_x_continuous(limits = c(0.06, 0.14))
+  }
+}
+
+summ_df_fxn <- function(df, full = FALSE) {
+  out <- df %>%
+    filter(party %in% c("Democrat", "Republican")) %>%
+    dplyr::summarise(
+      `Toxic` = mean(TOXICITY, na.rm = TRUE),
+      `Obscene` = mean(OBSCENE, na.rm = TRUE),
+      `Identity Attack` = mean(IDENTITY_ATTACK, na.rm = TRUE),
+      n = n(),
+      sd_toxic = sd(TOXICITY, na.rm = TRUE),
+      sd_obscene = sd(OBSCENE, na.rm = TRUE),
+      sd_identity = sd(IDENTITY_ATTACK, na.rm = TRUE),
+      se_toxic = sd_toxic / sqrt(n),
+      se_obscene = sd_obscene / sqrt(n),
+      se_identity = sd_identity / sqrt(n)
+    )
+  if (full == FALSE) {
+    out %>%
+      mutate(type = glue("{party},\n{financial}")) %>%
+      mutate(
+        type = factor(
+          type,
+          levels = rev(
+            c(
+              "Republican,\nFinancial", "Republican,\nNon-financial",
+              "Democrat,\nFinancial", "Democrat,\nNon-financial"
+            )
+          )
+        )
+      )
+  } else {
+    out %>%
+      mutate(financial = TRUE) %>%
+      mutate(
+        type = factor(
+          type,
+          levels = rev(c(
+            "WinRed", "Other Rep.\nPlatform", "ActBlue", "Other Dem.\nPlatform"
+          ))
+        )
+      )
+  }
+}
+
 # Wayback-specific Functions ===================================================
 wayback_memento <- function(files) {
   files %>%
