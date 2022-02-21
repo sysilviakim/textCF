@@ -1,5 +1,4 @@
 source(here::here("R", "utilities.R"))
-print("test")
 # Import =======================================================================
 winred_dat <- loadRData(
   here("data", "raw", "2022", "winred", "winred_text_scraped.Rda")
@@ -19,8 +18,11 @@ logo_dat <- winred_dat %>%
   filter(!is.na(logo) & !(logo == ""))
 
 assert_that(!any(duplicated(logo_dat$name_clean)))
-image_download_logo_updated(logo_dat, image = "logo", name = "name_clean")
 
+download_image_to_dir(
+  dat = bg_dat, path = here("data/raw/2022/winred/logo"),
+  image = "logo", name = "name_clean", identifier = "_logo_"
+)
 # bgimg downloads ==============================================================
 bg_dat <- winred_dat %>%
   select(name_clean, bgimg) %>%
@@ -28,6 +30,15 @@ bg_dat <- winred_dat %>%
 
 # Updated to use newer version of image download function
 assert_that(!any(duplicated(bg_dat$name_clean)))
-image_download_bgimg_updated(
-  dat = bg_dat, image = "bgimg", name = "name_clean"
+download_image_to_dir(
+  dat = bg_dat, path = here("data/raw/2022/winred/bgimg"),
+  image = "bgimg", name = "name_clean", identifier = "_bgimg_"
+)
+
+# Currently only Trump images
+extra_image <- read.csv(here("data/classifier/extra_image/extra_image.csv"))
+assert_that(!anyDuplicated(extra_image$url))
+download_image_to_dir(
+  dat = extra_image, path = here("data/classifier/trump"),
+  image = "url", name = "name", identifier = "_extra_"
 )
