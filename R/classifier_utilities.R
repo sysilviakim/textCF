@@ -206,6 +206,7 @@ test_batch <- function(b) {
   # torch_max returns a list, with position 1 containing the values
   # and position 2 containing the respective indices
   predicted <- torch_max(output$data(), dim = 2)[[2]]
+  results <<- rbind(results, data.frame(actual = as.integer(b$y), predicted = as.integer(predicted)))
   total <<- total + labels$size(1)
   # add number of correct classifications in this batch to the aggregate
   correct <<- correct + (predicted == labels)$sum()$item()

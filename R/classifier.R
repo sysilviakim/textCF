@@ -33,24 +33,28 @@ model <- model_resnet18(pretrained = TRUE)
 
 # grad indicates used to compute gradient for each model pass,
 # which we aren't doing
+# Note this modifies in place
 model$parameters %>% purrr::walk(function(param) param$requires_grad_(FALSE))
+model$fc <- nn_linear(in_features = model$fc$in_features, out_features = length(CLASS_NAMES))
 
 # In-place modification
-model$fc <- nn_linear(in_features = model$fc$in_features, out_features = 2)
 model <- model$to(device = DEVICE)
 
-criterion <- nn_cross_entropy_loss()
+weights <- torch_tensor(1 / prop.table(table(train_ds$targets))) * c(1, .3)
+criterion <- nn_cross_entropy_loss(weight = weights) # add weight rescaling tensor here (inverse proportions); by default, averages loss
 optimizer <- optim_sgd(model$parameters, lr = 0.1, momentum = 0.9)
 
 # I try a learning rate of about 10^-6.
 # Highly unstable due to few images with Trump
-find_lr(train_dl, optimizer) %>%
-  ggplot(aes(log_lrs, losses)) +
-  geom_point(size = 1) +
-  theme_classic()
+lrs <- find_lr(train_dl, optimizer) %>%
+  suppressMessages()
+# ggplot(aes(log_lrs, losses)) +
+# geom_point(size = 1) +
+# theme_classic()
 
-# Training
-lr <- 1e-03
+# Find loss-minimizing learning rate
+lr <- with(lrs, log_lrs[which.min(losses)])
+
 num_epochs <- 10
 scheduler <- optimizer %>%
   lr_one_cycle(
@@ -84,8 +88,11 @@ for (epoch in seq(num_epochs)) {
 test_losses <- c()
 total <- 0
 correct <- 0
+results <- data.frame(actual = integer(), predicted = integer())
 eval(test_loop)
 
 # High accuracy, but not compelling because very few images feature Trump
 test_losses
 correct / total
+# Confusion matrix
+table(factor(CLASS_NAMES[results$actual], levels = CLASS_NAMES), factor(CLASS_NAMES[results$predicted], levels = CLASS_NAMES), dnn = colnames(results))
