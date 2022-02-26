@@ -135,6 +135,7 @@ fb_unique <- fb_unique %>%
           ) ~ 1,
           !is.na(ad_creative_body) ~ 0
         ),
+        ## Ended up not using for the first project
         word_chinese = case_when(
           str_detect(str_to_lower(ad_creative_body), "chinese|china") ~ 1,
           !is.na(ad_creative_body) ~ 0
@@ -174,7 +175,7 @@ docnames(fb_corpus$senate) <- paste0("senate_", 1:ndoc(fb_corpus$senate))
 ## Combine two chambers
 CORP_FB <- fb_corpus$senate + fb_corpus$house
 
-# TOKENIZE DOCUMENTS ===========================================================
+# Tokenize documents ===========================================================
 toks_FB <- tokens(CORP_FB) %>%
   tokens(
     remove_url = TRUE,
