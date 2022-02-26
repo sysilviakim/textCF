@@ -54,6 +54,11 @@ troll <- read_csv(
   list(troll = .) %>%
   dictionary()
 
+## NRC dictionary
+## Supplement with https://www.tidytextmining.com/sentiment.html?
+NRC <- read.dic(here("data", "raw", "dictionaries", "NRC.dic"))
+NRC <- dictionary(NRC)
+
 # Functions ====================================================================
 nested_df <- function(df, var = NULL) {
   ## broad applications of tidyr::unnest can be problematic
@@ -470,14 +475,13 @@ ngp_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -546,14 +550,13 @@ raisethemoney_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -613,14 +616,13 @@ clickandpledge_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
@@ -663,14 +665,13 @@ transaxt_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
@@ -722,14 +723,13 @@ donorbox_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text_title <- read_html(remote$getPageSource()[[1]]) %>%
@@ -792,14 +792,13 @@ authorize_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -854,14 +853,13 @@ piryx_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -932,14 +930,13 @@ numero_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1008,14 +1005,13 @@ efundraising_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1087,14 +1083,13 @@ fundhero_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1462,23 +1457,23 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
     facet_wrap(~chamber) +
     scale_color_manual(values = color4) +
     labs(y = "", x = xlab)
-  
+
   if (full) {
     p <- p +
       scale_color_manual(values = color4)
     pdf_default(p) +
-      theme(legend.position = "none") + 
+      theme(legend.position = "none") +
       scale_x_continuous(limits = c(0.06, 0.14))
   } else {
     pdf_default(p) +
-      theme(legend.position = "none") + 
+      theme(legend.position = "none") +
       scale_x_continuous(limits = c(0.06, 0.14))
   }
 }
 
 dict_plot <- function(df, var = "troll") {
   p <- df %>%
-    filter(party != "INDEPENDENT") %>% 
+    filter(party != "INDEPENDENT") %>%
     filter(party != "NANA") %>%
     filter(!is.na(party)) %>%
     rowwise() %>%
@@ -1506,13 +1501,112 @@ dict_plot <- function(df, var = "troll") {
     facet_grid(~chamber) +
     scale_fill_manual(values = color4) +
     labs(
-      x = "", y = "" # ,
-      # y = "Average Number of Dictionary Words per Document",
+      y = "",
+      x = "Average Number of Dictionary Words per Document"
       # title = paste0(
-      #   "Occurence or Words From the Troll-And-Incivility Dictionary", 
+      #   "Occurrence of Words From the Troll-And-Incivility Dictionary",
       #   "Broken Down by Party and Chamber of Us Congress"
       # ),
       # subtitle = "Corpus: Candidate Websites"
+    )
+  return(pdf_default(p))
+}
+
+emotion_plot <- function(x, title) {
+  p <- x %>%
+    mutate(index = row_number()) %>%
+    select(
+      index, Dic, anger, anticipation, disgust, fear, joy, negative,
+      positive, sadness, surprise, trust
+    ) %>%
+    mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
+    select(index, anger, disgust, fear, positive) %>%
+    ## But what about joy and anticipation?
+    ## Also, other = 100 - anger - disgust - fear - negative - positive --->
+    ## misleading; oftentimes, negative == fear, etc etc.
+    mutate(other = 100 - anger - disgust - fear - positive) %>%
+    pivot_longer(cols = anger:other) %>%
+    ggplot(
+      aes(
+        y = fct_reorder(factor(index), value), x = value, color = name,
+        fill = name
+      )
+    ) +
+    geom_col() +
+    scale_fill_manual(
+      values = c("#202547", "#53354A", "#BE3144", "#FF7844", "#E3D26F")
+    ) +
+    scale_color_manual(
+      values = c("#202547", "#53354A", "#BE3144", "#FF7844", "#E3D26F")
+    ) +
+    # jcolors::scale_fill_jcolors(palette = "pal4") +
+    # jcolors::scale_color_jcolors(palette = "pal4") +
+    labs(
+      x = "", y = "",
+      ## x = "Proportion of Classified Words", y = "",
+      ## title = "NRC Language Analysis of Senate Republican Statements",
+      title = title,
+      color = "", fill = ""
+    )
+  return(
+    pdf_default(p) +
+      theme(
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()
+      ) +
+      scale_x_continuous(limits = c(0, 100))
+  )
+}
+
+emotion_barplot <- function(x) {
+  p <- x %>%
+    imap_dfr(
+      ~ .x %>%
+        mutate(index = row_number()) %>%
+        select(
+          index, Dic, anger, anticipation, disgust, fear, joy, negative,
+          positive, sadness, surprise, trust
+        ) %>%
+        mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
+        select(index, anger, disgust, fear, positive) %>%
+        summarise(
+          anger = mean(anger), disgust = mean(disgust),
+          fear = mean(fear), positive = mean(positive)
+        ) %>%
+        mutate(other = 100 - anger - disgust - fear - positive),
+      .id = "type"
+    ) %>%
+    pivot_longer(cols = anger:other) %>%
+    mutate(name = factor(name)) %>%
+    ## alphabetically okay
+    rowwise() %>%
+    mutate(
+      title = paste0(
+        ifelse(
+          grepl("d", str_match_all(type, "_(.*?)_")[[1]][1, 2]),
+          "Democrat", "Republican"
+        ),
+        ",\n",
+        ifelse(
+          grepl("f", str_match_all(type, "_(.*?)$")[[1]][1, 2]),
+          "Financial", "Non-financial"
+        )
+      )
+    ) %>%
+    ungroup() %>%
+    ggplot(
+      aes(y = title, x = value, color = fct_rev(name), fill = fct_rev(name))
+    ) +
+    geom_col(width = .5) +
+    scale_fill_manual(
+      values = rev(c("#202547", "#53354A", "#BE3144", "#FF7844", "#E3D26F"))
+    ) +
+    scale_color_manual(
+      values = rev(c("#202547", "#53354A", "#BE3144", "#FF7844", "#E3D26F"))
+    ) +
+    labs(
+      x = "", y = "",
+      color = "", fill = ""
     )
   return(pdf_default(p))
 }
@@ -1809,14 +1903,13 @@ winred_text_scrape <- function(x) {
   meta_data <- landing_text <- landing_logo <- landing_bgimg <-
     landing_footer <- NA
 
-  meta_data <- temp %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- temp %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(x) %>%
@@ -1877,14 +1970,13 @@ anedot_text_scrape <- function(x) {
     html_nodes("meta")
   meta_data <- landing_text <- landing_logo <- landing_bgimg <- NA
 
-  meta_data <- temp %>%
-    {
-      tibble(
-        name = html_attr(., "name"),
-        property = html_attr(., "property"),
-        content = html_attr(., "content")
-      )
-    }
+  meta_data <- temp %>% {
+    tibble(
+      name = html_attr(., "name"),
+      property = html_attr(., "property"),
+      content = html_attr(., "content")
+    )
+  }
 
   ## Landing page text
   landing_text <- read_html(x) %>%

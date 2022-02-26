@@ -1,4 +1,5 @@
 source(here::here("R", "utilities.R"))
+library(lingmatch)
 
 # Load data ====================================================================
 ## Text is in "ad_creative_body"
@@ -48,9 +49,11 @@ fb_unique <- temp_fxn(fb_unique)
 p <- top_list <- list()
 for (topn in c(10, 20, 30, 1000)) {
   top_unique <- fb_unique %>% map(~ tally_by_cand(.x, lim = topn))
-  top_all <- fb_matched %>% map(~ tally_by_cand(.x, lim = topn)) %>% temp_fxn()
+  top_all <- fb_matched %>%
+    map(~ tally_by_cand(.x, lim = topn)) %>%
+    temp_fxn()
   top_all <- temp_fxn(top_all)
-  
+
   temp <- cross2(c("trump", "covid"), c("unique", "all")) %>%
     set_names(., nm = {
       .
@@ -60,7 +63,7 @@ for (topn in c(10, 20, 30, 1000)) {
         var <- paste0("word_", .x[[1]])
         list(
           freq = top_freq(
-            l1 = fb_unique, 
+            l1 = fb_unique,
             l2 = get(paste0("top_", .x[[2]]), envir = .GlobalEnv),
             var = var
           ) %>%
@@ -106,7 +109,7 @@ for (topn in c(10, 20, 30, 1000)) {
       }
     )
   top_list[[paste0("top_", topn)]] <- temp
-  
+
   ## Visualize -----------------------------------------------------------------
   ## Needs labels by state/district
   ## Number of ads
@@ -123,9 +126,9 @@ for (topn in c(10, 20, 30, 1000)) {
         )
       )
     )
-  
+
   ## Percentages
-  p[[paste0("top_", topn)]][["perc"]]  <- temp %>%
+  p[[paste0("top_", topn)]][["perc"]] <- temp %>%
     map(
       ~ list(
         senate = top_freq_plot(
@@ -145,22 +148,24 @@ save(p, file = here("output", "word_top_list_figs.Rda"))
 ## Summary statistics --------------------------------------------------------
 top_list %>%
   map_dfr(
-    function(x) x %>%
-      map_dfr(
-        ~ bind_rows(
-          .x$freq$senate %>%
-            filter(!!as.name(.x$var) == 1) %>%
-            group_by(party) %>%
-            summarise(perc = mean(perc)) %>%
-            mutate(chamber = "Senate"),
-          .x$freq$house %>%
-            filter(!!as.name(.x$var) == 1) %>%
-            group_by(party) %>%
-            summarise(perc = mean(perc)) %>%
-            mutate(chamber = "House")
-        ),
-        .id = "case"
-      ),
+    function(x) {
+      x %>%
+        map_dfr(
+          ~ bind_rows(
+            .x$freq$senate %>%
+              filter(!!as.name(.x$var) == 1) %>%
+              group_by(party) %>%
+              summarise(perc = mean(perc)) %>%
+              mutate(chamber = "Senate"),
+            .x$freq$house %>%
+              filter(!!as.name(.x$var) == 1) %>%
+              group_by(party) %>%
+              summarise(perc = mean(perc)) %>%
+              mutate(chamber = "House")
+          ),
+          .id = "case"
+        )
+    },
     .id = "topn"
   ) %>%
   filter(party != "NANA") %>%
@@ -169,14 +174,14 @@ top_list %>%
 
 # # A tibble: 12 x 5
 # topn     case           party          perc chamber
-# <chr>    <chr>          <chr>         <dbl> <chr>  
-#   1 top_1000 trump_unique   Democrat   0.130    Senate 
-# 2 top_1000 trump_unique   Republican 0.205    Senate 
-# 3 top_1000 trump_unique   Democrat   0.151    House  
-# 4 top_1000 trump_unique   Republican 0.158    House  
-# 5 top_1000 covid_unique   Democrat   0.0388   Senate 
-# 6 top_1000 covid_unique   Republican 0.0466   Senate 
-# 7 top_1000 covid_unique   Democrat   0.0566   House  
+# <chr>    <chr>          <chr>         <dbl> <chr>
+#   1 top_1000 trump_unique   Democrat   0.130    Senate
+# 2 top_1000 trump_unique   Republican 0.205    Senate
+# 3 top_1000 trump_unique   Democrat   0.151    House
+# 4 top_1000 trump_unique   Republican 0.158    House
+# 5 top_1000 covid_unique   Democrat   0.0388   Senate
+# 6 top_1000 covid_unique   Republican 0.0466   Senate
+# 7 top_1000 covid_unique   Democrat   0.0566   House
 # 8 top_1000 covid_unique   Republican 0.0416   House
 
 # Trolling/moral foundation words ==============================================
@@ -197,13 +202,73 @@ data_moral_pivoted <- data_moral %>%
 p1 <- dict_plot(data_troll)
 p2 <- data_moral_pivoted %>% dict_plot(., var = "N")
 
-pdf(here("fig", "fb_troll_by_party_chamber.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_troll_by_party_chamber.pdf"), width = 6, height = 2.8)
 print(plot_nolegend(p1) + scale_x_continuous(limits = c(0, 2)))
 dev.off()
 
-pdf(here("fig", "fb_moral_by_party_chamber.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_moral_by_party_chamber.pdf"), width = 6, height = 2.8)
 print(plot_nolegend(p2) + scale_x_continuous(limits = c(0, 2)))
 dev.off()
 
+# Emotionally charged rhetoric =================================================
+fb_corpus_list <- list(
+  ## Not a great practice; will try to fix later
+  senate_rep_f = fb_unique$senate %>%
+    filter(party == "Republican" & financial == "Financial") %>%
+    corpus(., text_field = "ad_creative_body"),
+  senate_rep_n = fb_unique$senate %>%
+    filter(party == "Republican" & financial == "Non-Financial") %>%
+    corpus(., text_field = "ad_creative_body"),
+  senate_dem_f = fb_unique$senate %>%
+    filter(party == "Democrat" & financial == "Financial") %>%
+    corpus(., text_field = "ad_creative_body"),
+  senate_dem_n = fb_unique$senate %>%
+    filter(party == "Democrat" & financial == "Non-Financial") %>%
+    corpus(., text_field = "ad_creative_body"),
+  house_rep_f = fb_unique$house %>%
+    filter(party == "Republican" & financial == "Financial") %>%
+    corpus(., text_field = "ad_creative_body"),
+  house_rep_n = fb_unique$house %>%
+    filter(party == "Republican" & financial == "Non-Financial") %>%
+    corpus(., text_field = "ad_creative_body"),
+  house_dem_f = fb_unique$house %>%
+    filter(party == "Democrat" & financial == "Financial") %>%
+    corpus(., text_field = "ad_creative_body"),
+  house_dem_n = fb_unique$house %>%
+    filter(party == "Democrat" & financial == "Non-Financial") %>%
+    corpus(., text_field = "ad_creative_body")
+)
 
+lexi_list <- fb_corpus_list %>%
+  map(~ liwcalike(.x, dictionary = NRC))
 
+lexi_plots <- lexi_list %>%
+  imap(
+    ~ emotion_plot(
+      .x, title = paste0(
+        simple_cap(str_match_all(.y, "_(.*?)_")[[1]][1, 2]), ", ",
+        ifelse(
+          grepl("f", str_match_all(.y, "_(.*?)$")[[1]][1, 2]), 
+          "Financial", "Non-financial"
+        )
+      )
+    )
+  )
+
+## Not very visibly distinguishable
+pdf(here("fig", "emotion_fb_senate.pdf"), width = 6, height = 6)
+Kmisc::grid_arrange_shared_legend(list = lexi_plots[1:4], ncol = 2, nrow = 2)
+dev.off()
+
+pdf(here("fig", "emotion_fb_house.pdf"), width = 6, height = 6)
+Kmisc::grid_arrange_shared_legend(list = lexi_plots[5:8], ncol = 2, nrow = 2)
+dev.off()
+
+## Stacked percentage bar plots? Meh.
+pdf(here("fig", "emotion_fb_senate_barplot.pdf"), width = 6, height = 4)
+print(emotion_barplot(lexi_list[1:4]))
+dev.off()
+
+pdf(here("fig", "emotion_fb_house_barplot.pdf"), width = 6, height = 4)
+print(emotion_barplot(lexi_list[5:8]))
+dev.off()
