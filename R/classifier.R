@@ -1,31 +1,48 @@
 library(torch)
 library(torchvision)
+library(luz)
+
 source(here::here("R", "utilities.R"))
 source(here::here("R", "classifier_utilities.R"))
+source(here::here("R", "candidate_image_dataset.R"))
 
-# Much of this is copied from
-# https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
+#' Much of this is copied from
+#'' https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
 # This script will take a few minutes to run
-data_dir <- here::here("data", "classifier", "trump_image")
+data_dir <- here::here("data/classifier/trump_image")
 
-train_ds <- image_folder_dataset(
-  file.path(data_dir, "train"),
-  transform = function(x) transform_image(x, train = TRUE)
+train_ds <- candidate_image_dataset(
+  img_dir = file.path(data_dir, "train"),
+  sample_weights = c(
+    no_trump = 1,
+    trump = 300
+  ),
+  transform_params = list(angle = 20, flip = .7, rescale = .8)
 )
-test_ds <- image_folder_dataset(
-  file.path(data_dir, "test"),
-  transform = function(x) transform_image(x, train = FALSE)
-)
-valid_ds <- image_folder_dataset(
-  file.path(data_dir, "valid"),
-  transform = function(x) transform_image(x, train = FALSE)
-)
+valid_ds <- candidate_image_dataset(img_dir = file.path(data_dir, "valid"))
+test_ds <- candidate_image_dataset(img_dir = file.path(data_dir, "test"))
+
+# train_ds <- image_folder_dataset(
+# file.path(data_dir, "train"),
+# transform = function(x) transform_image(x, train = TRUE)
+# )
+# test_ds <- image_folder_dataset(
+# file.path(data_dir, "test"),
+# transform = function(x) transform_image(x, train = FALSE)
+# )
+# valid_ds <- image_folder_dataset(
+# file.path(data_dir, "valid"),
+# transform = function(x) transform_image(x, train = FALSE)
+# )
 
 batch_size <- 16
 
 train_dl <- dataloader(train_ds, batch_size = batch_size, shuffle = TRUE)
 valid_dl <- dataloader(valid_ds, batch_size = batch_size)
 test_dl <- dataloader(test_ds, batch_size = batch_size)
+
+batch <- train_dl$.iter()$.next()
+inspect_image_batch(batch)
 
 # For first attempt,
 # just use preset weights and modify ResNet's output layer for two classes
@@ -40,11 +57,11 @@ model$fc <- nn_linear(in_features = model$fc$in_features, out_features = length(
 # In-place modification
 model <- model$to(device = DEVICE)
 
-weights <- torch_tensor(1 / prop.table(table(train_ds$targets))) * c(1, .3)
-criterion <- nn_cross_entropy_loss(weight = weights) # add weight rescaling tensor here (inverse proportions); by default, averages loss
+loss_weights <- torch_tensor(1 / prop.table(table(torch::as_array(train_ds$targets)))) * c(1, .1)
+criterion <- nn_cross_entropy_loss() # add weight rescaling tensor here (inverse proportions); by default, averages loss
 optimizer <- optim_sgd(model$parameters, lr = 0.1, momentum = 0.9)
 
-# I try a learning rate of about 10^-6.
+# I try a learning rate of about 10^-6 (the base of log_lrs).
 # Highly unstable due to few images with Trump
 lrs <- find_lr(train_dl, optimizer) %>%
   suppressMessages()
@@ -52,15 +69,17 @@ lrs <- find_lr(train_dl, optimizer) %>%
 # geom_point(size = 1) +
 # theme_classic()
 
-# Find loss-minimizing learning rate
-lr <- with(lrs, log_lrs[which.min(losses)])
+# Find loss-minimizing learning rate ()
+lr <- with(lrs, 10^log_lrs[which.min(losses)])
 
 num_epochs <- 10
 scheduler <- optimizer %>%
   lr_one_cycle(
-    max_lr = lr, epochs = num_epochs, steps_per_epoch = train_dl$.length()
+    max_lr = .1, epochs = num_epochs, steps_per_epoch = train_dl$.length()
   )
 
+roc_spec <- luz_metric_binary_auroc(from_logits = TRUE)
+test_roc_auc <- roc_spec$new()
 # Partially substituted expressions to reduce duplication
 train_loop <- process_batches(train_dl, train_batch, train_losses)
 valid_loop <- process_batches(valid_dl, valid_batch, valid_losses)
@@ -95,4 +114,22 @@ eval(test_loop)
 test_losses
 correct / total
 # Confusion matrix
-table(factor(CLASS_NAMES[results$actual], levels = CLASS_NAMES), factor(CLASS_NAMES[results$predicted], levels = CLASS_NAMES), dnn = colnames(results))
+table(factor(CLASS_NAMES[results$actual], levels = CLASS_NAMES),
+  factor(CLASS_NAMES[results$predicted], levels = CLASS_NAMES),
+  dnn = colnames(results)
+)
+
+# Undefined because there are no false negatives, hence complement specificity is 0
+test_roc_auc$compute()
+# fitted <- net %>%
+# setup(
+# loss = criterion,
+# optimizer = optimizer_adam,
+# metrics = list(
+# luz_metric_binary_accuracy,
+# luz_metric_binary_auroc
+# )
+# ) %>%
+# set_hprams(num_class = 10) %>%
+# set_opt_hparams(lr = lr) %>%
+# fit(train_dl, epochs = 10, valid_data = valid_dl)

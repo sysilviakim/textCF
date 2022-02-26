@@ -14,19 +14,10 @@ CLASS_NAMES <- c("No Trump" = "no_trump", "Trump" = "trump")
 # Appropriate functions to read different image file types
 IMAGE_FUNS <- list(
   "jpg" = jpeg::readJPEG,
-  "jpeg" = jpeg::readJPEG, "png" = png::readPNG
+  "jpeg" = jpeg::readJPEG,
+  "png" = png::readPNG
 )
 
-# Subclass dataset function to hold images for analysis
-image_dataset <- function(img_path, root, y) {
-  stopifnot(dir.exists(img_path))
-  if (!dir.exists(root)) {
-    dir.create(root)
-  }
-  self$y <- torch_tensor(as.integer(y))
-  .getitem <- function(i) list(x = self$x[, i], y = self$y[i])
-  .length <- function() self$y$size[[1]]
-}
 
 transform_image <- function(img, train = FALSE, dims = c(224, 224)) {
   img <- img[, , -4]
@@ -81,10 +72,10 @@ pad_matrix <- function(mat, fill = "#FFFFFF") {
   } else {
     mat
   }
-  as.raster(mat)
+  as.raster(out)
 }
 
-read_image <- function(path, to_raster = TRUE) {
+read_image <- function(path, to_raster = TRUE, drop_alpha = TRUE) {
   fun <- switch(tools::file_ext(path),
     "jpg" = ,
     "jpeg" = jpeg::readJPEG,
@@ -96,6 +87,10 @@ read_image <- function(path, to_raster = TRUE) {
   out <- fun(path)
   if (to_raster) {
     out <- as.raster(out)
+  }
+  # Remove alpha (fourth) channel from png, unneeded for neural network
+  if (drop_alpha && length(dim(out)) == 3) {
+    out <- out[, , -4]
   }
   out
 }
@@ -137,10 +132,6 @@ inspect_image_directory <- function(path, plot_dims = c(4, 4), shuffle = FALSE) 
   })
   # Reset plot parameters
   on.exit(do.call(par, old))
-
-  # Recursion needed because images consists of multiple sublists if it has more elements
-  # than a single plot can fit
-  # invisible(plot_image_list(images, pause = 3))
 }
 
 # Copied from https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
@@ -189,6 +180,7 @@ train_batch <- function(b) {
   optimizer$step()
   scheduler$step()
   loss$item()
+  # Object configured to convert preds from logits
 }
 
 valid_batch <- function(b) {
@@ -206,6 +198,7 @@ test_batch <- function(b) {
   # torch_max returns a list, with position 1 containing the values
   # and position 2 containing the respective indices
   predicted <- torch_max(output$data(), dim = 2)[[2]]
+  test_roc_auc$update(torch_max(output$detach()$clone()$data(), dim = 2)[[1]], b$y)
   results <<- rbind(results, data.frame(actual = as.integer(b$y), predicted = as.integer(predicted)))
   total <<- total + labels$size(1)
   # add number of correct classifications in this batch to the aggregate
@@ -227,9 +220,9 @@ process_batches <- function(dl, batch_fun, loss_vec) {
 
 # Plot image tensor - mostly copied from
 # https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
-inspect_image <- function(batch, plot_dims, class_names = CLASS_NAMES) {
+inspect_image_batch <- function(batch, plot_dims = c(4, 4), class_names = CLASS_NAMES) {
   # Plot dimensions are row by columns
-  classes <- batch[[2]]
+  classes <- class_names[torch::as_array(batch[[2]])]
   images <- torch::as_array(batch[[1]]) %>%
     aperm(perm = c(1, 3, 4, 2))
   images <-
@@ -239,9 +232,10 @@ inspect_image <- function(batch, plot_dims, class_names = CLASS_NAMES) {
 
   par(mfcol = plot_dims, mar = rep(1, 4))
 
+  # replace raw labels with descriptive names, e.g. no_trump -> "No Trump"
   images %>%
     purrr::array_tree(1) %>%
-    purrr::set_names(names(class_names[torch::as_array(classes)])) %>%
+    purrr::set_names(names(class_names[match(classes, class_names)])) %>%
     purrr::map(as.raster, max = 255) %>%
     purrr::iwalk(~ {
       plot(.x)
