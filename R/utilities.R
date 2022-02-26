@@ -37,6 +37,20 @@ library(wayback)
 # Non-CRAN packages ============================================================
 library(Kmisc)
 
+# Dictionaries =================================================================
+MFD <- dictionary(file = here("data/raw/dictionaries/mfd2.0.dic"))
+
+# Read in the Trolling dictionary:
+troll <- read_csv(
+  file = here(
+    "data", "raw", "dictionaries",
+    "troll_and_divide/troll_and_divide_Glove_Expansion_Raters_phase_2.csv"
+  )
+) %>%
+  pull(Word) %>%
+  list(troll = .) %>%
+  dictionary()
+
 # Functions ====================================================================
 nested_df <- function(df, var = NULL) {
   ## broad applications of tidyr::unnest can be problematic
