@@ -148,8 +148,6 @@ prop(fb_unique$senate, vars = "word_trump") ## 16.6%
 prop(fb_unique$house, vars = "word_trump") ## 15.7%
 prop(fb_unique$senate, vars = "word_covid") ## 3.0%
 prop(fb_unique$house, vars = "word_covid") ## 4.4%
-prop(fb_unique$senate, vars = "word_chinese") ## 1.5%
-prop(fb_unique$house, vars = "word_chinese") ## 0.8%
 
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
 
@@ -159,7 +157,7 @@ fb_corpus <- fb_unique %>%
     ~ corpus(
       .x$ad_creative_body,
       docvars = tibble(
-        type = .x$type,
+        financial = .x$financial,
         candidate = .x$candidate,
         party = .x$party,
         vote_share = .x$vote_share,
@@ -173,10 +171,10 @@ docnames(fb_corpus$house) <- paste0("house_", 1:ndoc(fb_corpus$house))
 docnames(fb_corpus$senate) <- paste0("senate_", 1:ndoc(fb_corpus$senate))
 
 ## Combine two chambers
-CORP_FB <- fb_corpus$senate + fb_corpus$house
+corp_FB <- fb_corpus$senate + fb_corpus$house
 
 # Tokenize documents ===========================================================
-toks_FB <- tokens(CORP_FB) %>%
+toks_FB <- tokens(corp_FB) %>%
   tokens(
     remove_url = TRUE,
     remove_punct = TRUE,
@@ -189,7 +187,7 @@ toks_FB <- tokens(CORP_FB) %>%
   # tokens_remove(c("rt", "amp", "u8")) %>%
   tokens_remove(setdiff(removing_tokens, c("strong", "center")))
 
-# Each document will be an AD ==================================================
+# Each document will be an ad ==================================================
 dfm_FB_ad <- dfm(toks_FB)
 dfm_FB_ad_prop <- dfm_weight(dfm_FB_ad, scheme = "prop")
 

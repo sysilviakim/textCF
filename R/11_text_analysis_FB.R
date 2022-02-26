@@ -179,9 +179,31 @@ top_list %>%
 # 7 top_1000 covid_unique   Democrat   0.0566   House  
 # 8 top_1000 covid_unique   Republican 0.0416   House
 
-# Trolling words ===============================================================
-lookup_troll <- dfm_lookup(dfm_congress, troll)
-lookup_moral <- dfm_lookup(dfm_congress, moral)
+# Trolling/moral foundation words ==============================================
+lookup_troll <- dfm_lookup(dfm_FB_ad, troll)
+lookup_moral <- dfm_lookup(dfm_FB_ad, moral)
+
+data_troll <- convert(lookup_troll, to = "data.frame") %>%
+  cbind(docvars(dfm_FB_ad))
+data_moral <- convert(lookup_moral, to = "data.frame") %>%
+  cbind(docvars(dfm_FB_ad))
+data_moral_pivoted <- data_moral %>%
+  pivot_longer(
+    cols = c(contains("vice"), contains("virtue")),
+    names_to = "moral_foundation",
+    values_to = "N"
+  )
+
+p1 <- dict_plot(data_troll)
+p2 <- data_moral_pivoted %>% dict_plot(., var = "N")
+
+pdf(here("fig", "fb_troll_by_party_chamber.pdf"), width = 5, height = 3)
+print(plot_nolegend(p1) + scale_x_continuous(limits = c(0, 2)))
+dev.off()
+
+pdf(here("fig", "fb_moral_by_party_chamber.pdf"), width = 5, height = 3)
+print(plot_nolegend(p2) + scale_x_continuous(limits = c(0, 2)))
+dev.off()
 
 
 

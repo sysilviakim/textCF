@@ -1441,6 +1441,13 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
   return(p)
 }
 
+color4 <- c(
+  "Republican,\nFinancial" = "#ca0020", ## dark red
+  "Republican,\nNon-financial" = "#f4a582", ## light red
+  "Democrat,\nFinancial" = "#0571b0", ## dark blue
+  "Democrat,\nNon-financial" = "#92c5de" ## light blue
+)
+
 fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
   p <- df %>%
     ggplot(
@@ -1453,26 +1460,12 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
     ) +
     geom_pointrange(size = 0.5) +
     facet_wrap(~chamber) +
-    scale_color_manual(
-      values = c(
-        "Republican,\nFinancial" = "#ca0020", ## dark red
-        "Republican,\nNon-financial" = "#f4a582", ## light red
-        "Democrat,\nFinancial" = "#0571b0", ## dark blue
-        "Democrat,\nNon-financial" = "#92c5de" ## light blue
-      )
-    ) +
+    scale_color_manual(values = color4) +
     labs(y = "", x = xlab)
   
   if (full) {
     p <- p +
-      scale_color_manual(
-        values = c(
-          "WinRed" = "#ca0020", ## dark red
-          "Other Rep.\nPlatform" = "#f4a582", ## light red
-          "ActBlue" = "#0571b0", ## dark blue
-          "Other Dem.\nPlatform" = "#92c5de" ## light blue
-        )
-      )
+      scale_color_manual(values = color4)
     pdf_default(p) +
       theme(legend.position = "none") + 
       scale_x_continuous(limits = c(0.06, 0.14))
@@ -1481,6 +1474,47 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
       theme(legend.position = "none") + 
       scale_x_continuous(limits = c(0.06, 0.14))
   }
+}
+
+dict_plot <- function(df, var = "troll") {
+  p <- df %>%
+    filter(party != "INDEPENDENT") %>% 
+    filter(party != "NANA") %>%
+    filter(!is.na(party)) %>%
+    rowwise() %>%
+    mutate(chamber = simple_cap(chamber)) %>%
+    mutate(financial = simple_cap(tolower(financial))) %>%
+    mutate(party = simple_cap(tolower(party))) %>%
+    ungroup() %>%
+    mutate(party = glue("{party},\n{financial}")) %>%
+    mutate(
+      party = factor(
+        party,
+        levels = rev(
+          c(
+            "Republican,\nFinancial", "Republican,\nNon-financial",
+            "Democrat,\nFinancial", "Democrat,\nNon-financial"
+          )
+        )
+      )
+    ) %>%
+    rename(Party = party) %>%
+    group_by(Party, chamber) %>%
+    summarise(avg = mean(!!as.name(var))) %>%
+    ggplot(aes(x = avg, y = Party, fill = Party)) +
+    geom_col(width = .5) + ## alpha = .8
+    facet_grid(~chamber) +
+    scale_fill_manual(values = color4) +
+    labs(
+      x = "", y = "" # ,
+      # y = "Average Number of Dictionary Words per Document",
+      # title = paste0(
+      #   "Occurence or Words From the Troll-And-Incivility Dictionary", 
+      #   "Broken Down by Party and Chamber of Us Congress"
+      # ),
+      # subtitle = "Corpus: Candidate Websites"
+    )
+  return(pdf_default(p))
 }
 
 summ_df_fxn <- function(df, full = FALSE) {
