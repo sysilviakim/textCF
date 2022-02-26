@@ -23,7 +23,9 @@ temp_fxn <- function(x) {
         ) %>%
         ungroup() %>%
         ## For now
-        filter(party != "Independent")
+        filter(party != "Independent") %>%
+        filter(!is.na(party)) %>%
+        filter(party != "NANA") ## Accidental pasting of NA values
     )
 }
 
@@ -43,13 +45,13 @@ assert_that(
 fb_unique <- temp_fxn(fb_unique)
 
 # Who among top candidates mention keywords the most? ==========================
-top_list <- list()
-for (topn in c(10, 30, 1000)) {
+p <- top_list <- list()
+for (topn in c(10, 20, 30, 1000)) {
   top_unique <- fb_unique %>% map(~ tally_by_cand(.x, lim = topn))
   top_all <- fb_matched %>% map(~ tally_by_cand(.x, lim = topn)) %>% temp_fxn()
   top_all <- temp_fxn(top_all)
   
-  temp <- cross2(c("trump", "covid", "chinese"), c("unique", "all")) %>%
+  temp <- cross2(c("trump", "covid"), c("unique", "all")) %>%
     set_names(., nm = {
       .
     } %>% map_chr(~ paste(.x, collapse = "_"))) %>%
@@ -107,7 +109,8 @@ for (topn in c(10, 30, 1000)) {
   
   ## Visualize -----------------------------------------------------------------
   ## Needs labels by state/district
-  p1 <- temp %>%
+  ## Number of ads
+  p[[paste0("top_", topn)]][["no"]] <- temp %>%
     map(
       ~ list(
         senate = top_freq_plot(
@@ -121,7 +124,8 @@ for (topn in c(10, 30, 1000)) {
       )
     )
   
-  p2 <- temp %>%
+  ## Percentages
+  p[[paste0("top_", topn)]][["perc"]]  <- temp %>%
     map(
       ~ list(
         senate = top_freq_plot(
@@ -136,6 +140,7 @@ for (topn in c(10, 30, 1000)) {
     )
 }
 save(top_list, file = here("output", "word_top_list.Rda"))
+save(p, file = here("output", "word_top_list_figs.Rda"))
 
 ## Summary statistics --------------------------------------------------------
 top_list %>%
@@ -158,49 +163,20 @@ top_list %>%
       ),
     .id = "topn"
   ) %>%
+  filter(party != "NANA") %>%
   filter(grepl("unique", case)) %>%
   filter(grepl("1000", topn))
 
 # # A tibble: 12 x 5
 # topn     case           party          perc chamber
 # <chr>    <chr>          <chr>         <dbl> <chr>  
-#  1 top_1000 trump_unique   Democrat   0.133    Senate 
-#  2 top_1000 trump_unique   Republican 0.206    Senate 
-#  3 top_1000 trump_unique   Democrat   0.151    House  
-#  4 top_1000 trump_unique   Republican 0.158    House  
-#  5 top_1000 covid_unique   Democrat   0.0396   Senate 
-#  6 top_1000 covid_unique   Republican 0.0465   Senate 
-#  7 top_1000 covid_unique   Democrat   0.0569   House  
-#  8 top_1000 covid_unique   Republican 0.0415   House  
-#  9 top_1000 chinese_unique Democrat   0.00300  Senate 
-# 10 top_1000 chinese_unique Republican 0.0463   Senate 
-# 11 top_1000 chinese_unique Democrat   0.000895 House  
-# 12 top_1000 chinese_unique Republican 0.0177   House 
+#   1 top_1000 trump_unique   Democrat   0.130    Senate 
+# 2 top_1000 trump_unique   Republican 0.205    Senate 
+# 3 top_1000 trump_unique   Democrat   0.151    House  
+# 4 top_1000 trump_unique   Republican 0.158    House  
+# 5 top_1000 covid_unique   Democrat   0.0388   Senate 
+# 6 top_1000 covid_unique   Republican 0.0466   Senate 
+# 7 top_1000 covid_unique   Democrat   0.0566   House  
+# 8 top_1000 covid_unique   Republican 0.0416   House
 
-# Top 3 references by percentage ===============================================
-## Limit to n > 10, because otherwise we have n = 1, n = 3 cases
-top_list$top_1000$trump_unique$freq %>%
-  map_dfr(
-    ~ .x %>%
-      filter(word_trump == 1) %>%
-      group_by(party) %>%
-      arrange(desc(perc)) %>% 
-      slice(1:3),
-    .id = "chamber"
-  )
-
-top_list$top_1000$chinese_unique$freq %>%
-  map_dfr(
-    ~ .x %>%
-      filter(word_chinese == 1) %>%
-      # Jim Risch, 3 out of 9 (33%), excluded
-      filter(total >= 10) %>%
-      group_by(party) %>%
-      arrange(desc(perc)) %>% 
-      slice(1:3),
-    .id = "chamber"
-  )
-
-fb_unique$senate %>% 
-  filter(grepl("Cotton", candidate)) %>%
-  .$ad_creative_body
+# 
