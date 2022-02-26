@@ -38,9 +38,12 @@ library(wayback)
 library(Kmisc)
 
 # Dictionaries =================================================================
-MFD <- dictionary(file = here("data/raw/dictionaries/mfd2.0.dic"))
+## Moral Foundations Dictionary 2.0
+## https://osf.io/ezn37/
+moral <- dictionary(file = here("data/raw/dictionaries/mfd2.0.dic"))
 
-# Read in the Trolling dictionary:
+## Trolling Dictionary
+## https://osf.io/bm8uy/
 troll <- read_csv(
   file = here(
     "data", "raw", "dictionaries",

@@ -179,4 +179,9 @@ top_list %>%
 # 7 top_1000 covid_unique   Democrat   0.0566   House  
 # 8 top_1000 covid_unique   Republican 0.0416   House
 
-# 
+# Trolling words ===============================================================
+lookup_troll <- dfm_lookup(dfm_congress, troll)
+lookup_moral <- dfm_lookup(dfm_congress, moral)
+
+
+
