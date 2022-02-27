@@ -1477,6 +1477,13 @@ color4 <- c(
   "Democrat,\nNon-financial" = "#92c5de" ## light blue
 )
 
+color4_platform <- c(
+  "WinRed" = "#ca0020", ## dark red
+  "Other Rep.\nPlatform" = "#f4a582", ## light red
+  "ActBlue" = "#0571b0", ## dark blue
+  "Other Dem.\nPlatform" = "#92c5de" ## light blue
+)
+
 fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
   p <- df %>%
     ggplot(
@@ -1494,7 +1501,7 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
 
   if (full) {
     p <- p +
-      scale_color_manual(values = color4)
+      scale_color_manual(values = color4_platform)
     pdf_default(p) +
       theme(legend.position = "none") +
       scale_x_continuous(limits = c(0.06, 0.14))
