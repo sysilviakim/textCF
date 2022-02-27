@@ -185,7 +185,8 @@ toks_FB <- tokens(corp_FB) %>%
   tokens_remove(stopwords("english")) %>%
   tokens_remove(stopwords("spanish")) %>%
   # tokens_remove(c("rt", "amp", "u8")) %>%
-  tokens_remove(setdiff(removing_tokens, c("strong", "center")))
+  tokens_remove(setdiff(removing_tokens, c("strong", "center"))) %>%
+  tokens_remove(letters)
 
 # Each document will be an ad ==================================================
 dfm_FB_ad <- dfm(toks_FB)
