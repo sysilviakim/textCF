@@ -1512,6 +1512,22 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
   }
 }
 
+party_factor <- function(x, outvar) {
+  x %>%
+    mutate(!!as.name(outvar) := glue("{party},\n{financial}")) %>%
+    mutate(
+      !!as.name(outvar) := factor(
+        !!as.name(outvar),
+        levels = rev(
+          c(
+            "Republican,\nFinancial", "Republican,\nNon-financial",
+            "Democrat,\nFinancial", "Democrat,\nNon-financial"
+          )
+        )
+      )
+    )
+}
+
 dict_plot <- function(df, var = "troll") {
   p <- df %>%
     filter(party != "INDEPENDENT") %>%
@@ -1522,18 +1538,7 @@ dict_plot <- function(df, var = "troll") {
     mutate(financial = simple_cap(tolower(financial))) %>%
     mutate(party = simple_cap(tolower(party))) %>%
     ungroup() %>%
-    mutate(party = glue("{party},\n{financial}")) %>%
-    mutate(
-      party = factor(
-        party,
-        levels = rev(
-          c(
-            "Republican,\nFinancial", "Republican,\nNon-financial",
-            "Democrat,\nFinancial", "Democrat,\nNon-financial"
-          )
-        )
-      )
-    ) %>%
+    party_factor(., outvar = "party") %>%
     rename(Party = party) %>%
     group_by(Party, chamber) %>%
     summarise(avg = mean(!!as.name(var))) %>%
@@ -1669,18 +1674,7 @@ summ_df_fxn <- function(df, full = FALSE) {
     )
   if (full == FALSE) {
     out %>%
-      mutate(type = glue("{party},\n{financial}")) %>%
-      mutate(
-        type = factor(
-          type,
-          levels = rev(
-            c(
-              "Republican,\nFinancial", "Republican,\nNon-financial",
-              "Democrat,\nFinancial", "Democrat,\nNon-financial"
-            )
-          )
-        )
-      )
+      party_factor(., outvar = "type")
   } else {
     out %>%
       mutate(financial = TRUE) %>%
