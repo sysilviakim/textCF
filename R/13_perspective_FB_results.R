@@ -8,6 +8,25 @@ source(here::here("R", "utilities.R"))
 fb_house <- read_rds("data/tidy/fb_perspective_House.RDS")
 fb_senate <- read_rds("data/tidy/fb_perspective_Senate.RDS")
 
+# Substitute with updated classification =======================================
+## (above contains outdated covariates)
+## load(here("data", "tidy", "fb_unique.Rda"))
+## assert_that(nrow(fb_unique$senate) == nrow(fb_senate)) ---> TRUE
+## assert_that(nrow(fb_unique$house) == nrow(fb_house)) ---> why false?
+
+# I thought this would work; it does not
+# fb_senate <- left_join(
+#   fb_senate %>% select(-financial, -donate), 
+#   fb_unique$senate %>% select(-contains("word"))
+# )
+# fb_house <- left_join(
+#   fb_house %>% select(-financial, -donate),
+#   fb_unique$house %>% select(-contains("word"))
+# )
+
+fb_house <- fb_house %>% donate_classify()
+fb_senate <- fb_senate %>% donate_classify()
+
 # Wrangle summary dataset ======================================================
 df <- bind_rows(
   fb_house %>% mutate(chamber = "House"),

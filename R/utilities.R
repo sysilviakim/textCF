@@ -61,6 +61,39 @@ NRC <- read.dic(here("data", "raw", "dictionaries", "NRC.dic"))
 NRC <- dictionary(NRC)
 
 # Functions ====================================================================
+donate_classify <- function(x) {
+  x %>%
+    mutate(
+      donate = case_when(
+        grepl(
+          paste0(
+            "donate|donation|contribute|contribution|chip in|pitch in|",
+            "PAC money|corporate PAC|dollar| bucks|\\$|chipping in|",
+            "end-of-month deadline|end-of-quarter deadline|",
+            "end-of-year deadline|match opportunity|match fund"
+          ),
+          tolower(ad_creative_body)
+        ) ~ TRUE,
+        TRUE ~ FALSE
+      ),
+      ## Overall Financial/non-Financial Classifier
+      financial = case_when(
+        grepl(
+          paste0(
+            "ActBlue|WinRed|NGP VAN|Anedot|Victory Passport|Misc.|",
+            "Personal Contribution Link"
+          ), type
+        ) ~ "Financial",
+        isTRUE(donate) ~ "Financial",
+        grepl(
+          "Non-financial|Government Information|Facebook Page",
+          type
+        ) ~ "Non-Financial",
+        is.na(type) ~ "Non-Financial",
+      )
+    )
+}
+
 nested_df <- function(df, var = NULL) {
   ## broad applications of tidyr::unnest can be problematic
   if (length(var) > 1) {
