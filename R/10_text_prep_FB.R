@@ -52,7 +52,7 @@ fb_unique <- fb_matched %>%
           grepl(
             paste0(
               "donate|donation|contribute|contribution|chip in|pitch in|",
-              "PAC money|corporate PAC|dollar| bucks|\\$|",
+              "PAC money|corporate PAC|dollar| bucks|\\$|chipping in|",
               "end-of-month deadline|end-of-quarter deadline|",
               "end-of-year deadline|match opportunity|match fund"
             ),
