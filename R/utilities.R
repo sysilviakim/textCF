@@ -1514,6 +1514,8 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
 
 party_factor <- function(x, outvar) {
   x %>%
+    mutate(party = simple_cap(tolower(party))) %>%
+    mutate(financial = simple_cap(tolower(financial))) %>%
     mutate(!!as.name(outvar) := glue("{party},\n{financial}")) %>%
     mutate(
       !!as.name(outvar) := factor(
