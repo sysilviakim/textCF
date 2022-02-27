@@ -1,5 +1,5 @@
 source(here::here("R", "utilities.R"))
-library(lingmatch)
+library(seededlda)
 
 # Load data ====================================================================
 ## Text is in "ad_creative_body"
@@ -184,6 +184,54 @@ top_list %>%
 # 7 top_1000 covid_unique   Democrat   0.0566   House
 # 8 top_1000 covid_unique   Republican 0.0416   House
 
+# Topic modeling ===============================================================
+temp <- dfm_FB_ad %>%
+  dfm_trim(
+    min_termfreq = 0.8, termfreq_type = "quantile",
+    max_docfreq = 0.1, docfreq_type = "prop"
+  )
+
+tmod_lda <- textmodel_lda(temp, k = 10)
+save(tmod_lda, file = here("output", "tmod_lda_fb_all.Rda"))
+terms(tmod_lda, 10)
+
+unique_docvars <- docvars(dfm_FB_ad) %>%
+  select(financial, party, chamber) %>%
+  dedup() %>%
+  filter(!is.na(party) & party != "INDEPENDENT") %>%
+  arrange(chamber, party, financial)
+
+## Subgroups
+tmod_lda_list <- list()
+for (i in seq(nrow(unique_docvars))) {
+  subtemp <- dfm_subset(
+    temp,
+    party == unique_docvars$party[i] &
+      financial == unique_docvars$financial[i] &
+      chamber == unique_docvars$chamber[i]
+  )
+  tmod_lda_list[[paste0(
+    tolower(unique_docvars$party[i]),
+    "_", tolower(unique_docvars$financial[i]),
+    "_", tolower(unique_docvars$chamber[i])
+  )]] <- tmod_lda <- textmodel_lda(subtemp, k = 5)
+  save(
+    tmod_lda,
+    file = here(
+      "output",
+      paste0(
+        "tmod_lda_fb_", tolower(unique_docvars$party[i]),
+        "_", tolower(unique_docvars$financial[i]),
+        "_", tolower(unique_docvars$chamber[i]), "_", ".Rda"
+      )
+    )
+  )
+}
+save(tmod_lda_list, file = here("output", "tmod_lda_subgroups_all.Rda"))
+
+tmod_lda_list %>%
+  map(~ terms(.x, 5))
+
 # Trolling/moral foundation words ==============================================
 lookup_troll <- dfm_lookup(dfm_FB_ad, troll)
 lookup_moral <- dfm_lookup(dfm_FB_ad, moral)
@@ -245,10 +293,11 @@ lexi_list <- fb_corpus_list %>%
 lexi_plots <- lexi_list %>%
   imap(
     ~ emotion_plot(
-      .x, title = paste0(
+      .x,
+      title = paste0(
         simple_cap(str_match_all(.y, "_(.*?)_")[[1]][1, 2]), ", ",
         ifelse(
-          grepl("f", str_match_all(.y, "_(.*?)$")[[1]][1, 2]), 
+          grepl("f", str_match_all(.y, "_(.*?)$")[[1]][1, 2]),
           "Financial", "Non-financial"
         )
       )

@@ -12,6 +12,7 @@ library(quanteda.textplots)
 library(quanteda.textstats)
 library(quanteda.dictionaries)
 ## https://muellerstefan.net/files/quanteda-cheatsheet.pdf
+library(lingmatch)
 
 # Other packages===============================================================
 library(here)
