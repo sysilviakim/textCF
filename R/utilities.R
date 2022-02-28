@@ -1512,6 +1512,36 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
   }
 }
 
+fb_mention_plot <- function(df, xvar, se, xlab, full = FALSE) {
+  p <- df %>%
+    ggplot(
+      aes(
+        y = fct_rev(Party), x = !!as.name(xvar),
+        fill = fct_rev(Party), color = fct_rev(Party),
+        xmax = !!as.name(xvar) + 1.96 * !!as.name(se),
+        xmin = !!as.name(xvar) - 1.96 * !!as.name(se)
+      )
+    ) +
+    geom_col(width = .5) +
+    geom_errorbar(width = .2, size = 1, aes(color = "black")) + 
+    facet_wrap(~chamber) +
+    scale_fill_manual(values = color4) +
+    scale_color_manual(values = color4) +
+    labs(y = "", x = xlab)
+  
+  if (full) {
+    p <- p +
+      scale_color_manual(values = color4_platform)
+    pdf_default(p) +
+      theme(legend.position = "none") +
+      scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.3))
+  } else {
+    pdf_default(p) +
+      theme(legend.position = "none") +
+      scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.3))
+  }
+}
+
 party_factor <- function(x, outvar) {
   x %>%
     rowwise() %>%

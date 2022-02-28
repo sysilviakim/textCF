@@ -52,7 +52,14 @@ temp <- fb_unique %>%
   map_dfr(
     ~ .x %>%
       group_by(party, financial) %>%
-      summarise(word_trump = mean(word_trump), word_covid = mean(word_covid)),
+      summarise(
+        mean_trump = mean(word_trump), 
+        sd_trump = sd(word_trump), 
+        se_trump = sd_trump / sqrt(n()),
+        mean_covid = mean(word_covid), 
+        sd_covid = sd(word_covid), 
+        se_covid = sd_covid / sqrt(n())
+      ),
     .id = "chamber"
   ) %>%
   party_factor(., outvar = "Party") %>%
@@ -61,26 +68,26 @@ temp <- fb_unique %>%
   ungroup()
 
 pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 7, height = 3)
-p <- ggplot(temp, aes(y = fct_rev(Party), x = word_trump, fill = Party)) + 
-  geom_col(width = .5) + 
-  facet_wrap(~ chamber) + 
-  scale_fill_manual(values = color4) + 
-  xlab("Mentions Trump") + 
-  ylab("") + 
-  scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.25))
-print(pdf_default(p) +  theme(legend.position = "bottom"))
+print(fb_mention_plot(
+  temp, xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
+))
 dev.off()
 
 pdf(here("fig", "mention_covid_by_type_chamber.pdf"), width = 7, height = 3)
-p <- ggplot(temp, aes(y = fct_rev(Party), x = word_covid, fill = Party)) + 
-  geom_col(width = .5) + 
-  facet_wrap(~ chamber) + 
-  scale_fill_manual(values = color4) + 
-  xlab("Mentions COVID-19") + 
-  ylab("") + 
-  scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.25))
-print(pdf_default(p) +  theme(legend.position = "bottom"))
+print(fb_mention_plot(
+  temp, xvar = "mean_covid", se = "se_covid", xlab = "Mentions COVID-19"
+))
 dev.off()
+
+## T-tests
+t.test(
+  fb_unique$senate %>% 
+    filter(party == "Republican" & financial == "Financial") %>%
+    .$word_trump,
+  fb_unique$senate %>% 
+    filter(party == "Republican" & financial == "Non-Financial") %>%
+    .$word_trump
+)
 
 ## Who mentions them the most? -------------------------------------------------
 p <- top_list <- list()
