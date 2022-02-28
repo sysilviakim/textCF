@@ -107,9 +107,9 @@ fb_matched <- fb_matched %>%
           grepl("DEMOCRAT", party) ~ "DEMOCRAT",
           TRUE ~ party
         )
-      )
-  ) %>%
-  rename(id_old = id)
+      ) %>%
+      rename(id_old = id)
+  )
 
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
 

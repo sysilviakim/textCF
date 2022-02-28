@@ -3,6 +3,7 @@ source(here::here("R", "utilities.R"))
 # Load data ====================================================================
 ## Text is in "ad_creative_body"
 load(here("data", "tidy", "fb_matched.Rda"))
+load(here("data", "tidy", "fb_meta.Rda"))
 
 # Deduplicated, simplified ad data =============================================
 fb_unique <- fb_matched %>%
@@ -54,7 +55,7 @@ fb_unique <- fb_matched %>%
 
 fb_unique %>% map_dbl(nrow)
 # senate  house
-#  16828  43611
+#  26113  43866
 
 ## Check nonclassified ad creative links
 # temp1 <- fb_unique$senate %>% filter(is.na(type))
@@ -123,10 +124,56 @@ fb_unique <- fb_unique %>%
 
 prop(fb_unique$senate, vars = "word_trump") ## 16.6%
 prop(fb_unique$house, vars = "word_trump") ## 15.7%
-prop(fb_unique$senate, vars = "word_biden") ## 
-prop(fb_unique$house, vars = "word_biden") ## 
+prop(fb_unique$senate, vars = "word_biden") ## 1.0%
+prop(fb_unique$house, vars = "word_biden") ## 0.9%
 prop(fb_unique$senate, vars = "word_covid") ## 3.0%
 prop(fb_unique$house, vars = "word_covid") ## 4.4%
+
+# Paste meta data ==============================================================
+fb_unique_raw <- fb_unique
+fb_unique <- c(senate = "senate", house = "house") %>%
+  map(
+    function(x) left_join(fb_unique[[x]], fb_meta[[x]]) %>%
+      mutate(n = row_number()) %>%
+      group_by(n) %>%
+      group_split() %>%
+      map_dfr(
+        ~ {
+          if (!is.na(.x$state_po) & (.x$state_po %in% state.abb)) {
+            .x %>%
+              mutate(
+                ## Otherwise, sticks with the first value of the dataframe
+                in_district := 
+                  !!as.name(paste0("mean_", tolower(.x$state_po))),
+                in_district = case_when(
+                  is.nan(in_district) ~ NA,
+                  TRUE ~ in_district
+                ),
+                out_district = 1 - in_district
+              )
+          } else {
+            .x
+          }
+        }
+      )
+  )
+assert_that(nrow(fb_unique_raw$senate) == nrow(fb_unique$senate))
+assert_that(nrow(fb_unique_raw$house) == nrow(fb_unique$house))
+
+## Some verification that "Non-financial" are targeting in-district
+fb_unique %>%
+  map_dfr(
+    ~ .x %>% 
+      filter(!is.na(party) & party != "INDEPENDENT") %>% 
+      group_by(party, financial) %>%
+      summarise(in_district = mean(in_district, na.rm = TRUE)),
+    .id = "chamber"
+  ) %>%
+  pivot_wider(
+    id_cols = c("chamber", "party"), 
+    names_from = "financial",
+    values_from = "in_district"
+  )
 
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
 
