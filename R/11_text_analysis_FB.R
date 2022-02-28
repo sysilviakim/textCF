@@ -371,6 +371,7 @@ fb_corpus_list <- list(
 
 lexi_list <- fb_corpus_list %>%
   map(~ liwcalike(.x, dictionary = NRC))
+save(lexi_list, file = here("output", "lexi_list.Rda"))
 
 lexi_plots <- lexi_list %>%
   imap(
@@ -402,4 +403,61 @@ dev.off()
 
 pdf(here("fig", "emotion_fb_house_barplot.pdf"), width = 6, height = 4)
 print(emotion_barplot(lexi_list[5:8]))
+dev.off()
+
+temp <- lexi_list %>%
+  imap_dfr(~ .x %>% select(Dic, anger, disgust, fear), .id = "type") %>%
+  mutate(
+    chamber = case_when(
+      grepl("senate", type) ~ "Senate", TRUE ~ "House"
+    ),
+    party = case_when(
+      grepl("rep", type) ~ "Republican", TRUE ~ "Democrat"
+    ),
+    financial = case_when(
+      grepl("_f", type) ~ "Financial", TRUE ~ "Non-financial"
+    )
+  ) %>%
+  party_factor(., outvar = "type")
+
+emo_temp <- temp %>% 
+  group_by(type, chamber) %>% 
+  summarise(
+    mean_anger = mean(anger / Dic, na.rm = TRUE),
+    mean_disgust = mean(disgust / Dic, na.rm = TRUE),
+    mean_fear = mean(fear / Dic, na.rm = TRUE),
+    se_anger = sd(anger / Dic, na.rm = TRUE) / sqrt(n()),
+    se_disgust = sd(disgust / Dic, na.rm = TRUE) / sqrt(n()),
+    se_fear = sd(fear / Dic, na.rm = TRUE) / sqrt(n())
+  ) %>%
+  ungroup()
+
+pdf(here("fig", "anger_by_type_chamber.pdf"), width = 6, height = 2.8)
+print(
+  fb_mention_plot(
+    emo_temp %>% rename(Party = type), 
+    xvar = "mean_anger", se = "se_anger", xlab = ""
+  ) + 
+    scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
+)
+dev.off()
+
+pdf(here("fig", "disgust_by_type_chamber.pdf"), width = 6, height = 2.8)
+print(
+  fb_mention_plot(
+    emo_temp %>% rename(Party = type), 
+    xvar = "mean_disgust", se = "se_disgust", xlab = ""
+  ) + 
+    scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
+)
+dev.off()
+
+pdf(here("fig", "fear_by_type_chamber.pdf"), width = 6, height = 2.8)
+print(
+  fb_mention_plot(
+    emo_temp %>% rename(Party = type), 
+    xvar = "mean_fear", se = "se_fear", xlab = ""
+  ) + 
+    scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
+)
 dev.off()
