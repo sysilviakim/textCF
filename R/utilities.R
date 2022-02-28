@@ -1534,11 +1534,11 @@ fb_mention_plot <- function(df, xvar, se, xlab, full = FALSE) {
       scale_color_manual(values = color4_platform)
     pdf_default(p) +
       theme(legend.position = "none") +
-      scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.3))
+      scale_x_continuous(breaks = seq(0, 0.3, by = 0.05), limits = c(0, 0.3))
   } else {
     pdf_default(p) +
       theme(legend.position = "none") +
-      scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.3))
+      scale_x_continuous(breaks = seq(0, 0.3, by = 0.05), limits = c(0, 0.3))
   }
 }
 

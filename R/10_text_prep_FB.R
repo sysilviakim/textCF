@@ -48,7 +48,7 @@ fb_unique <- fb_matched %>%
           "Facebook Page",
         )
       ) %>%
-      donate_classify()
+      donate_classify() %>%
       ungroup()
   )
 
@@ -93,6 +93,10 @@ fb_unique <- fb_unique %>%
           str_detect(str_to_lower(ad_creative_body), "trump") ~ 1,
           !is.na(ad_creative_body) ~ 0
         ),
+        word_biden = case_when(
+          str_detect(str_to_lower(ad_creative_body), "biden") ~ 1,
+          !is.na(ad_creative_body) ~ 0
+        ),
         word_covid = case_when(
           str_detect(
             str_to_lower(ad_creative_body),
@@ -119,6 +123,8 @@ fb_unique <- fb_unique %>%
 
 prop(fb_unique$senate, vars = "word_trump") ## 16.6%
 prop(fb_unique$house, vars = "word_trump") ## 15.7%
+prop(fb_unique$senate, vars = "word_biden") ## 
+prop(fb_unique$house, vars = "word_biden") ## 
 prop(fb_unique$senate, vars = "word_covid") ## 3.0%
 prop(fb_unique$house, vars = "word_covid") ## 4.4%
 

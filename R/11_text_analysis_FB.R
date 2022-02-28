@@ -67,13 +67,13 @@ temp <- fb_unique %>%
   mutate(chamber = simple_cap(chamber)) %>%
   ungroup()
 
-pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 7, height = 3)
+pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(fb_mention_plot(
   temp, xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
 ))
 dev.off()
 
-pdf(here("fig", "mention_covid_by_type_chamber.pdf"), width = 7, height = 3)
+pdf(here("fig", "mention_covid_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(fb_mention_plot(
   temp, xvar = "mean_covid", se = "se_covid", xlab = "Mentions COVID-19"
 ))
