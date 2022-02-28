@@ -108,7 +108,8 @@ fb_matched <- fb_matched %>%
           TRUE ~ party
         )
       )
-  )
+  ) %>%
+  rename(id_old = id)
 
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
 
@@ -121,7 +122,10 @@ fb_simple <- fb_matched %>%
         matches(
           ## Excluding NA values for demo/region target
           paste0(
-            "unknown|male|impression|potential|spend|ad_creation_date|delivery|",
+            paste0(
+              "unknown|male|impression|potential|spend|ad_creation_date|",
+              "delivery|"
+            ),
             "^", tolower(state.abb) %>% paste(collapse = "$|^"), "$"
           )
         )
