@@ -133,47 +133,89 @@ prop(fb_unique$house, vars = "word_covid") ## 4.4%
 fb_unique_raw <- fb_unique
 fb_unique <- c(senate = "senate", house = "house") %>%
   map(
-    function(x) left_join(fb_unique[[x]], fb_meta[[x]]) %>%
-      mutate(n = row_number()) %>%
-      group_by(n) %>%
-      group_split() %>%
-      map_dfr(
-        ~ {
-          if (!is.na(.x$state_po) & (.x$state_po %in% state.abb)) {
-            .x %>%
-              mutate(
-                ## Otherwise, sticks with the first value of the dataframe
-                in_district := 
-                  !!as.name(paste0("mean_", tolower(.x$state_po))),
-                in_district = case_when(
-                  is.nan(in_district) ~ NA,
-                  TRUE ~ in_district
-                ),
-                out_district = 1 - in_district
-              )
-          } else {
-            .x
+    function(x) {
+      left_join(fb_unique[[x]], fb_meta[[x]]) %>%
+        mutate(n = row_number()) %>%
+        group_by(n) %>%
+        group_split() %>%
+        map_dfr(
+          ~ {
+            if (!is.na(.x$state_po) & (.x$state_po %in% state.abb)) {
+              .x %>%
+                mutate(
+                  ## Otherwise, sticks with the first value of the dataframe
+                  in_district :=
+                    !!as.name(paste0("mean_", tolower(.x$state_po))),
+                  in_district = case_when(
+                    is.nan(in_district) ~ NA_real_,
+                    TRUE ~ in_district
+                  ),
+                  out_district = 1 - in_district
+                )
+            } else {
+              .x
+            }
           }
-        }
-      )
-  )
+        )
+    }
+  ) %>%
+  map(~ .x %>% select(candidate, party, financial, in_district, everything()))
 assert_that(nrow(fb_unique_raw$senate) == nrow(fb_unique$senate))
 assert_that(nrow(fb_unique_raw$house) == nrow(fb_unique$house))
 
 ## Some verification that "Non-financial" are targeting in-district
-fb_unique %>%
+temp <- fb_unique %>%
   map_dfr(
-    ~ .x %>% 
-      filter(!is.na(party) & party != "INDEPENDENT") %>% 
+    ~ .x %>%
+      filter(!is.na(party) & party != "INDEPENDENT") %>%
       group_by(party, financial) %>%
-      summarise(in_district = mean(in_district, na.rm = TRUE)),
+      summarise(
+        mean = mean(in_district, na.rm = TRUE),
+        sd = sd(in_district, na.rm = TRUE),
+        se = sd(in_district, na.rm = TRUE) / sqrt(n())
+      ),
     .id = "chamber"
   ) %>%
+  rowwise() %>%
+  mutate(
+    chamber = simple_cap(tolower(chamber)),
+    party = simple_cap(tolower(party)),
+    financial = simple_cap(tolower(financial)),
+    Party = glue("{party},\n{financial}")
+  ) %>%
+  ungroup() %>%
+  select(Party, everything())
+
+temp %>%
   pivot_wider(
-    id_cols = c("chamber", "party"), 
-    names_from = "financial",
-    values_from = "in_district"
+    id_cols = c("party", "chamber"),
+    names_from = "financial", values_from = c("mean", "se")
   )
+
+# # A tibble: 4 x 6
+#   party      chamber mean_Financial `mean_Non-financial` se_Financial `se_Non-financial`
+#   <chr>      <chr>            <dbl>                <dbl>        <dbl>              <dbl>
+# 1 Democrat   Senate           0.520                0.812      0.00455            0.00576
+# 2 Republican Senate           0.551                0.912      0.00795            0.00438
+# 3 Democrat   House            0.635                0.902      0.00290            0.00233
+# 4 Republican House            0.746                0.945      0.00469            0.00159
+
+pdf(here("fig", "in_district_per_type_chamber.pdf"), width = 6, height = 2.8)
+print(
+  fb_mention_plot(temp, xvar = "mean", se = "se", xlab = "") +
+    scale_x_continuous(limits = c(0, 1))
+)
+dev.off()
+
+fb_unique %>%
+  map_dbl(
+    ~ .x %>%
+      filter(financial == "Non-Financial" & in_district < 0.5) %>%
+      nrow()
+  )
+
+# senate  house ----> so 9.2% of Senate financial, 5.7% of House financial
+#    818   1352
 
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
 
