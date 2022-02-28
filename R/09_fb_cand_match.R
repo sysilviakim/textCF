@@ -108,7 +108,8 @@ fb_matched <- fb_matched %>%
           TRUE ~ party
         )
       ) %>%
-      rename(id_old = id)
+      rename(id_old = id) %>%
+      rename(id = id_2)
   )
 
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
@@ -131,6 +132,7 @@ fb_simple <- fb_matched %>%
         )
       )
   )
+assert_that(length(setdiff(tolower(state.abb), names(fb_simple$senate))) == 0)
 
 ## The list(mean, sd), .names = "{.col}.fn{.fn}" approach didn't work;
 ## Not sure why; but since I also need na.rm = TRUE, just use the agg. approach
