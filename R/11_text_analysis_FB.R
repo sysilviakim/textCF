@@ -56,6 +56,9 @@ temp <- fb_unique %>%
         mean_trump = mean(word_trump), 
         sd_trump = sd(word_trump), 
         se_trump = sd_trump / sqrt(n()),
+        mean_biden = mean(word_biden), 
+        sd_biden = sd(word_biden), 
+        se_biden = sd_biden / sqrt(n()),
         mean_covid = mean(word_covid), 
         sd_covid = sd(word_covid), 
         se_covid = sd_covid / sqrt(n())
@@ -70,6 +73,13 @@ temp <- fb_unique %>%
 pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(fb_mention_plot(
   temp, xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
+))
+dev.off()
+
+## So small that it seems unimportant
+pdf(here("fig", "mention_biden_by_type_chamber.pdf"), width = 6, height = 2.8)
+print(fb_mention_plot(
+  temp, xvar = "mean_biden", se = "se_biden", xlab = "Mentions Biden"
 ))
 dev.off()
 
