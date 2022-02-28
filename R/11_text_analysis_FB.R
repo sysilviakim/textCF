@@ -1,5 +1,6 @@
 source(here::here("R", "utilities.R"))
 library(seededlda)
+library(stm)
 
 # Load data ====================================================================
 ## Text is in "ad_creative_body"
@@ -45,7 +46,43 @@ assert_that(
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
 fb_unique <- temp_fxn(fb_unique)
 
-# Who among top candidates mention keywords the most? ==========================
+# Specific keywords ============================================================
+## By type ---------------------------------------------------------------------
+temp <- fb_unique %>%
+  map_dfr(
+    ~ .x %>%
+      group_by(party, financial) %>%
+      summarise(word_trump = mean(word_trump), word_covid = mean(word_covid)),
+    .id = "chamber"
+  ) %>%
+  party_factor(., outvar = "Party") %>%
+  rowwise() %>%
+  mutate(chamber = simple_cap(chamber)) %>%
+  ungroup()
+
+pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 7, height = 3)
+p <- ggplot(temp, aes(y = fct_rev(Party), x = word_trump, fill = Party)) + 
+  geom_col(width = .5) + 
+  facet_wrap(~ chamber) + 
+  scale_fill_manual(values = color4) + 
+  xlab("Mentions Trump") + 
+  ylab("") + 
+  scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.25))
+print(pdf_default(p) +  theme(legend.position = "bottom"))
+dev.off()
+
+pdf(here("fig", "mention_covid_by_type_chamber.pdf"), width = 7, height = 3)
+p <- ggplot(temp, aes(y = fct_rev(Party), x = word_covid, fill = Party)) + 
+  geom_col(width = .5) + 
+  facet_wrap(~ chamber) + 
+  scale_fill_manual(values = color4) + 
+  xlab("Mentions COVID-19") + 
+  ylab("") + 
+  scale_x_continuous(breaks = seq(0, 0.25, by = 0.05), limits = c(0, 0.25))
+print(pdf_default(p) +  theme(legend.position = "bottom"))
+dev.off()
+
+## Who mentions them the most? -------------------------------------------------
 p <- top_list <- list()
 for (topn in c(10, 20, 30, 1000)) {
   top_unique <- fb_unique %>% map(~ tally_by_cand(.x, lim = topn))
@@ -187,8 +224,12 @@ top_list %>%
 # Topic modeling ===============================================================
 temp <- dfm_FB_ad %>%
   dfm_trim(
-    min_termfreq = 0.8, termfreq_type = "quantile",
-    max_docfreq = 0.1, docfreq_type = "prop"
+    ## keep only the top 5% of the most frequent features (min_termfreq = 0.8)
+    ## that appear in less than 10% of all documents (max_docfreq = 0.1)
+    min_termfreq = 0.8, termfreq_type = "quantile", docfreq_type = "prop",
+    ## Removing features that are rare: appearing in less than 10% of all docs
+    ## Removing features that are ubiquitous: appearing in more than 90% of docs
+    min_docfreq = 0.1, max_docfreq = 0.95
   )
 
 tmod_lda <- textmodel_lda(temp, k = 10)
@@ -214,7 +255,7 @@ for (i in seq(nrow(unique_docvars))) {
     tolower(unique_docvars$party[i]),
     "_", tolower(unique_docvars$financial[i]),
     "_", tolower(unique_docvars$chamber[i])
-  )]] <- tmod_lda <- textmodel_lda(subtemp, k = 5)
+  )]] <- tmod_lda <- textmodel_lda(subtemp, k = 10)
   save(
     tmod_lda,
     file = here(
@@ -230,7 +271,31 @@ for (i in seq(nrow(unique_docvars))) {
 save(tmod_lda_list, file = here("output", "tmod_lda_subgroups_all.Rda"))
 
 tmod_lda_list %>%
-  map(~ terms(.x, 5))
+  map(~ terms(.x, 10))
+
+## Sum is always 1, so stacked barchart is sufficient
+tidy_topics_list <- tmod_lda_list %>%
+  map(~ as_tibble(.x$theta, rownames = "doc_id"))
+
+p <- tidy_topics_list[[1]] %>%
+  arrange(
+    desc(topic1), desc(topic2), desc(topic3), desc(topic4), desc(topic5)
+  ) %>%
+  mutate(
+    id = paste0(
+      "id_", str_pad(as.character(row_number()), pad = "0", width = 5)
+    ),
+    id = factor(id)
+  ) %>%
+  select(-doc_id) %>%
+  pivot_longer(cols = topic1:topic5, names_to = "topic", values_to = "prob") %>%
+  mutate(topic = factor(topic, levels = paste0("topic", seq(5)))) %>%
+  ggplot(., aes(x = id, y = prob, fill = fct_rev(topic))) +
+  geom_bar(position = "stack", stat = "identity")
+
+pdf_default(p) +
+  theme(axis.text.x = element_blank()) +
+  scale_fill_viridis_d(direction = -1)
 
 # Trolling/moral foundation words ==============================================
 lookup_troll <- dfm_lookup(dfm_FB_ad, troll)

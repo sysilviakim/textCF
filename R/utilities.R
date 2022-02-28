@@ -1514,18 +1514,18 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
 
 party_factor <- function(x, outvar) {
   x %>%
+    rowwise() %>%
     mutate(party = simple_cap(tolower(party))) %>%
     mutate(financial = simple_cap(tolower(financial))) %>%
     mutate(!!as.name(outvar) := glue("{party},\n{financial}")) %>%
+    ungroup() %>%
     mutate(
       !!as.name(outvar) := factor(
         !!as.name(outvar),
-        levels = rev(
-          c(
+        levels = c(
             "Republican,\nFinancial", "Republican,\nNon-financial",
             "Democrat,\nFinancial", "Democrat,\nNon-financial"
           )
-        )
       )
     )
 }
@@ -1544,7 +1544,7 @@ dict_plot <- function(df, var = "troll") {
     rename(Party = party) %>%
     group_by(Party, chamber) %>%
     summarise(avg = mean(!!as.name(var))) %>%
-    ggplot(aes(x = avg, y = Party, fill = Party)) +
+    ggplot(aes(x = avg, y = fct_rev(Party), fill = fct_rev(Party))) +
     geom_col(width = .5) + ## alpha = .8
     facet_grid(~chamber) +
     scale_fill_manual(values = color4) +
