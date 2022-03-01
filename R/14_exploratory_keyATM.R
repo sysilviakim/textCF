@@ -232,8 +232,8 @@ merged <- merged %>%
     Rank1 == "3_Social_Issues_A" | 
     Rank1 == "4_Social_Issues_B" | 
       Rank1 == "6_Environment" |
-      Rank1 == "9_Education" ~ "Other (social issues, environment, educ.)",
-    !is.na(Rank1) ~ "Generic campaigning"),
+      Rank1 == "9_Education" ~ "Other (envir., educ. & social issues)",
+    !is.na(Rank1) ~ "Generic campaigning: esp. $ solicitations"),
     
     topRank = case_when(
       Rank1 == "1_Economy"    ~ "Economy and jobs",
@@ -252,29 +252,6 @@ merged <- merged %>%
       Rank1 == "Other_5"     ~ "Misc. theme 5 (unlabelled)")
   )
 
-merged %>% count(Rank1,topic_Redefined)
-
-merged %>% count(topRank) %>%
-  ggplot(aes(x=n, y=fct_reorder(topRank,n))) +
-  geom_point() +
-  theme_bw()
-
-merged %>% count(topic_Redefined) %>%
-  ggplot(aes(x=n, y=fct_reorder(topic_Redefined,n))) +
-  geom_point() +
-  theme_bw()
-
-# merged %>% 
-#    filter(party %in% c("DEMOCRAT","REPUBLICAN")) %>%
-#    group_by(party) %>%
-#    count(topic) %>%
-#     filter(topic %in% c("Trump","Patriotic speech","Immigration")) %>%
-#    ggplot(aes(x=n,y=party,fill=topic)) + 
-#    geom_bar(stat="identity",alpha=.7) +
-#    scale_fill_brewer(type = "qual",palette = 3) +
-#    labs(y="Number of posts", x ="", fill = "Topic")
-# # scale_fill_viridis_d() +
-
 merged %>%
   group_by(party) %>%
   dplyr::count(party, topic) %>%
@@ -284,8 +261,10 @@ merged %>%
   ggplot(aes(x=prop*100,y=post,fill=fct_rev(topic))) + 
   geom_bar(stat="identity",alpha=.7, width = .5) +
   scale_fill_brewer(type = "qual",palette = 3) +
-  labs(y="", x ="Percent of ads", fill = "Topic") +
-  theme_bw()
+  labs(y="", x ="Percent of ads", fill = "Topic",
+       title = "Ad topics by party") +
+  theme_bw() 
+ggsave("fig/keyATM1.pdf", width = 8, height = 6)
 
 merged %>%
   group_by(party, financial) %>%
@@ -296,8 +275,10 @@ merged %>%
   ggplot(aes(x=prop*100,y=post,fill=fct_rev(topic))) + 
   geom_bar(stat="identity",alpha=.7, width = .5) +
   scale_fill_brewer(type = "qual",palette = 3) +
-  labs(y="", x ="Percent of ads", fill = "Topic") +
-    theme_bw()
+  labs(y="", x ="Percent of ads", fill = "Topic",
+       title = "Ad topics by ad type and by party") +
+  theme_bw() 
+ggsave("fig/keyATM2.pdf", width = 8, height = 6)
 
 merged %>%
   group_by(party, financial, chamber) %>%
@@ -310,9 +291,10 @@ merged %>%
   scale_fill_brewer(type = "qual",palette = 3) +
   facet_grid(~chamber) +
   labs(y="", x ="Percent of ads", fill = "Ad theme / topic") +
-  theme_bw()
-
-
+       #title = "Ad topics by party, chamber, and ad type")
+  theme_bw() +
+  theme(legend.position = "top")
+ggsave("fig/keyATM3.pdf", width = 8, height = 5)
 
 merged %>%
   group_by(party) %>%
@@ -323,8 +305,10 @@ merged %>%
   ggplot(aes(x=prop*100,y=post,fill=fct_rev(topic_Redefined))) + 
   geom_bar(stat="identity",alpha=.7, width = .5) +
   scale_fill_brewer(type = "qual",palette = 3) +
-  labs(y="", x ="Percent of ads", fill = "Topic") +
-  theme_bw()
+  labs(y="", x ="Percent of ads", fill = "Topic",
+       title = "Ad topics by party") +
+  theme_bw() 
+ggsave("fig/keyATM1B.pdf", width = 8, height = 6)
 
 merged %>%
   group_by(party, financial) %>%
@@ -335,8 +319,10 @@ merged %>%
   ggplot(aes(x=prop*100,y=post,fill=fct_rev(topic_Redefined))) + 
   geom_bar(stat="identity",alpha=.7, width = .5) +
   scale_fill_brewer(type = "qual",palette = 3) +
-  labs(y="", x ="Percent of ads", fill = "Topic") +
-  theme_bw()
+  labs(y="", x ="Percent of ads", fill = "Topic",
+       title = "Ad topics by ad type and by party") +
+  theme_bw() 
+ggsave("fig/keyATM2B.pdf", width = 8, height = 6)
 
 merged %>%
   group_by(party, financial, chamber) %>%
@@ -348,27 +334,36 @@ merged %>%
   geom_bar(stat="identity",alpha=.7, width = .4) +
   scale_fill_brewer(type = "qual",palette = 3) +
   facet_grid(~chamber) +
-  labs(y="", x ="Percent of ads", fill = "Ad theme / topic") +
-  theme_bw()
+  labs(y="", x ="Percent of ads", fill = "Ad theme / topic",
+       title = "Ad topics by party, chamber, and ad type") +
+  theme_bw() 
+ggsave("fig/keyATM3B.pdf", width = 8, height = 6)
+
+### SI MATERIAL ################################################################
+
+merged %>% count(Rank1,topic_Redefined)
+
+S1 <- merged %>% count(topRank) %>%
+  ggplot(aes(x=n, y=fct_reorder(topRank,n))) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Number of ads",
+       y = "",
+       subtitle = "Full list of topics")
+
+S2 <- merged %>% count(topic_Redefined) %>%
+  ggplot(aes(x=n, y=fct_reorder(topic_Redefined,n))) +
+  geom_col(width = .5) +
+  theme_bw() +
+  labs(x = "Number of ads",
+       y = "",
+       subtitle = "A simplified list of topics")
+
+ggpubr::ggarrange(S1,S2)
+ggsave("fig/keyATM3_topics_summary2.pdf", width = 9, height = 5)
 
 
-
-
-#### Background plots #######################################################
-
-summary(key_dfm)
-
-visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[1:2])
-visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[3:5])
-visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[c(6,9)])
-visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[c(3,4,5,9)])
-visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[c(1,7,8)])
-
-key_viz <- visualize_keywords(docs = key_dfm, keywords = keywords_stemmed)
-key_viz
-values_fig(key_viz) %>% View()
-
-values_fig(key_viz) %>% filter(Ranking <=5)
+### SI TABLE ################################################################
 
 values_fig(key_viz) %>% 
   filter(Ranking <=5) %>%
@@ -391,7 +386,24 @@ values_fig(key_viz) %>%
            WordCount) %>%
   kable(format = "latex",
         booktabs=T)
-  
+##############################################################################
+
+
+#### Background plots #######################################################
+
+summary(key_dfm)
+
+visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[1:2])
+visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[3:5])
+visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[c(6,9)])
+visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[c(3,4,5,9)])
+visualize_keywords(docs = key_dfm, keywords = keywords_stemmed[c(1,7,8)])
+
+key_viz <- visualize_keywords(docs = key_dfm, keywords = keywords_stemmed)
+key_viz
+values_fig(key_viz) %>% View()
+
+
 
 top_terms <- out_stemmed$phi %>% 
   t() %>% 
