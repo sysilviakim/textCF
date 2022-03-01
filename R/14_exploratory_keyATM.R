@@ -123,7 +123,7 @@ keywords_stemmed <- list(Economy = c(
   #                     "#criminaljusticereform",
   #                     "racialprofil",
   #                     "floyd","#georgefloyd"),
-  Immigration = c("immigr","immigr",
+  Immigration = c("immigr",
                   "border",
                   "migrant","migrat",
                   "dreamer","daca","#daca"),
@@ -211,21 +211,30 @@ tibbleForAnalysis <- docvars(dfmAnalaysis) %>%
 merged <- left_join(tibbleForAnalysis, exportObj, 
                     by ="doc_id")
 
-merged %>% count(Rank1)
-
-relab <- function(x) {
-  ifelse(x=="1_Economy","Economy",
-         ifelse(x=="2_Health","Health care & public health",x))
-}
-
 merged <- merged %>% 
-  mutate(topic = case_when(
+  mutate(
+    # Coarsened groups:
+    topic = case_when(
     Rank1 == "1_Economy"    ~ "Economy and jobs",
     Rank1 == "2_Health"    ~ "Health care or public health",
     Rank1 == "8_Patriotic" ~ "Patriotic speech",
     Rank1 == "5_Immigration"     ~ "Immigration",
     Rank1 == "7_President"     ~ "Trump",
     !is.na(Rank1) ~ "Various other / mixed"),
+    
+    # Different bunching of categories:
+    topic_Redefined = case_when(
+    Rank1 == "1_Economy"    ~ "Economy and jobs",
+    Rank1 == "2_Health"    ~ "Health care or public health",
+    Rank1 == "8_Patriotic" ~ "Patriotic speech",
+    Rank1 == "5_Immigration"     ~ "Immigration",
+    Rank1 == "7_President"     ~ "Trump",
+    Rank1 == "3_Social_Issues_A" | 
+    Rank1 == "4_Social_Issues_B" | 
+      Rank1 == "6_Environment" |
+      Rank1 == "9_Education" ~ "Other (social issues, environment, educ.)",
+    !is.na(Rank1) ~ "Generic campaigning"),
+    
     topRank = case_when(
       Rank1 == "1_Economy"    ~ "Economy and jobs",
       Rank1 == "2_Health"    ~ "Health care or public health",
@@ -243,8 +252,15 @@ merged <- merged %>%
       Rank1 == "Other_5"     ~ "Misc. theme 5 (unlabelled)")
   )
 
+merged %>% count(Rank1,topic_Redefined)
+
 merged %>% count(topRank) %>%
   ggplot(aes(x=n, y=fct_reorder(topRank,n))) +
+  geom_point() +
+  theme_bw()
+
+merged %>% count(topic_Redefined) %>%
+  ggplot(aes(x=n, y=fct_reorder(topic_Redefined,n))) +
   geom_point() +
   theme_bw()
 
@@ -298,6 +314,45 @@ merged %>%
 
 
 
+merged %>%
+  group_by(party) %>%
+  dplyr::count(party, topic_Redefined) %>%
+  mutate(prop = n / sum(n)) %>%
+  filter(party %in% c("DEMOCRAT","REPUBLICAN")) %>%
+  mutate(post = glue("Ads by {party}S")) %>%
+  ggplot(aes(x=prop*100,y=post,fill=fct_rev(topic_Redefined))) + 
+  geom_bar(stat="identity",alpha=.7, width = .5) +
+  scale_fill_brewer(type = "qual",palette = 3) +
+  labs(y="", x ="Percent of ads", fill = "Topic") +
+  theme_bw()
+
+merged %>%
+  group_by(party, financial) %>%
+  dplyr::count(party, financial, topic_Redefined) %>%
+  mutate(prop = n / sum(n)) %>%
+  filter(party %in% c("DEMOCRAT","REPUBLICAN")) %>%
+  mutate(post = glue("{financial} posted by {party}")) %>%
+  ggplot(aes(x=prop*100,y=post,fill=fct_rev(topic_Redefined))) + 
+  geom_bar(stat="identity",alpha=.7, width = .5) +
+  scale_fill_brewer(type = "qual",palette = 3) +
+  labs(y="", x ="Percent of ads", fill = "Topic") +
+  theme_bw()
+
+merged %>%
+  group_by(party, financial, chamber) %>%
+  dplyr::count(party, financial, topic_Redefined, chamber) %>%
+  mutate(prop = n / sum(n)) %>%
+  filter(party %in% c("DEMOCRAT","REPUBLICAN")) %>%
+  mutate(post = glue("{financial} posted by {party}")) %>%
+  ggplot(aes(x=prop*100,y=post,fill=fct_rev(topic_Redefined))) + 
+  geom_bar(stat="identity",alpha=.7, width = .4) +
+  scale_fill_brewer(type = "qual",palette = 3) +
+  facet_grid(~chamber) +
+  labs(y="", x ="Percent of ads", fill = "Ad theme / topic") +
+  theme_bw()
+
+
+
 
 #### Background plots #######################################################
 
@@ -314,6 +369,29 @@ key_viz
 values_fig(key_viz) %>% View()
 
 values_fig(key_viz) %>% filter(Ranking <=5)
+
+values_fig(key_viz) %>% 
+  filter(Ranking <=5) %>%
+  mutate(`Pre-defined topic` = case_when(
+    Topic == "1_Economy"    ~ "Economy and jobs",
+    Topic == "2_Health"    ~ "Health care or public health",
+    Topic == "3_Social_Issues_A" ~ "Social issues (guns)",
+    Topic == "4_Social_Issues_B" ~ "Social issues (identity groups)",
+    Topic == "5_Immigration"     ~ "Immigration",
+    Topic == "6_Environment"     ~ "Environmental issues",
+    Topic == "7_President"     ~ "Trump",
+    Topic == "8_Patriotic"     ~ "Patriotism, nation, etc.",
+    Topic == "9_Education"     ~ "Education-related issues")
+  ) %>%
+  ungroup() %>%
+  dplyr::select(-Ranking,-Topic) %>%
+  relocate(`Pre-defined topic`,
+           Word,
+           `Proportion(%)`,
+           WordCount) %>%
+  kable(format = "latex",
+        booktabs=T)
+  
 
 top_terms <- out_stemmed$phi %>% 
   t() %>% 
