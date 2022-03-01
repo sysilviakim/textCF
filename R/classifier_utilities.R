@@ -194,28 +194,33 @@ test_batch <- function(b) {
   labels <- b[[2]]$to(device = DEVICE)
   loss <- criterion(output, labels)
 
-  test_losses <<- c(test_losses, loss$item())
-  # torch_max returns a list, with position 1 containing the values
+  # torch_max returns a list, with position 1 containing the values (here log predicted probabilities)
   # and position 2 containing the respective indices
-  predicted <- torch_max(output$data(), dim = 2)[[2]]
-  test_roc_auc$update(torch_max(output$detach()$clone()$data(), dim = 2)[[1]], b$y)
-  results <<- rbind(results, data.frame(actual = as.integer(b$y), predicted = as.integer(predicted)))
-  total <<- total + labels$size(1)
+  out <- nnf_softmax(output$data()$clone()$detach(), dim = 2)
+  results <- data.frame(
+    # Softmax here?
+    actual = as.integer(b$y), prob = as.numeric(out[, 2]),
+    pred_class = as.integer(torch_max(out, dim = 2)[[2]])
+  )
   # add number of correct classifications in this batch to the aggregate
-  correct <<- correct + (predicted == labels)$sum()$item()
+  correct <- sum(results[["pred_class"]] == results[["actual"]])
+  list(results = results, total = labels$size(1), correct = correct, loss = loss$item())
 }
 
 # Generate code to create batch-processing loop with given symbols
-process_batches <- function(dl, batch_fun, loss_vec) {
+process_batches <- function(dl, ...) {
+  dots <- as.list(substitute(list(...)))[-1L]
   dl <- substitute(dl)
-  batch_fun <- substitute(batch_fun)
-  loss_vec <- substitute(loss_vec)
-  substitute({
-    coro::loop(for (b in dl) {
-      loss <- batch_fun(b)
-      loss_vec <- c(loss_vec, loss)
-    })
-  })
+  # batch_fun <- substitute(batch_fun)
+  # loss_vec <- substitute(loss_vec)
+  bquote(
+    {
+      coro::loop(for (b in .(dl)) {
+        ..(dots)
+      })
+    },
+    splice = TRUE
+  )
 }
 
 # Plot image tensor - mostly copied from

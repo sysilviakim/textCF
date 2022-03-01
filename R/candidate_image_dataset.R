@@ -77,12 +77,13 @@ candidate_image_dataset <- torch::dataset(
     }
     list(x = img, y = y)
   },
-  # Sampling weights to apply to each class. For each member of class k, weight k is
-  # divided by the number of observations in class k
+  # Sampling weights to apply to each class. Unweighted, all observations have an equal chance of being
+  # sampled; weights adjust the probabilities
   compute_sample_weights = function(images, weights) {
-    proportions <- (table(names(images)) / length(self))
+    counts <- table(names(images))
+    proportions <- counts / length(self)
     proportions <- proportions[names(weights)] * weights
-    proportions[names(images)]
+    proportions[names(images)] * (1 / counts)[names(images)]
   },
   rotate = function(img, angle, ...) {
     angle <- runif(1, 1 - angle, 1 + angle)
