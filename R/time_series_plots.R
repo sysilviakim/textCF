@@ -220,9 +220,49 @@ hr_nonfinancial <- ggplot(house_nonfinancial, aes(x=ad_creation_time)) +
   lims(x = as.Date(c("2019-01-01", "2020-12-31")))
 hr_nonfinancial
 
+house_financial <- ggarrange(hr_financial, hr_nonfinancial, ncol = 2, nrow = 1)
+house_financial <- annotate_figure(house_financial, 
+                            top = text_grob("Unique House Advertisements by Creation Date", 
+                                            color = "black", 
+                                            face = "bold", 
+                                            size = 14))
+house_financial
+ggsave("fig/house_financial.pdf", plot = house_financial, width = 8, height = 6)
+
+
 ## Part B: Financial/Non-Financial in the Senate
 senate_unique <- fb_unique_dates[["senate"]]
 senate_financial <- senate_unique[senate_unique$financial == "Financial", ] 
 senate_nonfinancial <- senate_unique[senate_unique$financial == "Non-Financial", ]
 
+sen_financial <- ggplot(senate_financial, aes(x=ad_creation_time)) +  
+  theme_bw() +  geom_histogram(binwidth=14, fill="darkblue",color="black") +
+  labs(x="Date", y="Number of Unique Advertisements Created") + 
+  ggtitle("Financial") +
+  theme(axis.text.x=element_text(angle=30, hjust=1),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") +#, 
+  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
+  lims(x = as.Date(c("2019-01-01", "2020-12-31")))
+sen_financial
 
+sen_nonfinancial <- ggplot(senate_nonfinancial, aes(x=ad_creation_time)) +  
+  theme_bw() +  geom_histogram(binwidth=14, fill="darkblue",color="black") +
+  labs(x="Date", y="Number of Unique Advertisements Created") + 
+  ggtitle("Non-Financial") +
+  theme(axis.text.x=element_text(angle=30, hjust=1),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") +#, 
+  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
+  lims(x = as.Date(c("2019-01-01", "2020-12-31")))
+sen_nonfinancial
+
+senate_financial <- ggarrange(sen_financial, sen_nonfinancial, 
+                             ncol = 2, nrow = 1)
+senate_financial <- annotate_figure(senate_financial, 
+                                   top = text_grob("Unique Senate Advertisements by Creation Date", 
+                                                   color = "black", 
+                                                   face = "bold", 
+                                                   size = 14))
+senate_financial
+ggsave("fig/senate_financial.pdf", plot = senate_financial, width = 8, height = 6)
