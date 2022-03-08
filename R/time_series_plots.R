@@ -1,6 +1,6 @@
 source(here::here("R", "utilities.R"))
 
-# Part 1: Unique Ads over time
+# Part 1: Unique Ads over time =================================================
 ## fb_unique doesn't contain dates, so we'll need to go to to fb_matched
 load(here("data/tidy/fb_matched.Rda"))
 matched_house <- fb_matched[["house"]]
@@ -39,7 +39,7 @@ unique_ts
 
 ggsave("fig/unique_ts.pdf", plot = unique_ts, width = 8, height = 6)
 
-# Part 2: Impressions over time
+# Part 2: Impressions over time ================================================
 
 ## THIS SHOULD NOT BE UNIQUE! This should be the full sets of ads from over in
 ## fb_matched.
@@ -89,7 +89,7 @@ impressions_ts <- annotate_figure(impressions_ts,
 impressions_ts
 ggsave("fig/impressions_ts.pdf", plot = impressions_ts, width = 8, height = 6)
 
-# Part 3: Amounts Spent Over Time
+# Part 3: Amounts Spent Over Time ==============================================
 
 ## THIS SHOULD NOT BE UNIQUE! This should be the full sets of ads from over in
 ## fb_matched.
@@ -138,4 +138,91 @@ funds_ts <- annotate_figure(funds_ts,
                                                   size = 14))
 funds_ts
 ggsave("fig/funds_ts.pdf", plot = funds_ts, width = 8, height = 6)
+
+# Part 4: Financial/Non-Financial Time Series ==================================
+# Now, a slight hiccup for the next ones...fb_unique does not have the dates.
+# So, we shall recreate a version of fb_unique that features the dates the ads
+# were created. Will pull other variables of interest as well -- can potentially
+# shift some things around, include more variables, later on if we wish
+
+# Deduplicated, simplified ad data
+fb_unique_dates <- fb_matched %>%
+  map(
+    ~ .x %>%
+      select(
+        candidate,
+        fb_ad_library_id, page_name, party, inc, state_po, contains("state_cd"),
+        ad_creative_body, ad_creative_link_caption, vote_share, ad_creation_time
+      ) %>%
+      distinct() %>%
+      filter(ad_creative_body != "") %>%
+      ## Antonio Delgado duplicates appear (House, with wrong PID)
+      ## Drop these rows
+      filter(!(page_name == "Antonio Delgado" & party == "REPUBLICAN")) %>%
+      ## Label ad types by conduit/platform
+      mutate(ad_creative_link_caption = tolower(ad_creative_link_caption)) %>%
+      rowwise() %>%
+      ## Perform twice to unify to similar patterns
+      simplify_ad_body() %>%
+      simplify_ad_body() %>%
+      ## Classify [ongoing!]
+      mutate(
+        ## Is the typical platform links in the caption link?
+        type = case_when(
+          grepl("actblue.com", ad_creative_link_caption) ~ "ActBlue",
+          grepl("winred.com", ad_creative_link_caption) ~ "WinRed",
+          grepl("ngpvan.com|myngp.com", ad_creative_link_caption) ~ "NGP VAN",
+          grepl("anedot.com", ad_creative_link_caption) ~ "Anedot",
+          grepl("victorypassport.com", ad_creative_link_caption) ~
+            "Victory Passport",
+          grepl("fundraiser", ad_creative_link_caption) ~ "Misc.",
+          is.na(ad_creative_link_caption) ~ "Non-financial",
+          # grepl(" ", ad_creative_link_caption) ~ "Non-financial",
+          grepl(
+            "conversation with |town hall|meet |tour stop |iwillvote.com",
+            ad_creative_link_caption
+          ) ~ "Non-financial",
+          grepl(".gov", ad_creative_link_caption) ~ "Government Information",
+          grepl("secure.|act.|action.|go.", ad_creative_link_caption) ~
+            "Personal Contribution Link",
+          grepl("facebook.com|fb.me", ad_creative_link_caption) ~
+            "Facebook Page",
+        )
+      ) %>%
+      donate_classify() %>%
+      ungroup()
+  )
+
+## Part A: Financial/Non-Financial in the House
+house_unique <- fb_unique_dates[["house"]]
+house_financial <- house_unique[house_unique$financial == "Financial", ] 
+house_nonfinancial <- house_unique[house_unique$financial == "Non-Financial", ]
+
+hr_financial <- ggplot(house_financial, aes(x=ad_creation_time)) +  
+  theme_bw() +  geom_histogram(binwidth=14, fill="darkblue",color="black") +
+  labs(x="Date", y="Number of Unique Advertisements Created") + 
+  ggtitle("Financial") +
+  theme(axis.text.x=element_text(angle=30, hjust=1),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") +#, 
+  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
+  lims(x = as.Date(c("2019-01-01", "2020-12-31")))
+hr_financial
+
+hr_nonfinancial <- ggplot(house_nonfinancial, aes(x=ad_creation_time)) +  
+  theme_bw() +  geom_histogram(binwidth=14, fill="darkblue",color="black") +
+  labs(x="Date", y="Number of Unique Advertisements Created") + 
+  ggtitle("Non-Financial") +
+  theme(axis.text.x=element_text(angle=30, hjust=1),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") +#, 
+  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
+  lims(x = as.Date(c("2019-01-01", "2020-12-31")))
+hr_nonfinancial
+
+## Part B: Financial/Non-Financial in the Senate
+senate_unique <- fb_unique_dates[["senate"]]
+senate_financial <- senate_unique[senate_unique$financial == "Financial", ] 
+senate_nonfinancial <- senate_unique[senate_unique$financial == "Non-Financial", ]
+
 
