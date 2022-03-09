@@ -265,4 +265,73 @@ senate_financial <- annotate_figure(senate_financial,
                                                    face = "bold", 
                                                    size = 14))
 senate_financial
-ggsave("fig/senate_financial.pdf", plot = senate_financial, width = 8, height = 6)
+ggsave("fig/senate_financial.pdf", 
+       plot = senate_financial, width = 8, height = 6)
+
+## After this point, moved figures to fig/time_series_plots folder
+
+# Part 5: Toxicity Time Series? ================================================
+
+## Is this one doable?
+
+#mergetest1 <- merge(house_unique, fb_perspective_House, 
+#                    by.x = "ad_creative_body", by.y = "ad_creative_body")
+#mergetest2 <- merge(fb_perspective_House, house_unique,
+#                    by.x = "ad_creative_body", by.y = "ad_creative_body")
+# Both of these aggressively failed. Perhaps a different approach will work? 
+mergetest3 <- merge(x = fb_perspective_House, 
+                    y = house_unique[ , c("ad_creative_body", "ad_creation_time")], 
+                    by = "ad_creative_body", all.x=TRUE)
+toxic_house <- mergetest3 %>% distinct(ad_creative_body, .keep_all = TRUE)
+
+senatemerge <- merge(x = fb_perspective_Senate, 
+                    y = senate_unique[ , c("ad_creative_body", "ad_creation_time")], 
+                    by = "ad_creative_body", all.x=TRUE)
+toxic_senate <- senatemerge %>% distinct(ad_creative_body, .keep_all = TRUE)
+
+toxdat_house <- select(toxic_house,
+                       c("ad_creation_time", "TOXICITY"))
+names(toxdat_house) <- c("date", "toxic")
+ag_tox_house <- aggregate(.~date,data=toxdat_house,FUN=mean)
+
+hr_toxic_ts <- ggplot(ag_tox_house, aes(date, toxic)) +
+  theme_bw() +
+  geom_bar(stat="identity", na.rm = TRUE) +
+  ggtitle("House") +
+  xlab("Ad Creation Date") + ylab("Average Toxicity") +
+  #scale_x_date(labels=date_format ("%b %y"), breaks=date_breaks("1 year")) +
+  theme(axis.text.x=element_text(angle=30, hjust=1),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") +#, 
+  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
+  lims(x = as.Date(c("2019-01-01", "2020-12-31")))
+hr_toxic_ts
+
+toxdat_sen <- select(toxic_senate,
+                       c("ad_creation_time", "TOXICITY"))
+names(toxdat_sen) <- c("date", "toxic")
+ag_tox_sen <- aggregate(.~date,data=toxdat_sen,FUN=mean)
+
+sen_toxic_ts <- ggplot(ag_tox_sen, aes(date, toxic)) +
+  theme_bw() +
+  geom_bar(stat="identity", na.rm = TRUE) +
+  ggtitle("Senate") +
+  xlab("Ad Creation Date") + ylab("Average Toxicity") +
+  #scale_x_date(labels=date_format ("%b %y"), breaks=date_breaks("1 year")) +
+  theme(axis.text.x=element_text(angle=30, hjust=1),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") +#, 
+  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
+  lims(x = as.Date(c("2019-01-01", "2020-12-31")))
+sen_toxic_ts
+
+toxic_ts <- ggarrange(hr_toxic_ts, sen_toxic_ts, ncol = 2, nrow = 1)
+toxic_ts <- annotate_figure(toxic_ts, 
+                            top = text_grob("Average Advertisement Toxicity by Creation Date", 
+                                            color = "black", 
+                                            face = "bold", 
+                                            size = 14))
+toxic_ts
+ggsave("fig/time_series_figures/toxic_ts.pdf", plot = toxic_ts, 
+       width = 8, height = 6)
+
