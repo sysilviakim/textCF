@@ -3,7 +3,6 @@ library(keyATM)
 
 # Load data ====================================================================
 load(here("data", "tidy", "fb_unique.Rda"))
-# load(here("output", "fb_quanteda.Rda"))
 
 fb_corpus <- fb_unique %>%
   imap(
@@ -274,55 +273,33 @@ merged <- merged %>%
       Rank1 == "Other_4" ~ "Misc. theme 4 (unlabelled)",
       Rank1 == "Other_5" ~ "Misc. theme 5 (unlabelled)"
     )
-  )
+  ) %>%
+  party_factor(., outvar = "post") %>%
+  filter(!is.na(party) & party != "NANA" & party != "Independent") %>%
+  mutate(chamber = case_when(chamber == "senate" ~ "Senate", TRUE ~ "House"))
+save(merged, file = here("output", "merged_keyatm.Rda"))
 
-merged %>%
-  group_by(party) %>%
-  dplyr::count(party, topic) %>%
-  mutate(prop = n / sum(n)) %>%
-  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  mutate(post = glue("Ads by {party}S")) %>%
-  ggplot(aes(x = prop * 100, y = post, fill = fct_rev(topic))) +
-  geom_bar(stat = "identity", alpha = .7, width = .5) +
-  scale_fill_brewer(type = "qual", palette = 3) +
-  labs(
-    y = "", x = "Percent of ads", fill = "Topic",
-    title = "Ad topics by party"
-  ) +
-  theme_bw()
-ggsave("fig/keyATM1.pdf", width = 8, height = 6)
+pdf(here("fig", "keyatm_by_party.pdf"), width = 6.2, height = 2.5)
+topic_plot(
+  merged %>%
+    mutate(party = factor(party, levels = c("Republican", "Democrat"))),
+  gvar = "party"
+)
+dev.off()
 
-merged %>%
-  group_by(party, financial) %>%
-  dplyr::count(party, financial, topic) %>%
-  mutate(prop = n / sum(n)) %>%
-  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  mutate(post = glue("{financial} posted by {party}")) %>%
-  ggplot(aes(x = prop * 100, y = post, fill = fct_rev(topic))) +
-  geom_bar(stat = "identity", alpha = .7, width = .5) +
-  scale_fill_brewer(type = "qual", palette = 3) +
-  labs(
-    y = "", x = "Percent of ads", fill = "Topic",
-    title = "Ad topics by ad type and by party"
-  ) +
-  theme_bw()
-ggsave("fig/keyATM2.pdf", width = 8, height = 6)
+pdf(here("fig", "keyatm_by_party_type.pdf"), width = 6.2, height = 3.5)
+topic_plot(merged, gvar = "post")
+dev.off()
 
-merged %>%
-  group_by(party, financial, chamber) %>%
-  dplyr::count(party, financial, topic, chamber) %>%
-  mutate(prop = n / sum(n)) %>%
-  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  mutate(post = glue("{financial} posted by {party}")) %>%
-  ggplot(aes(x = prop * 100, y = post, fill = fct_rev(topic))) +
-  geom_bar(stat = "identity", alpha = .7, width = .4) +
-  scale_fill_brewer(type = "qual", palette = 3) +
-  facet_grid(~chamber) +
-  labs(y = "", x = "Percent of ads", fill = "Ad theme / topic") +
-  # title = "Ad topics by party, chamber, and ad type")
-  theme_bw() +
-  theme(legend.position = "top")
-ggsave("fig/keyATM3.pdf", width = 8, height = 5)
+pdf(here("fig", "keyatm_by_party_type_chamber.pdf"), width = 6.2, height = 6)
+topic_plot(
+  merged %>%
+    group_by(post, chamber) %>%
+    dplyr::count(post, topic, chamber),
+  gvar = "post", grouped = TRUE
+) + 
+  facet_wrap(~ chamber, ncol = 1)
+dev.off()
 
 merged %>%
   group_by(party) %>%
@@ -334,7 +311,7 @@ merged %>%
   geom_bar(stat = "identity", alpha = .7, width = .5) +
   scale_fill_brewer(type = "qual", palette = 3) +
   labs(
-    y = "", x = "Percent of ads", fill = "Topic",
+    y = "", x = "Percent of Ads", fill = "Topic",
     title = "Ad topics by party"
   ) +
   theme_bw()
@@ -350,7 +327,7 @@ merged %>%
   geom_bar(stat = "identity", alpha = .7, width = .5) +
   scale_fill_brewer(type = "qual", palette = 3) +
   labs(
-    y = "", x = "Percent of ads", fill = "Topic",
+    y = "", x = "Percent of Ads", fill = "Topic",
     title = "Ad topics by ad type and by party"
   ) +
   theme_bw()
@@ -367,7 +344,7 @@ merged %>%
   scale_fill_brewer(type = "qual", palette = 3) +
   facet_grid(~chamber) +
   labs(
-    y = "", x = "Percent of ads", fill = "Ad theme / topic",
+    y = "", x = "Percent of Ads", fill = "Ad theme / topic",
     title = "Ad topics by party, chamber, and ad type"
   ) +
   theme_bw()

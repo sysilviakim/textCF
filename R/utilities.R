@@ -1523,12 +1523,12 @@ fb_mention_plot <- function(df, xvar, se, xlab, full = FALSE) {
       )
     ) +
     geom_col(width = .5) +
-    geom_errorbar(width = .2, size = 1, aes(color = "black")) + 
+    geom_errorbar(width = .2, size = 1, aes(color = "black")) +
     facet_wrap(~chamber) +
     scale_fill_manual(values = color4) +
     scale_color_manual(values = color4) +
     labs(y = "", x = xlab)
-  
+
   if (full) {
     p <- p +
       scale_color_manual(values = color4_platform)
@@ -1553,9 +1553,9 @@ party_factor <- function(x, outvar) {
       !!as.name(outvar) := factor(
         !!as.name(outvar),
         levels = c(
-            "Republican,\nFinancial", "Republican,\nNon-financial",
-            "Democrat,\nFinancial", "Democrat,\nNon-financial"
-          )
+          "Republican,\nFinancial", "Republican,\nNon-financial",
+          "Democrat,\nFinancial", "Democrat,\nNon-financial"
+        )
       )
     )
 }
@@ -1687,6 +1687,26 @@ emotion_barplot <- function(x) {
       color = "", fill = ""
     )
   return(pdf_default(p))
+}
+
+topic_plot <- function(x, gvar = NULL, grouped = FALSE) {
+  if (grouped) {
+    p <- x %>%
+      mutate(prop = n / sum(n))
+  } else {
+    p <- x %>%
+      group_by(!!as.name(gvar)) %>%
+      dplyr::count(!!as.name(gvar), topic) %>%
+      mutate(prop = n / sum(n))
+  }
+  p <- p %>%
+    ggplot(
+      aes(x = prop * 100, y = fct_rev(!!as.name(gvar)), fill = fct_rev(topic))
+    ) +
+    geom_bar(stat = "identity", alpha = .7, width = .5) +
+    scale_fill_brewer(type = "qual", palette = 3) +
+    labs(y = "", x = "Percent of Ads", fill = "Topic")
+  pdf_default(p) + theme(legend.position = "bottom")
 }
 
 summ_df_fxn <- function(df, full = FALSE) {
