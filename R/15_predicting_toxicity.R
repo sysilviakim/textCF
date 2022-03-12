@@ -51,9 +51,23 @@ fit <- lm(
 )
 summary(fit)
 
-fit_fe <- feols(
+fit_se_cluster <- feols(
   toxicity ~
   party * financial + chamber + inc + min_ad_delivery_start_time + state_po,
+  temp
+)
+
+summary(fit_se_cluster, cluster = ~candidate)
+etable(fit_se_cluster, cluster = "candidate")
+etable(
+  fit_se_cluster,
+  cluster = "candidate", tex = TRUE,
+  file = here("tab", "fit_cand_cluster_toxicity.tex")
+)
+
+fit_fe <- feols(
+  toxicity ~
+    financial + min_ad_delivery_start_time | candidate,
   temp
 )
 
