@@ -39,10 +39,34 @@ merged <- left_join(
       as.Date(round(max_ad_delivery_stop_time), origin = "1970-01-01")
   )
 
-# OLS first for reference ======================================================
 temp <- merged %>%
   filter(!is.na(party) & !is.na(state_po) & party != "INDEPENDENT") %>%
-  mutate(inc = case_when(is.na(inc) ~ "CHALLENGER", TRUE ~ inc))
+  mutate(inc = case_when(is.na(inc) ~ "CHALLENGER", TRUE ~ inc)) %>%
+  party_factor(., outvar = "Type")
+
+# Over time plot ===============================================================
+color4_modified <- color4
+names(color4_modified) <- gsub("\n", " ", names(color4_modified)) 
+p <- temp %>%
+  mutate(year_month = floor_date(min_ad_delivery_start_time, "month")) %>%
+  filter(year_month >= as.Date("2019-01-01")) %>%
+  mutate(Type = gsub("\n", " ", Type)) %>%
+  group_by(Type, year_month) %>%
+  count() %>%
+  ggplot(aes(x = year_month, y = n, group = Type, color = Type)) + 
+  geom_line() + 
+  scale_color_manual(values = color4_modified) + 
+  xlab("Election Cycle, Monthly") + 
+  ylab("Number of Unique Ads") + 
+  scale_x_date(breaks = "3 months", date_labels = "%Y\n%b") + 
+  scale_y_continuous(labels = scales::comma)
+
+pdf(here("fig", "n_unique_ads_over_time.pdf"), width = 4.0, height = 3.2)
+plot_notitle(pdf_default(p)) + theme(legend.position = "bottom") + 
+  guides(colour = guide_legend(nrow = 2))
+dev.off()
+
+# OLS first for reference ======================================================
 
 fit <- lm(
   toxicity ~
@@ -71,10 +95,6 @@ fit_fe <- feols(
   temp
 )
 
-summary(fit_fe, cluster = ~candidate)
-etable(fit_fe, cluster = "candidate")
-etable(
-  fit_fe,
-  cluster = "candidate", tex = TRUE,
-  file = here("tab", "fit_fe_toxicity.tex")
-)
+summary(fit_fe)
+etable(fit_fe)
+etable(fit_fe, tex = TRUE, file = here("tab", "fit_fe_toxicity.tex"))
