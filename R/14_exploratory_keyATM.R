@@ -291,14 +291,14 @@ pdf(here("fig", "keyatm_by_party_type.pdf"), width = 6.2, height = 3.5)
 topic_plot(merged, gvar = "post")
 dev.off()
 
-pdf(here("fig", "keyatm_by_party_type_chamber.pdf"), width = 6.2, height = 6)
+pdf(here("fig", "keyatm_by_party_type_chamber.pdf"), width = 6.2, height = 3.5)
 topic_plot(
   merged %>%
     group_by(post, chamber) %>%
     dplyr::count(post, topic, chamber),
   gvar = "post", grouped = TRUE
 ) + 
-  facet_wrap(~ chamber, ncol = 1)
+  facet_wrap(~ chamber)
 dev.off()
 
 merged %>%
