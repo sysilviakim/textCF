@@ -73,9 +73,108 @@ fb_matched <- vec %>%
           mutate(candidate = trimws(gsub('"', "", candidate))),
         .
       ) %>%
-      select(candidate, page_id, page_name, everything()) %>%
+      select(candidate, page_id, page_name, inc, everything()) %>%
       mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
   )
+
+##### Trying to figure out why we're getting NAs
+
+## So, let's establish what we know. Senate as example, because less to search.
+match_sen_list <- as.data.frame(cbind(fb_matched[['senate']]$candidate,
+                                      fb_matched[['senate']]$inc))
+match_sen_list <- unique(match_sen_list)
+cc_sen_list <- as.data.frame(cbind(cong_complete[['senate']]$candidate,
+                                   cong_complete[['senate']]$inc))
+mismatches <- rbind(match_sen_list,cc_sen_list)
+# So, 248 in total...let's see how many of these aren't exact duplicates 
+mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches, 
+                                                 fromLast = TRUE)), ]
+# 118 unique name-incumbency pairings
+## not actually unique names (necessarily), but ones that R thinks are unique
+
+# mismatches contains all the candidate-inc pairings that do not appear in
+# exactly the same manner in fb_matched[['senate]] and cong_complete[['senate]].
+## Some of the names here are folks who didn't have ad library pages at all,
+## so that makes sense. These are many of the ones that appear in all-caps and
+## have an inc variable, but don't have a corresponding pair.
+## Some of them (those without incumbency and without a corresponding name that
+## features the inc variable) do not appear in cong_complete, i.e. Alex Padilla
+## And some of them feature middle initials and/or real names in one, and not in
+## not in the other -- i.e. CHARLES E. SCHUMER and Chuck Schumer
+
+## What I can't figure out are the ones like Amy Klobuchar and Bernie Sanders...
+## What happened with them? Their names appear as they should in cong_complete.
+## Why are they getting messed up?
+
+## Where are these lowercase names coming from? fb_list, it seems. Let's try...
+fb_list[['senate']]$candidate <- toupper(fb_list[['senate']]$candidate)
+# To see if this worked...
+#test <- as.data.frame(unique(fb_list[['senate']]$candidate))
+# yep, it worked...if we redo this step, will it at least sort out these folks?
+
+fb_matched <- vec %>%
+  map(
+    ~ cong_complete[[.x]] %>%
+      ## Joining, by = "candidate"
+      left_join(
+        left_join(fb_list[[.x]], cand_list[[.x]]) %>%
+          rename(state_name = state) %>%
+          mutate(candidate = trimws(gsub('"', "", candidate))),
+        .
+      ) %>%
+      select(candidate, page_id, page_name, inc, everything()) %>%
+      mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
+  )
+match_sen_list <- as.data.frame(cbind(fb_matched[['senate']]$candidate,
+                                      fb_matched[['senate']]$inc))
+match_sen_list <- unique(match_sen_list)
+cc_sen_list <- as.data.frame(cbind(cong_complete[['senate']]$candidate,
+                                   cong_complete[['senate']]$inc))
+mismatches <- rbind(match_sen_list,cc_sen_list)
+mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches, 
+                                                            fromLast = TRUE)), ]
+# This has worked for a significant number of these candidates --
+# where there were 118 mismatches, now there are 68.
+# Will do the same for the House -- hopefully will alleviate things there
+fb_list[['house']]$candidate <- toupper(fb_list[['house']]$candidate)
+# Before we rerun, let's see about the House side of things...
+match_hr_list <- as.data.frame(cbind(fb_matched[['house']]$candidate,
+                                      fb_matched[['house']]$inc))
+match_hr_list <- unique(match_hr_list)
+cc_hr_list <- as.data.frame(cbind(cong_complete[['house']]$candidate,
+                                   cong_complete[['house']]$inc))
+mismatches_hr <- rbind(match_hr_list,cc_hr_list)
+mismatches_hr <- mismatches_hr[!(duplicated(mismatches_hr) | 
+                                   duplicated(mismatches_hr, 
+                                              fromLast = TRUE)), ]
+# 281 mismatches...
+
+fb_matched <- vec %>%
+  map(
+    ~ cong_complete[[.x]] %>%
+      ## Joining, by = "candidate"
+      left_join(
+        left_join(fb_list[[.x]], cand_list[[.x]]) %>%
+          rename(state_name = state) %>%
+          mutate(candidate = trimws(gsub('"', "", candidate))),
+        .
+      ) %>%
+      select(candidate, page_id, page_name, inc, everything()) %>%
+      mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
+  )
+match_hr_list <- as.data.frame(cbind(fb_matched[['house']]$candidate,
+                                     fb_matched[['house']]$inc))
+match_hr_list <- unique(match_hr_list)
+cc_hr_list <- as.data.frame(cbind(cong_complete[['house']]$candidate,
+                                  cong_complete[['house']]$inc))
+mismatches_hr <- rbind(match_hr_list,cc_hr_list)
+mismatches_hr <- mismatches_hr[!(duplicated(mismatches_hr) | 
+                                   duplicated(mismatches_hr, 
+                                              fromLast = TRUE)), ]
+# Still 281...
+
+
+##### Back to Match candidate-level characteristics
 
 assert_that(nrow(fb_list$senate) == nrow(fb_matched$senate))
 assert_that(nrow(fb_list$house) == nrow(fb_matched$house))
