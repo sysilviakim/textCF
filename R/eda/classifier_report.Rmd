@@ -1,0 +1,47 @@
+---
+title: "`r params$title`"
+author: "Ryan Heslin"
+date: "`r format(Sys.Date(), '%B %e, %Y')`"
+header-includes:
+  - \setlength{\parindent}{2em}
+  - \setlength{\parskip}{2em}
+params:
+    title: "Classifying Campaign Images with a Convolutional Neural Network: Initial Report"
+output:
+  pdf_document:
+    highlight: "kate"
+    df_print: "kable"
+url_color: "blue"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = "",
+  fig.pos = "",
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  highlight = TRUE
+)
+
+```
+
+
+```{r, child = here::here("R/eda/classifier.Rmd")}
+```
+
+At present, I see the following areas to improve: 
+\begin{enumerate}
+\item Separating images of text logos from images of candidates. RESNET18, and CNNs 
+generally, are not suited for text recognition, so these training examples are not useful to the model. 
+Separating the two types of images by hand would be tedious but doable, but there may be a programmatic way of.
+doing so
+\item  Customizing the neural network I currently am using RESNET18 almost unmodified. I could try 
+including more weights in gradient computations, or designing my own network with a different (probably simpler).
+architecture
+\item Hyperparameter customization. From my limited knowledge, tuning learning rate, batch size, and other. 
+hyperparameters is largely guesswork, but necessary to produce useful models.
+\item Experimenting with preprocessing. Cropping, flipping, etc., could be used to generate more training examples. `torchvision` has functions for many different transformations.
+\end{enumerate}
+

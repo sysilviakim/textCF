@@ -139,15 +139,18 @@ download_with_extension <- function(path, url, name, tag) {
     destfile = destfile,
     method = "curl"
   )
-  if ((ext <- system(paste("file -b", destfile, "| cut -f1 -d ' '"), intern = TRUE)) == "JPEG") {
-    file.rename(destfile, paste0(destfile, ".jpg"))
-  } else if (ext == "PNG") {
-    file.rename(destfile, paste0(destfile, ".png"))
-  } else {
-    cat("Unknown image type", ext, "\n")
-  }
+  # Does R have a function to get file type?
+  ext <- switch(system(paste0("file -b '", destfile, "' | cut -f1 -d ' '"), intern = TRUE),
+    "JPEG" = ".jpg",
+    "PNG" = ".png",
+    "HTML" = ".html",
+    {
+      cat("Unknown image type", ext, "\n")
+      ""
+    }
+  )
+  file.rename(destfile, paste0(destfile, ext))
 }
-
 image_download_logo_updated <- function(dat, image, name) {
   path <- here("data/raw/2022/winred/logo")
   if (!dir.exists(path)) dir.create(path)
@@ -161,9 +164,15 @@ image_download_logo_updated <- function(dat, image, name) {
 image_download_bgimg_updated <- function(dat, image, name) {
   path <- here("data/raw/2022/winred/bgimg")
   if (!dir.exists(path)) dir.create(path)
-  # Actually downloads .png, not .jpg
   for (i in 1:nrow(dat)) {
     download_with_extension(path, dat[[image]][[i]], dat[[name]][[i]], "_bgimg_")
+    Sys.sleep(3)
+  }
+}
+download_image_to_dir <- function(dat, path, image, name, identifier) {
+  if (!dir.exists(path)) dir.create(path)
+  for (i in seq_len(nrow(dat))) {
+    download_with_extension(path, dat[[image]][[i]], dat[[name]][[i]], identifier)
     Sys.sleep(3)
   }
 }
@@ -208,7 +217,7 @@ images_load <- function(path = here::here("data", "raw", "2022", "winred", "bgim
   if (any(is.na(funs <- funs[tools::file_ext(imgs)]))) {
     stop("Unknown file extension")
   }
-  mapply(rlang::exec, funs[1:20], imgs[1:20])
+  mapply(rlang::exec, funs, imgs)
 }
 
 # Untested because unused
@@ -2205,9 +2214,12 @@ list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
 # Partition a directory containing directories for k image classes into test, train, and validation directories, each with a specified proportion (rounded) of images, stored in k subdirectories
 partition_data_dir <- function(data_dir = here::here("data", "classifier"),
                                proportions = c(train = 0.7, test = 0.15, valid = 0.15),
-                               out_dir = file.path(data_dir, "trump_image")) {
+                               out_dir = file.path(data_dir, "trump_image"),
+                               exclude_dirs = here::here("data/classifier", c("extra_image", "trump_image"))) {
   stopifnot(
     "Data directory must exist" = dir.exists(data_dir),
+    "Data directory mus contain at least one directory marked for processing" = length(to_process <- list.dirs(data_dir, recursive = FALSE) %>%
+      setdiff(exclude_dirs)) > 0,
     "Split proportions must sum to 1" = sum(proportions) == 1,
     "Splits must be named 'train', 'test', and 'valid'" = identical(
       sort(names(proportions)),
@@ -2216,9 +2228,9 @@ partition_data_dir <- function(data_dir = here::here("data", "classifier"),
     "Values must be valid proportions" = all(proportions >= 0 & proportions <= 1),
     "Directories must not already exist" = !any(dir.exists(dirs <- file.path(data_dir, names(proportions))))
   )
-  splits <- lapply(list.dirs(data_dir, recursive = FALSE), partition_class_files, proportions = proportions) %>%
-    unlist(recursive = FALSE)
-  splits <- split(splits, names(splits))
+  splits <- lapply(to_process, partition_class_files, proportions = proportions) %>%
+    unlist(recursive = FALSE) %>%
+    split(names(.))
 
   if (!dir.exists(out_dir)) {
     dir.create(out_dir)

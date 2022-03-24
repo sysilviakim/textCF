@@ -50,3 +50,6 @@ data/tidy/fb_matched.Rda
 data/raw/2022/winred/logo/*.jpg
 
 .DS_Store
+
+# Extra training images
+data/classifier/**/*_extra_*

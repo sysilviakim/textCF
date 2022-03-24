@@ -10,18 +10,15 @@ library(torchvision)
 RESNET18_CONSTANTS <-
   list(mean = c(0.485, 0.456, 0.406), std = c(0.229, 0.224, 0.225))
 DEVICE <- if (cuda_is_available()) torch_device("cuda:0") else "cpu"
-CLASS_NAMES <- c("no_trump", "trump")
+CLASS_NAMES <- c("No Trump" = "no_trump", "Trump" = "trump")
+# Appropriate functions to read different image file types
+IMAGE_FUNS <- list(
+  "jpg" = jpeg::readJPEG,
+  "jpeg" = jpeg::readJPEG,
+  "png" = png::readPNG
+)
 
-# Subclass dataset function to hold images for analysis
-image_dataset <- function(img_path, root, y) {
-  stopifnot(dir.exists(img_path))
-  if (!dir.exists(root)) {
-    dir.create(root)
-  }
-  self$y <- torch_tensor(as.integer(y))
-  .getitem <- function(i) list(x = self$x[, i], y = self$y[i])
-  .length <- function() self$y$size[[1]]
-}
+
 transform_image <- function(img, train = FALSE, dims = c(224, 224)) {
   img <- img[, , -4]
   # first convert image to tensor
@@ -49,8 +46,8 @@ transform_image <- function(img, train = FALSE, dims = c(224, 224)) {
 
 # Adapted from
 # https://stackoverflow.com/questions/23861000/displaying-images-in-r-in-version-3-1-0
-render_image <- function(path) {
-  if ((ext <- tools::file_ext(path)) == "jpg") {
+render_image <- function(path, pause = FALSE) {
+  if ((ext <- tools::file_ext(path)) %in% c("jpg", "jpeg")) {
     image <- jpeg::readJPEG(path, native = TRUE)
     plot(0:1, 0:1, type = "n", ann = FALSE, axes = FALSE)
   } else if (ext == "png") {
@@ -60,8 +57,84 @@ render_image <- function(path) {
     stop("Don't know how to handle extension", ext)
   }
   rasterImage(image, 0, 0, 1, 1)
+  if (pause) Sys.sleep(3)
 }
-# From https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
+
+# Pad matrix along shorter dimension with fill init_value
+# Quick way of making square images for plotting
+pad_matrix <- function(mat, fill = "#FFFFFF") {
+  stopifnot("Fill must match type of matrix" = typeof(mat) == typeof(fill))
+  dims <- dim(mat)
+  out <- if ((difference <- dims[[1]] - dims[[2]]) > 0) {
+    cbind(mat, matrix(fill, nrow = dims[[1]], ncol = difference))
+  } else if (difference < 0) {
+    rbind(mat, matrix(fill, nrow = -difference, ncol = dims[[2]]))
+  } else {
+    mat
+  }
+  as.raster(out)
+}
+
+read_image <- function(path, to_raster = TRUE, drop_alpha = TRUE) {
+  fun <- switch(tools::file_ext(path),
+    "jpg" = ,
+    "jpeg" = jpeg::readJPEG,
+    "png" = png::readPNG,
+    {
+      stop("Unknown image format")
+    }
+  )
+  out <- fun(path)
+  if (to_raster) {
+    out <- as.raster(out)
+  }
+  # Remove alpha (fourth) channel from png, unneeded for neural network
+  if (drop_alpha && length(dim(out)) == 3) {
+    out <- out[, , -4]
+  }
+  out
+}
+
+# Plots all images stored in a directory, chunked into plots of given dimension (default 4 x 4).
+# Crops to square dimensions
+# May cause memory error if given too many images
+inspect_image_directory <- function(path, plot_dims = c(4, 4), shuffle = FALSE) {
+  size <- prod(plot_dims)
+  images <- list.files(path, full.names = TRUE)
+  images <- images[tools::file_ext(images) %in% names(IMAGE_FUNS)]
+  if (shuffle) {
+    images <- images[sample(length(images), length(images), replace = FALSE)]
+  }
+  n_plots <- ceiling(length(images) / size)
+  old <- par(c("mar", "mfcol"))
+  par(mfcol = plot_dims, mar = rep(1, 4))
+
+  # Split list into chunks, each
+  images <- setNames(images, basename(images)) %>%
+    split(rep(seq(n_plots), each = size)[seq_along(images)])
+
+  # Recursively traverses possibly nested list of image rasters and plots them
+  plot_image_list <- function(lst, pause = 0) {
+    if (is.list(lst[[1]])) {
+      lapply(lst, plot_image_list, pause)
+    } else {
+      mapply(function(img, name) {
+        plot(pad_matrix(img))
+        title(name)
+      }, lst, names(lst))
+      Sys.sleep(pause)
+    }
+  }
+
+  lapply(images, function(x) {
+    lapply(x, read_image) %>%
+      plot_image_list(pause = 3)
+  })
+  # Reset plot parameters
+  on.exit(do.call(par, old))
+}
+
+# Copied from https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
 find_lr <- function(train_dl, optimizer, init_value = 1e-8,
                     final_value = 10, beta = 0.98) {
   num <- train_dl$.length()
@@ -107,6 +180,7 @@ train_batch <- function(b) {
   optimizer$step()
   scheduler$step()
   loss$item()
+  # Object configured to convert preds from logits
 }
 
 valid_batch <- function(b) {
@@ -120,45 +194,53 @@ test_batch <- function(b) {
   labels <- b[[2]]$to(device = DEVICE)
   loss <- criterion(output, labels)
 
-  test_losses <<- c(test_losses, loss$item())
-  # torch_max returns a list, with position 1 containing the values
+  # torch_max returns a list, with position 1 containing the values (here log predicted probabilities)
   # and position 2 containing the respective indices
-  predicted <- torch_max(output$data(), dim = 2)[[2]]
-  total <<- total + labels$size(1)
+  out <- nnf_softmax(output$data()$clone()$detach(), dim = 2)
+  results <- data.frame(
+    # Softmax here?
+    actual = as.integer(b$y), prob = as.numeric(out[, 2]),
+    pred_class = as.integer(torch_max(out, dim = 2)[[2]])
+  )
   # add number of correct classifications in this batch to the aggregate
-  correct <<- correct + (predicted == labels)$sum()$item()
+  correct <- sum(results[["pred_class"]] == results[["actual"]])
+  list(results = results, total = labels$size(1), correct = correct, loss = loss$item())
 }
 
 # Generate code to create batch-processing loop with given symbols
-process_batches <- function(dl, batch_fun, loss_vec) {
+process_batches <- function(dl, ...) {
+  dots <- as.list(substitute(list(...)))[-1L]
   dl <- substitute(dl)
-  batch_fun <- substitute(batch_fun)
-  loss_vec <- substitute(loss_vec)
-  bquote({
-    coro::loop(for (b in .(dl)) {
-      loss <- .(batch_fun)(b)
-      .(loss_vec) <- c(.(loss_vec), loss)
-    })
-  })
+  # batch_fun <- substitute(batch_fun)
+  # loss_vec <- substitute(loss_vec)
+  bquote(
+    {
+      coro::loop(for (b in .(dl)) {
+        ..(dots)
+      })
+    },
+    splice = TRUE
+  )
 }
 
 # Plot image tensor - mostly copied from
 # https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/
-inspect_image <- function(batch, plot_dims, class_names = CLASS_NAMES) {
+inspect_image_batch <- function(batch, plot_dims = c(4, 4), class_names = CLASS_NAMES) {
   # Plot dimensions are row by columns
-  classes <- batch[[2]]
-  images <- as.array(batch[[1]]) %>%
-    aperm(perm = c(1, 3, 4, 2)) %>%
-    images() <-
+  classes <- class_names[torch::as_array(batch[[2]])]
+  images <- torch::as_array(batch[[1]]) %>%
+    aperm(perm = c(1, 3, 4, 2))
+  images <-
     (RESNET18_CONSTANTS$std * images + RESNET18_CONSTANTS$mean) * 255
   images[images > 255] <- 255
   images[images < 0] <- 0
 
   par(mfcol = plot_dims, mar = rep(1, 4))
 
+  # replace raw labels with descriptive names, e.g. no_trump -> "No Trump"
   images %>%
     purrr::array_tree(1) %>%
-    purrr::set_names(class_names[purrr::as_array(classes)]) %>%
+    purrr::set_names(names(class_names[match(classes, class_names)])) %>%
     purrr::map(as.raster, max = 255) %>%
     purrr::iwalk(~ {
       plot(.x)
