@@ -193,7 +193,7 @@ temp %>%
   )
 
 # # A tibble: 4 x 6
-#   party      chamber mean_Financial `mean_Voter-targeting` se_Financial `se_Voter-targeting`
+#   party      chamber `mean_Donor-targeting` `mean_Voter-targeting` `se_Donor-targeting` `se_Voter-targ~`
 #   <chr>      <chr>            <dbl>                <dbl>        <dbl>              <dbl>
 # 1 Democrat   Senate           0.520                0.812      0.00455            0.00576
 # 2 Republican Senate           0.551                0.912      0.00795            0.00438

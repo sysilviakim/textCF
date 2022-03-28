@@ -1,29 +1,10 @@
 source(here::here("R", "utilities.R"))
 
-####################################
-# THIS IS A VERY PRELIMINIARY FILE !!!
-####################################
-
 # Load data ====================================================================
 fb_house <- read_rds("data/tidy/fb_perspective_House.RDS")
 fb_senate <- read_rds("data/tidy/fb_perspective_Senate.RDS")
 
 # Substitute with updated classification =======================================
-## (above contains outdated covariates)
-## load(here("data", "tidy", "fb_unique.Rda"))
-## assert_that(nrow(fb_unique$senate) == nrow(fb_senate)) ---> TRUE
-## assert_that(nrow(fb_unique$house) == nrow(fb_house)) ---> why false?
-
-# I thought this would work; it does not
-# fb_senate <- left_join(
-#   fb_senate %>% select(-financial, -donate), 
-#   fb_unique$senate %>% select(-contains("word"))
-# )
-# fb_house <- left_join(
-#   fb_house %>% select(-financial, -donate),
-#   fb_unique$house %>% select(-contains("word"))
-# )
-
 fb_house <- fb_house %>% donate_classify()
 fb_senate <- fb_senate %>% donate_classify()
 
@@ -71,7 +52,7 @@ p1 <- fb_perspective_plot(
   )
 )
 
-pdf(here("fig", "fb_toxic_means_by_type_chamber.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_toxic_means_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(p1)
 dev.off()
 
@@ -84,7 +65,7 @@ p2 <- fb_perspective_plot(
   )
 )
 
-pdf(here("fig", "fb_obscene_means_by_type_chamber.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_obscene_means_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(p2)
 dev.off()
 
@@ -97,7 +78,7 @@ p3 <- fb_perspective_plot(
   )
 )
 
-pdf(here("fig", "fb_identity_means_by_type_chamber.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_identity_means_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(p3)
 dev.off()
 
@@ -111,7 +92,7 @@ p4 <- fb_perspective_plot(
     "Perceived as Rude/Disrespectful/Toxic"
   )
 )
-pdf(here("fig", "fb_toxic_financial_subtypes.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_toxic_financial_subtypes.pdf"), width = 6, height = 2.8)
 print(p4)
 dev.off()
 
@@ -124,7 +105,7 @@ p5 <- fb_perspective_plot(
     "Perceived as Obscene"
   )
 )
-pdf(here("fig", "fb_obscene_financial_subtypes.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_obscene_financial_subtypes.pdf"), width = 6, height = 2.8)
 print(p5)
 dev.off()
 
@@ -137,10 +118,11 @@ p6 <- fb_perspective_plot(
     "Perceived as an Identity Attack"
   )
 )
-pdf(here("fig", "fb_identity_financial_subtypes.pdf"), width = 5, height = 3)
+pdf(here("fig", "fb_identity_financial_subtypes.pdf"), width = 6, height = 2.8)
 print(p6)
 dev.off()
 
+# By party =====================================================================
 candidate_Tox <- fb_house %>%
   group_by(candidate, party) %>%
   dplyr::summarise(
@@ -249,22 +231,19 @@ fb_house %>%
 ggsave("fig/ridges_by_type.pdf", width = 8, height = 6)
 
 
-# EXAMPLES OF TOXIC DEM ADS
-# -------------------------
+# Example of Toxic Ads =========================================================
+
+## Dem
 fb_house %>%
   filter(TOXICITY >= .75) %>%
   filter(party == "DEMOCRAT") %>%
   pull(ad_creative_body)
 
-# EXAMPLES OF TOXIC REP ADS
-# -------------------------
+## Rep
 fb_house %>%
   filter(TOXICITY >= .75) %>%
   filter(party == "REPUBLICAN") %>%
   pull(ad_creative_body)
-
-
-
 
 fb_house %>%
   ggplot(aes(x = TOXICITY)) +
@@ -316,12 +295,7 @@ ggarrange(tox_rep, tox_dem) %>%
 ggsave("fig/SI_ad_level_toxicity.pdf", width = 8, height = 5)
 
 
-######################
-#### Initial ANALYSIS
-######################
-
-
-
+# Initial analysis =============================================================
 fb_house %>%
   group_by(party) %>%
   dplyr::summarise(
@@ -341,8 +315,6 @@ fb_house %>%
   ) %>%
   dplyr::arrange(-Toxic) %>%
   filter(type != "")
-
-
 
 fb_house %>%
   group_by(party, type) %>%

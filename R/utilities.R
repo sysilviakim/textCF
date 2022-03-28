@@ -86,7 +86,7 @@ donate_classify <- function(x) {
         ) ~ "Donor-targeting",
         isTRUE(donate) ~ "Donor-targeting",
         grepl(
-          "Voter-targeting|Government Information|Facebook Page",
+          "Voter-targeting|Non-financial|Government Information|Facebook Page",
           type
         ) ~ "Voter-targeting",
         is.na(type) ~ "Voter-targeting",
@@ -1497,7 +1497,7 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
   p <- df %>%
     ggplot(
       aes(
-        y = type, x = !!as.name(xvar),
+        y = fct_rev(type), x = !!as.name(xvar),
         fill = type, color = type, shape = financial,
         xmax = !!as.name(xvar) + 1.96 * !!as.name(se),
         xmin = !!as.name(xvar) - 1.96 * !!as.name(se)
