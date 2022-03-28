@@ -44,6 +44,11 @@ senate <- cong_filtered$senate %>%
 
 ## 38.7% missing. Ouch!
 sum(is.na(senate$text)) / nrow(senate) * 100 
+
+## Removing any duplicated rows
+senate <- senate %>% distinct()
+# From 181 to 144
+
 save(senate, file = here("data", "tidy", "senate-2020-matched.Rda"))
 
 # Check for missing instances: House ===========================================
@@ -61,4 +66,9 @@ house <- cong_filtered$house %>%
 
 ## 79.0% missing. Yikes!
 sum(is.na(house$text)) / nrow(house) * 100 
+
+## Removing any duplicated rows
+house <- house %>% distinct()
+# From 840 to 823
+
 save(house, file = here("data", "tidy", "house-2020-matched.Rda"))
