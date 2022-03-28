@@ -1,0 +1,5 @@
+<https://spark.widgetmakr.com/widget/render/bc027835-dca5-4dc9-b691-cdb648713f67>; rel="original",
+<http://web.archive.org/web/timemap/link/https://spark.widgetmakr.com/widget/render/bc027835-dca5-4dc9-b691-cdb648713f67>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 04:29:37 GMT",
+<http://web.archive.org/web/https://spark.widgetmakr.com/widget/render/bc027835-dca5-4dc9-b691-cdb648713f67>; rel="timegate",
+<http://web.archive.org/web/20201005042937/https://spark.widgetmakr.com/widget/render/bc027835-dca5-4dc9-b691-cdb648713f67>; rel="first memento"; datetime="Mon, 05 Oct 2020 04:29:37 GMT",
+<http://web.archive.org/web/20201113041602/https://spark.widgetmakr.com/widget/render/bc027835-dca5-4dc9-b691-cdb648713f67>; rel="memento"; datetime="Fri, 13 Nov 2020 04:16:02 GMT",

@@ -1,0 +1,7 @@
+<https://secure.anedot.com/cliff-bentz-for-congress/slug>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/cliff-bentz-for-congress/slug>; rel="self"; type="application/link-format"; from="Wed, 23 Sep 2020 01:00:40 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/cliff-bentz-for-congress/slug>; rel="timegate",
+<http://web.archive.org/web/20200923010040/https://secure.anedot.com/cliff-bentz-for-congress/slug>; rel="first memento"; datetime="Wed, 23 Sep 2020 01:00:40 GMT",
+<http://web.archive.org/web/20201128030550/https://secure.anedot.com/cliff-bentz-for-congress/slug>; rel="memento"; datetime="Sat, 28 Nov 2020 03:05:50 GMT",
+<http://web.archive.org/web/20201212183223/https://secure.anedot.com/cliff-bentz-for-congress/slug>; rel="memento"; datetime="Sat, 12 Dec 2020 18:32:23 GMT",
+<http://web.archive.org/web/20210509040726/https://secure.anedot.com/cliff-bentz-for-congress/slug>; rel="memento"; datetime="Sun, 09 May 2021 04:07:26 GMT",

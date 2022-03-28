@@ -1,0 +1,5 @@
+<https://donorbox.org/embed/tre-pennie-for-congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://donorbox.org/embed/tre-pennie-for-congress>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 11:30:51 GMT",
+<http://web.archive.org/web/https://donorbox.org/embed/tre-pennie-for-congress>; rel="timegate",
+<http://web.archive.org/web/20201005113051/https://donorbox.org/embed/tre-pennie-for-congress>; rel="first memento"; datetime="Mon, 05 Oct 2020 11:30:51 GMT",
+<http://web.archive.org/web/20201213094610/https://donorbox.org/embed/tre-pennie-for-congress>; rel="memento"; datetime="Sun, 13 Dec 2020 09:46:10 GMT",

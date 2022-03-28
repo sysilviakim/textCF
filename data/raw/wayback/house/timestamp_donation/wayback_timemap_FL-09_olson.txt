@@ -1,0 +1,5 @@
+<https://secure.anedot.com/william-olson-for-congress/website>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/william-olson-for-congress/website>; rel="self"; type="application/link-format"; from="Sun, 25 Oct 2020 00:12:52 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/william-olson-for-congress/website>; rel="timegate",
+<http://web.archive.org/web/20201025001252/https://secure.anedot.com/william-olson-for-congress/website>; rel="first memento"; datetime="Sun, 25 Oct 2020 00:12:52 GMT",
+<http://web.archive.org/web/20201212154153/https://secure.anedot.com/william-olson-for-congress/website>; rel="memento"; datetime="Sat, 12 Dec 2020 15:41:53 GMT",

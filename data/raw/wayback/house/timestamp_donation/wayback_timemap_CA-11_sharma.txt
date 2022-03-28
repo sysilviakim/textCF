@@ -1,0 +1,5 @@
+<https://secure.anedot.com/nisha-sharma-for-congress/contribute>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/nisha-sharma-for-congress/contribute>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 21:23:28 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/nisha-sharma-for-congress/contribute>; rel="timegate",
+<http://web.archive.org/web/20201004212328/https://secure.anedot.com/nisha-sharma-for-congress/contribute>; rel="first memento"; datetime="Sun, 04 Oct 2020 21:23:28 GMT",
+<http://web.archive.org/web/20201212145608/https://secure.anedot.com/nisha-sharma-for-congress/contribute>; rel="memento"; datetime="Sat, 12 Dec 2020 14:56:08 GMT",

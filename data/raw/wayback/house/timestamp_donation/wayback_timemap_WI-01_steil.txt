@@ -1,0 +1,6 @@
+<https://secure.winred.com/steilforwisconsin/contribute>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/steilforwisconsin/contribute>; rel="self"; type="application/link-format"; from="Sat, 28 Nov 2020 08:16:39 GMT",
+<http://web.archive.org/web/https://secure.winred.com/steilforwisconsin/contribute>; rel="timegate",
+<http://web.archive.org/web/20201128081639/https://secure.winred.com/steilforwisconsin/contribute>; rel="first memento"; datetime="Sat, 28 Nov 2020 08:16:39 GMT",
+<http://web.archive.org/web/20201213103102/https://secure.winred.com/steilforwisconsin/contribute>; rel="memento"; datetime="Sun, 13 Dec 2020 10:31:02 GMT",
+<http://web.archive.org/web/20210508181949/https://secure.winred.com/steilforwisconsin/contribute>; rel="memento"; datetime="Sat, 08 May 2021 18:19:49 GMT",

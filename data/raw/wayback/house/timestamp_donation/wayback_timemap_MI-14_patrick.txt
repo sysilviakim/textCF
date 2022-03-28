@@ -1,0 +1,4 @@
+<https://donorbox.org/r-vance-patrick-4-congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://donorbox.org/r-vance-patrick-4-congress>; rel="self"; type="application/link-format"; from="Sun, 13 Dec 2020 05:26:46 GMT",
+<http://web.archive.org/web/https://donorbox.org/r-vance-patrick-4-congress>; rel="timegate",
+<http://web.archive.org/web/20201213052646/https://donorbox.org/r-vance-patrick-4-congress>; rel="first memento"; datetime="Sun, 13 Dec 2020 05:26:46 GMT",

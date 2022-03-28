@@ -1,0 +1,5 @@
+<https://secure.anedot.com/mauro-garza/website-splash>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/mauro-garza/website-splash>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 01:03:06 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/mauro-garza/website-splash>; rel="timegate",
+<http://web.archive.org/web/20201005010306/https://secure.anedot.com/mauro-garza/website-splash>; rel="first memento"; datetime="Mon, 05 Oct 2020 01:03:06 GMT",
+<http://web.archive.org/web/20201212192234/https://secure.anedot.com/mauro-garza/website-splash>; rel="memento"; datetime="Sat, 12 Dec 2020 19:22:34 GMT",

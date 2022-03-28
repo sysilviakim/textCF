@@ -1,0 +1,7 @@
+<https://secure.actblue.com/donate/firstphase20>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/firstphase20>; rel="self"; type="application/link-format"; from="Sun, 01 Nov 2020 03:59:08 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/firstphase20>; rel="timegate",
+<http://web.archive.org/web/20201101035908/https://secure.actblue.com/donate/firstphase20>; rel="first memento"; datetime="Sun, 01 Nov 2020 03:59:08 GMT",
+<http://web.archive.org/web/20201112080730/https://secure.actblue.com/donate/firstphase20>; rel="memento"; datetime="Thu, 12 Nov 2020 08:07:30 GMT",
+<http://web.archive.org/web/20201205183414/https://secure.actblue.com/donate/firstphase20>; rel="memento"; datetime="Sat, 05 Dec 2020 18:34:14 GMT",
+<http://web.archive.org/web/20201212103715/https://secure.actblue.com/donate/firstphase20>; rel="memento"; datetime="Sat, 12 Dec 2020 10:37:15 GMT",

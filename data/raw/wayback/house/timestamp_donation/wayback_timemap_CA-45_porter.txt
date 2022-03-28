@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/wb-1020>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/wb-1020>; rel="self"; type="application/link-format"; from="Wed, 14 Oct 2020 15:53:51 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/wb-1020>; rel="timegate",
+<http://web.archive.org/web/20201014155351/https://secure.actblue.com/donate/wb-1020>; rel="first memento"; datetime="Wed, 14 Oct 2020 15:53:51 GMT",
+<http://web.archive.org/web/20201023120441/https://secure.actblue.com/donate/wb-1020>; rel="memento"; datetime="Fri, 23 Oct 2020 12:04:41 GMT",
+<http://web.archive.org/web/20201101095039/https://secure.actblue.com/donate/wb-1020>; rel="memento"; datetime="Sun, 01 Nov 2020 09:50:39 GMT",
+<http://web.archive.org/web/20201205123628/https://secure.actblue.com/donate/wb-1020>; rel="memento"; datetime="Sat, 05 Dec 2020 12:36:28 GMT",
+<http://web.archive.org/web/20201212063007/https://secure.actblue.com/donate/wb-1020>; rel="memento"; datetime="Sat, 12 Dec 2020 06:30:07 GMT",

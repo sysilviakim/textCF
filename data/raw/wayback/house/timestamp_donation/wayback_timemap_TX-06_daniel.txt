@@ -1,0 +1,7 @@
+<https://secure.actblue.com/donate/sd-new-web>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/sd-new-web>; rel="self"; type="application/link-format"; from="Sat, 03 Oct 2020 18:19:12 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/sd-new-web>; rel="timegate",
+<http://web.archive.org/web/20201003181912/https://secure.actblue.com/donate/sd-new-web>; rel="first memento"; datetime="Sat, 03 Oct 2020 18:19:12 GMT",
+<http://web.archive.org/web/20201024212741/https://secure.actblue.com/donate/sd-new-web>; rel="memento"; datetime="Sat, 24 Oct 2020 21:27:41 GMT",
+<http://web.archive.org/web/20201101102615/https://secure.actblue.com/donate/sd-new-web>; rel="memento"; datetime="Sun, 01 Nov 2020 10:26:15 GMT",
+<http://web.archive.org/web/20201212130433/https://secure.actblue.com/donate/sd-new-web>; rel="memento"; datetime="Sat, 12 Dec 2020 13:04:33 GMT",

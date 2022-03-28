@@ -1,0 +1,7 @@
+<https://secure.winred.com/TrentKelly/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/TrentKelly/donate>; rel="self"; type="application/link-format"; from="Mon, 14 Oct 2019 02:48:22 GMT",
+<http://web.archive.org/web/https://secure.winred.com/TrentKelly/donate>; rel="timegate",
+<http://web.archive.org/web/20191014024822/https://secure.winred.com/TrentKelly/donate>; rel="first memento"; datetime="Mon, 14 Oct 2019 02:48:22 GMT",
+<http://web.archive.org/web/20201005065832/https://secure.winred.com/TrentKelly/donate>; rel="memento"; datetime="Mon, 05 Oct 2020 06:58:32 GMT",
+<http://web.archive.org/web/20201112201923/https://secure.winred.com/trentkelly/donate>; rel="memento"; datetime="Thu, 12 Nov 2020 20:19:23 GMT",
+<http://web.archive.org/web/20201213053730/https://secure.winred.com/TrentKelly/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 05:37:30 GMT",

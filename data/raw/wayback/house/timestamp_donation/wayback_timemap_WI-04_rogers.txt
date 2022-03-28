@@ -1,0 +1,8 @@
+<https://www.rogersforwisconsin.com/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://www.rogersforwisconsin.com/donate>; rel="self"; type="application/link-format"; from="Sat, 31 Oct 2020 21:32:46 GMT",
+<http://web.archive.org/web/https://www.rogersforwisconsin.com/donate>; rel="timegate",
+<http://web.archive.org/web/20201031213246/https://www.rogersforwisconsin.com/donate>; rel="first memento"; datetime="Sat, 31 Oct 2020 21:32:46 GMT",
+<http://web.archive.org/web/20201105043954/https://www.rogersforwisconsin.com/donate>; rel="memento"; datetime="Thu, 05 Nov 2020 04:39:54 GMT",
+<http://web.archive.org/web/20201213103830/https://www.rogersforwisconsin.com/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 10:38:30 GMT",
+<http://web.archive.org/web/20210122115238/https://www.rogersforwisconsin.com/donate>; rel="memento"; datetime="Fri, 22 Jan 2021 11:52:38 GMT",
+<http://web.archive.org/web/20210506052325/https://www.rogersforwisconsin.com/donate>; rel="memento"; datetime="Thu, 06 May 2021 05:23:25 GMT",

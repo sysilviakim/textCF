@@ -1,0 +1,6 @@
+<https://secure.anedot.com/lance-harris-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/lance-harris-for-congress/donate>; rel="self"; type="application/link-format"; from="Sat, 04 Jul 2020 16:35:02 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/lance-harris-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20200704163502/https://secure.anedot.com/lance-harris-for-congress/donate>; rel="first memento"; datetime="Sat, 04 Jul 2020 16:35:02 GMT",
+<http://web.archive.org/web/20201113040738/https://secure.anedot.com/lance-harris-for-congress/donate>; rel="memento"; datetime="Fri, 13 Nov 2020 04:07:38 GMT",
+<http://web.archive.org/web/20201212170048/https://secure.anedot.com/lance-harris-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 17:00:48 GMT",

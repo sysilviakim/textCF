@@ -1,0 +1,7 @@
+<https://secure.anedot.com/johnson-for-congress/johnsonforcongress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/johnson-for-congress/johnsonforcongress>; rel="self"; type="application/link-format"; from="Wed, 23 Sep 2020 00:29:40 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/johnson-for-congress/johnsonforcongress>; rel="timegate",
+<http://web.archive.org/web/20200923002940/https://secure.anedot.com/johnson-for-congress/johnsonforcongress>; rel="first memento"; datetime="Wed, 23 Sep 2020 00:29:40 GMT",
+<http://web.archive.org/web/20201005001849/https://secure.anedot.com/johnson-for-congress/johnsonforcongress>; rel="memento"; datetime="Mon, 05 Oct 2020 00:18:49 GMT",
+<http://web.archive.org/web/20201212181918/https://secure.anedot.com/johnson-for-congress/johnsonforcongress>; rel="memento"; datetime="Sat, 12 Dec 2020 18:19:18 GMT",
+<http://web.archive.org/web/20210509041432/https://secure.anedot.com/johnson-for-congress/johnsonforcongress>; rel="memento"; datetime="Sun, 09 May 2021 04:14:32 GMT",

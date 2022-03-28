@@ -1,0 +1,8 @@
+<https://secure.anedot.com/helen-brady-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/helen-brady-for-congress/donate>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 22:50:48 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/helen-brady-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20201004225048/https://secure.anedot.com/helen-brady-for-congress/donate>; rel="first memento"; datetime="Sun, 04 Oct 2020 22:50:48 GMT",
+<http://web.archive.org/web/20201112224650/https://secure.anedot.com/helen-brady-for-congress/donate>; rel="memento"; datetime="Thu, 12 Nov 2020 22:46:50 GMT",
+<http://web.archive.org/web/20201112225126/https://secure.anedot.com/helen-brady-for-congress/donate>; rel="memento"; datetime="Thu, 12 Nov 2020 22:51:26 GMT",
+<http://web.archive.org/web/20201126150206/https://secure.anedot.com/helen-brady-for-congress/donate>; rel="memento"; datetime="Thu, 26 Nov 2020 15:02:06 GMT",
+<http://web.archive.org/web/20210514185940/https://secure.anedot.com/helen-brady-for-congress/donate>; rel="memento"; datetime="Fri, 14 May 2021 18:59:40 GMT",

@@ -1,0 +1,5 @@
+<https://secure.anedot.com/winn-for-colorado/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/winn-for-colorado/donate>; rel="self"; type="application/link-format"; from="Sat, 24 Oct 2020 23:52:06 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/winn-for-colorado/donate>; rel="timegate",
+<http://web.archive.org/web/20201024235206/https://secure.anedot.com/winn-for-colorado/donate>; rel="first memento"; datetime="Sat, 24 Oct 2020 23:52:06 GMT",
+<http://web.archive.org/web/20201212151458/https://secure.anedot.com/winn-for-colorado/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 15:14:58 GMT",

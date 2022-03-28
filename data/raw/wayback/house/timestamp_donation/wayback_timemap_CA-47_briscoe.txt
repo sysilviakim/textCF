@@ -1,0 +1,4 @@
+<https://secure.anedot.com/johnbriscoe/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/johnbriscoe/donate>; rel="self"; type="application/link-format"; from="Fri, 06 Nov 2020 19:50:32 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/johnbriscoe/donate>; rel="timegate",
+<http://web.archive.org/web/20201106195032/https://secure.anedot.com/johnbriscoe/donate>; rel="first memento"; datetime="Fri, 06 Nov 2020 19:50:32 GMT",

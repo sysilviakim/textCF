@@ -1,0 +1,7 @@
+<https://secure.actblue.com/donate/jamesia-james-for-us-senate-1>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/jamesia-james-for-us-senate-1>; rel="self"; type="application/link-format"; from="Fri, 12 Jun 2020 03:27:10 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/jamesia-james-for-us-senate-1>; rel="timegate",
+<http://web.archive.org/web/20200612032710/https://secure.actblue.com/donate/jamesia-james-for-us-senate-1>; rel="first memento"; datetime="Fri, 12 Jun 2020 03:27:10 GMT",
+<http://web.archive.org/web/20200816201450/https://secure.actblue.com/donate/jamesia-james-for-us-senate-1>; rel="memento"; datetime="Sun, 16 Aug 2020 20:14:50 GMT",
+<http://web.archive.org/web/20201106034102/https://secure.actblue.com/donate/jamesia-james-for-us-senate-1>; rel="memento"; datetime="Fri, 06 Nov 2020 03:41:02 GMT",
+<http://web.archive.org/web/20211006001544/https://secure.actblue.com/donate/jamesia-james-for-us-senate-1>; rel="memento"; datetime="Wed, 06 Oct 2021 00:15:44 GMT",

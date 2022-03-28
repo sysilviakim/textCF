@@ -1,0 +1,5 @@
+<https://secure.winred.com/scotty-robinson-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/scotty-robinson-for-congress/donate>; rel="self"; type="application/link-format"; from="Fri, 13 Nov 2020 04:11:24 GMT",
+<http://web.archive.org/web/https://secure.winred.com/scotty-robinson-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20201113041124/https://secure.winred.com/scotty-robinson-for-congress/donate>; rel="first memento"; datetime="Fri, 13 Nov 2020 04:11:24 GMT",
+<http://web.archive.org/web/20201213044001/https://secure.winred.com/scotty-robinson-for-congress/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 04:40:01 GMT",

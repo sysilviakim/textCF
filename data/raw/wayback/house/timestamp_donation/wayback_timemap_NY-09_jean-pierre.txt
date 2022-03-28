@@ -1,0 +1,8 @@
+<https://secure.anedot.com/constintin-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/constintin-for-congress/donate>; rel="self"; type="application/link-format"; from="Sun, 15 Nov 2020 04:30:09 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/constintin-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20201115043009/https://secure.anedot.com/constintin-for-congress/donate>; rel="first memento"; datetime="Sun, 15 Nov 2020 04:30:09 GMT",
+<http://web.archive.org/web/20201116194453/https://secure.anedot.com/constintin-for-congress/donate>; rel="memento"; datetime="Mon, 16 Nov 2020 19:44:53 GMT",
+<http://web.archive.org/web/20201203065845/https://secure.anedot.com/constintin-for-congress/donate>; rel="memento"; datetime="Thu, 03 Dec 2020 06:58:45 GMT",
+<http://web.archive.org/web/20201203143301/https://secure.anedot.com/constintin-for-congress/donate>; rel="memento"; datetime="Thu, 03 Dec 2020 14:33:01 GMT",
+<http://web.archive.org/web/20201212174746/https://secure.anedot.com/constintin-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 17:47:46 GMT",

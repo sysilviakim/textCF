@@ -1,0 +1,7 @@
+<https://politics.raisethemoney.com/hipvtk9lopqvrdicigeuzw>; rel="original",
+<http://web.archive.org/web/timemap/link/https://politics.raisethemoney.com/hipvtk9lopqvrdicigeuzw>; rel="self"; type="application/link-format"; from="Sat, 26 Sep 2020 07:59:34 GMT",
+<http://web.archive.org/web/https://politics.raisethemoney.com/hipvtk9lopqvrdicigeuzw>; rel="timegate",
+<http://web.archive.org/web/20200926075934/https://politics.raisethemoney.com/hipvtk9lopqvrdicigeuzw>; rel="first memento"; datetime="Sat, 26 Sep 2020 07:59:34 GMT",
+<http://web.archive.org/web/20201005041904/https://politics.raisethemoney.com/hipvtk9lopqvrdicigeuzw>; rel="memento"; datetime="Mon, 05 Oct 2020 04:19:04 GMT",
+<http://web.archive.org/web/20201125160519/https://politics.raisethemoney.com/hipvtk9lopqvrdicigeuzw>; rel="memento"; datetime="Wed, 25 Nov 2020 16:05:19 GMT",
+<http://web.archive.org/web/20201212213118/https://politics.raisethemoney.com/hipvtk9lopqvrdicigeuzw>; rel="memento"; datetime="Sat, 12 Dec 2020 21:31:18 GMT",

@@ -1,0 +1,7 @@
+<https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f>; rel="original",
+<http://web.archive.org/web/timemap/link/https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f>; rel="self"; type="application/link-format"; from="Sat, 14 Mar 2020 13:18:30 GMT",
+<http://web.archive.org/web/https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f>; rel="timegate",
+<http://web.archive.org/web/20200314131830/https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f>; rel="first memento"; datetime="Sat, 14 Mar 2020 13:18:30 GMT",
+<http://web.archive.org/web/20201112201614/https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f>; rel="memento"; datetime="Thu, 12 Nov 2020 20:16:14 GMT",
+<http://web.archive.org/web/20201213055018/https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f>; rel="memento"; datetime="Sun, 13 Dec 2020 05:50:18 GMT",
+<http://web.archive.org/web/20210508234905/https://www.campaigncontribution.com/payment/contribution/info/57fe9544-1eb0-4626-bbf2-786b57def75f>; rel="memento"; datetime="Sat, 08 May 2021 23:49:05 GMT",

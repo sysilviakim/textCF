@@ -1,0 +1,8 @@
+<https://secure.anedot.com/collins-for-senate/website>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/collins-for-senate/website>; rel="self"; type="application/link-format"; from="Wed, 17 Jun 2020 11:00:37 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/collins-for-senate/website>; rel="timegate",
+<http://web.archive.org/web/20200617110037/https://secure.anedot.com/collins-for-senate/website>; rel="first memento"; datetime="Wed, 17 Jun 2020 11:00:37 GMT",
+<http://web.archive.org/web/20200920113446/https://secure.anedot.com/collins-for-senate/website>; rel="memento"; datetime="Sun, 20 Sep 2020 11:34:46 GMT",
+<http://web.archive.org/web/20201018125909/https://secure.anedot.com/collins-for-senate/website>; rel="memento"; datetime="Sun, 18 Oct 2020 12:59:09 GMT",
+<http://web.archive.org/web/20201107044330/https://secure.anedot.com/collins-for-senate/website>; rel="memento"; datetime="Sat, 07 Nov 2020 04:43:30 GMT",
+<http://web.archive.org/web/20201118020323/https://secure.anedot.com/collins-for-senate/website>; rel="memento"; datetime="Wed, 18 Nov 2020 02:03:23 GMT",

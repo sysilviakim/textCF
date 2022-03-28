@@ -1,0 +1,6 @@
+<https://mystique.victorypassport.com/pages/burr/post-election-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fburr%2Fcontribute>; rel="original",
+<http://web.archive.org/web/timemap/link/https://mystique.victorypassport.com/pages/burr/post-election-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fburr%2Fcontribute>; rel="self"; type="application/link-format"; from="Thu, 03 Dec 2020 04:38:51 GMT",
+<http://web.archive.org/web/https://mystique.victorypassport.com/pages/burr/post-election-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fburr%2Fcontribute>; rel="timegate",
+<http://web.archive.org/web/20201203043851/https://mystique.victorypassport.com/pages/burr/post-election-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fburr%2Fcontribute>; rel="first memento"; datetime="Thu, 03 Dec 2020 04:38:51 GMT",
+<http://web.archive.org/web/20201208210601/https://mystique.victorypassport.com/pages/burr/post-election-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fburr%2Fcontribute>; rel="memento"; datetime="Tue, 08 Dec 2020 21:06:01 GMT",
+<http://web.archive.org/web/20210205220536/https://mystique.victorypassport.com/pages/burr/post-election-donation-page?location=https%3A%2F%2Fgive.victorypassport.com%2Fburr%2Fcontribute>; rel="memento"; datetime="Fri, 05 Feb 2021 22:05:36 GMT",

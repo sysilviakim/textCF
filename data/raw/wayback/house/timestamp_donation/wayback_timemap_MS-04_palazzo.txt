@@ -1,0 +1,5 @@
+<https://secure.anedot.com/palazzo-for-congress/general-fund-c2c76715b06>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/palazzo-for-congress/general-fund-c2c76715b06>; rel="self"; type="application/link-format"; from="Sat, 12 Dec 2020 17:23:35 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/palazzo-for-congress/general-fund-c2c76715b06>; rel="timegate",
+<http://web.archive.org/web/20201212172335/https://secure.anedot.com/palazzo-for-congress/general-fund-c2c76715b06>; rel="first memento"; datetime="Sat, 12 Dec 2020 17:23:35 GMT",
+<http://web.archive.org/web/20210509044429/https://secure.anedot.com/palazzo-for-congress/general-fund-c2c76715b06>; rel="memento"; datetime="Sun, 09 May 2021 04:44:29 GMT",

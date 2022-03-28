@@ -1,0 +1,6 @@
+<https://www.paypal.com/donate?token=xEa4_D4_BaL32THOhbaEyarZ0hpoe9ItFXgzzJxWGchMs_B_rLzv4JlSX53AP1KbY5IWM2uu-dPOIbQx>; rel="original",
+<http://web.archive.org/web/timemap/link/https://www.paypal.com/donate?token=xEa4_D4_BaL32THOhbaEyarZ0hpoe9ItFXgzzJxWGchMs_B_rLzv4JlSX53AP1KbY5IWM2uu-dPOIbQx>; rel="self"; type="application/link-format"; from="Sun, 13 Dec 2020 10:21:44 GMT",
+<http://web.archive.org/web/https://www.paypal.com/donate?token=xEa4_D4_BaL32THOhbaEyarZ0hpoe9ItFXgzzJxWGchMs_B_rLzv4JlSX53AP1KbY5IWM2uu-dPOIbQx>; rel="timegate",
+<http://web.archive.org/web/20201213102144/https://www.paypal.com/donate?token=xEa4_D4_BaL32THOhbaEyarZ0hpoe9ItFXgzzJxWGchMs_B_rLzv4JlSX53AP1KbY5IWM2uu-dPOIbQx>; rel="first memento"; datetime="Sun, 13 Dec 2020 10:21:44 GMT",
+<http://web.archive.org/web/20211021163420/https://www.paypal.com/donate?token=xEa4_D4_BaL32THOhbaEyarZ0hpoe9ItFXgzzJxWGchMs_B_rLzv4JlSX53AP1KbY5IWM2uu-dPOIbQx>; rel="memento"; datetime="Thu, 21 Oct 2021 16:34:20 GMT",
+<http://web.archive.org/web/20211021163421/https://www.paypal.com/donate/?token=xEa4_D4_BaL32THOhbaEyarZ0hpoe9ItFXgzzJxWGchMs_B_rLzv4JlSX53AP1KbY5IWM2uu-dPOIbQx>; rel="memento"; datetime="Thu, 21 Oct 2021 16:34:21 GMT",

@@ -1,0 +1,7 @@
+<https://secure.actblue.com/donate/founding-donor-nj-04>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/founding-donor-nj-04>; rel="self"; type="application/link-format"; from="Thu, 25 Jun 2020 01:19:09 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/founding-donor-nj-04>; rel="timegate",
+<http://web.archive.org/web/20200625011909/https://secure.actblue.com/donate/founding-donor-nj-04>; rel="first memento"; datetime="Thu, 25 Jun 2020 01:19:09 GMT",
+<http://web.archive.org/web/20201101012330/https://secure.actblue.com/donate/founding-donor-nj-04>; rel="memento"; datetime="Sun, 01 Nov 2020 01:23:30 GMT",
+<http://web.archive.org/web/20201205181922/https://secure.actblue.com/donate/founding-donor-nj-04>; rel="memento"; datetime="Sat, 05 Dec 2020 18:19:22 GMT",
+<http://web.archive.org/web/20201212102806/https://secure.actblue.com/donate/founding-donor-nj-04>; rel="memento"; datetime="Sat, 12 Dec 2020 10:28:06 GMT",

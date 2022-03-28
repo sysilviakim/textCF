@@ -1,0 +1,8 @@
+<https://secure.winred.com/michaelburgess/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/michaelburgess/donate>; rel="self"; type="application/link-format"; from="Sat, 14 Nov 2020 04:49:12 GMT",
+<http://web.archive.org/web/https://secure.winred.com/michaelburgess/donate>; rel="timegate",
+<http://web.archive.org/web/20201114044912/https://secure.winred.com/michaelburgess/donate>; rel="first memento"; datetime="Sat, 14 Nov 2020 04:49:12 GMT",
+<http://web.archive.org/web/20201213093622/https://secure.winred.com/michaelburgess/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 09:36:22 GMT",
+<http://web.archive.org/web/20210331040312/https://secure.winred.com/michaelburgess/donate>; rel="memento"; datetime="Wed, 31 Mar 2021 04:03:12 GMT",
+<http://web.archive.org/web/20210416005250/https://secure.winred.com/michaelburgess/donate>; rel="memento"; datetime="Fri, 16 Apr 2021 00:52:50 GMT",
+<http://web.archive.org/web/20210508190449/https://secure.winred.com/michaelburgess/donate>; rel="memento"; datetime="Sat, 08 May 2021 19:04:49 GMT",

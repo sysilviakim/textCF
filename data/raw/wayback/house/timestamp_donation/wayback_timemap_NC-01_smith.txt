@@ -1,0 +1,6 @@
+<https://secure.anedot.com/sandysmithforcongress/website>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/sandysmithforcongress/website>; rel="self"; type="application/link-format"; from="Sat, 26 Sep 2020 12:16:54 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/sandysmithforcongress/website>; rel="timegate",
+<http://web.archive.org/web/20200926121654/https://secure.anedot.com/sandysmithforcongress/website>; rel="first memento"; datetime="Sat, 26 Sep 2020 12:16:54 GMT",
+<http://web.archive.org/web/20201004235218/https://secure.anedot.com/sandysmithforcongress/website>; rel="memento"; datetime="Sun, 04 Oct 2020 23:52:18 GMT",
+<http://web.archive.org/web/20201212180329/https://secure.anedot.com/sandysmithforcongress/website>; rel="memento"; datetime="Sat, 12 Dec 2020 18:03:29 GMT",

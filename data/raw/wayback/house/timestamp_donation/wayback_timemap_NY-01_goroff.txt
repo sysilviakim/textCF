@@ -1,0 +1,7 @@
+<https://secure.actblue.com/donate/goroff-website-new>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/goroff-website-new>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 23:58:39 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/goroff-website-new>; rel="timegate",
+<http://web.archive.org/web/20201004235839/https://secure.actblue.com/donate/goroff-website-new>; rel="first memento"; datetime="Sun, 04 Oct 2020 23:58:39 GMT",
+<http://web.archive.org/web/20201101103838/https://secure.actblue.com/donate/goroff-website-new>; rel="memento"; datetime="Sun, 01 Nov 2020 10:38:38 GMT",
+<http://web.archive.org/web/20201205184121/https://secure.actblue.com/donate/goroff-website-new>; rel="memento"; datetime="Sat, 05 Dec 2020 18:41:21 GMT",
+<http://web.archive.org/web/20201212104128/https://secure.actblue.com/donate/goroff-website-new>; rel="memento"; datetime="Sat, 12 Dec 2020 10:41:28 GMT",

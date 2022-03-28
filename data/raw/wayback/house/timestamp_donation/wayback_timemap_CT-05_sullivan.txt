@@ -1,0 +1,4 @@
+<https://secure.anedot.com/sullivan-for-congress/davidxsullivanforuscongresswebe>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/sullivan-for-congress/davidxsullivanforuscongresswebe>; rel="self"; type="application/link-format"; from="Sat, 12 Dec 2020 15:30:05 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/sullivan-for-congress/davidxsullivanforuscongresswebe>; rel="timegate",
+<http://web.archive.org/web/20201212153005/https://secure.anedot.com/sullivan-for-congress/davidxsullivanforuscongresswebe>; rel="first memento"; datetime="Sat, 12 Dec 2020 15:30:05 GMT",

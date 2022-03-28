@@ -1,0 +1,6 @@
+<https://secure.anedot.com/morgan-griffith-for-congress/general-fund-cc55814784b004afc52ae>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/morgan-griffith-for-congress/general-fund-cc55814784b004afc52ae>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 01:47:00 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/morgan-griffith-for-congress/general-fund-cc55814784b004afc52ae>; rel="timegate",
+<http://web.archive.org/web/20201005014700/https://secure.anedot.com/morgan-griffith-for-congress/general-fund-cc55814784b004afc52ae>; rel="first memento"; datetime="Mon, 05 Oct 2020 01:47:00 GMT",
+<http://web.archive.org/web/20201212194336/https://secure.anedot.com/morgan-griffith-for-congress/general-fund-cc55814784b004afc52ae>; rel="memento"; datetime="Sat, 12 Dec 2020 19:43:36 GMT",
+<http://web.archive.org/web/20210509032920/https://secure.anedot.com/morgan-griffith-for-congress/general-fund-cc55814784b004afc52ae>; rel="memento"; datetime="Sun, 09 May 2021 03:29:20 GMT",

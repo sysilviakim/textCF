@@ -1,0 +1,4 @@
+<https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=ACFV55976HUH6&source=url>; rel="original",
+<http://web.archive.org/web/timemap/link/https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=ACFV55976HUH6&source=url>; rel="self"; type="application/link-format"; from="Sun, 13 Dec 2020 05:23:30 GMT",
+<http://web.archive.org/web/https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=ACFV55976HUH6&source=url>; rel="timegate",
+<http://web.archive.org/web/20201213052330/https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=ACFV55976HUH6&source=url>; rel="first memento"; datetime="Sun, 13 Dec 2020 05:23:30 GMT",

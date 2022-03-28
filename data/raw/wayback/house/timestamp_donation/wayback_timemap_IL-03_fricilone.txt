@@ -1,0 +1,7 @@
+<https://secure.anedot.com/fricilone-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/fricilone-for-congress/donate>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 22:03:23 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/fricilone-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20201004220323/https://secure.anedot.com/fricilone-for-congress/donate>; rel="first memento"; datetime="Sun, 04 Oct 2020 22:03:23 GMT",
+<http://web.archive.org/web/20201112204525/https://secure.anedot.com/fricilone-for-congress/donate>; rel="memento"; datetime="Thu, 12 Nov 2020 20:45:25 GMT",
+<http://web.archive.org/web/20201115032438/https://secure.anedot.com/fricilone-for-congress/donate>; rel="memento"; datetime="Sun, 15 Nov 2020 03:24:38 GMT",
+<http://web.archive.org/web/20201212162446/https://secure.anedot.com/fricilone-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 16:24:46 GMT",

@@ -1,0 +1,8 @@
+<https://secure.winred.com/toddyoung>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/toddyoung>; rel="self"; type="application/link-format"; from="Sun, 18 Oct 2020 14:16:32 GMT",
+<http://web.archive.org/web/https://secure.winred.com/toddyoung>; rel="timegate",
+<http://web.archive.org/web/20201018141632/https://secure.winred.com/toddyoung>; rel="first memento"; datetime="Sun, 18 Oct 2020 14:16:32 GMT",
+<http://web.archive.org/web/20201107062102/https://secure.winred.com/toddyoung>; rel="memento"; datetime="Sat, 07 Nov 2020 06:21:02 GMT",
+<http://web.archive.org/web/20201203034540/https://secure.winred.com/toddyoung>; rel="memento"; datetime="Thu, 03 Dec 2020 03:45:40 GMT",
+<http://web.archive.org/web/20201208200757/https://secure.winred.com/toddyoung>; rel="memento"; datetime="Tue, 08 Dec 2020 20:07:57 GMT",
+<http://web.archive.org/web/20210205212703/https://secure.winred.com/toddyoung>; rel="memento"; datetime="Fri, 05 Feb 2021 21:27:03 GMT",

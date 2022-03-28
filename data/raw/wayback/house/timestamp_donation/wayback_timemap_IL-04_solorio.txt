@@ -1,0 +1,7 @@
+<https://secure.winred.com/solorio-for-congress/imjesus>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/solorio-for-congress/imjesus>; rel="self"; type="application/link-format"; from="Fri, 30 Oct 2020 13:00:21 GMT",
+<http://web.archive.org/web/https://secure.winred.com/solorio-for-congress/imjesus>; rel="timegate",
+<http://web.archive.org/web/20201030130021/https://secure.winred.com/solorio-for-congress/imjesus>; rel="first memento"; datetime="Fri, 30 Oct 2020 13:00:21 GMT",
+<http://web.archive.org/web/20201112203457/https://secure.winred.com/solorio-for-congress/imjesus>; rel="memento"; datetime="Thu, 12 Nov 2020 20:34:57 GMT",
+<http://web.archive.org/web/20201116083744/https://secure.winred.com/solorio-for-congress/imjesus>; rel="memento"; datetime="Mon, 16 Nov 2020 08:37:44 GMT",
+<http://web.archive.org/web/20201212224345/https://secure.winred.com/solorio-for-congress/imjesus>; rel="memento"; datetime="Sat, 12 Dec 2020 22:43:45 GMT",

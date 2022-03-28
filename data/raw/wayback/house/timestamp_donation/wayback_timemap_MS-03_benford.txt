@@ -1,0 +1,7 @@
+<https://secure.actblue.com/donate/dorothydotbenford4congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/dorothydotbenford4congress>; rel="self"; type="application/link-format"; from="Sun, 01 Nov 2020 06:42:11 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/dorothydotbenford4congress>; rel="timegate",
+<http://web.archive.org/web/20201101064211/https://secure.actblue.com/donate/dorothydotbenford4congress>; rel="first memento"; datetime="Sun, 01 Nov 2020 06:42:11 GMT",
+<http://web.archive.org/web/20201112202448/https://secure.actblue.com/donate/dorothydotbenford4congress>; rel="memento"; datetime="Thu, 12 Nov 2020 20:24:48 GMT",
+<http://web.archive.org/web/20201205174217/https://secure.actblue.com/donate/dorothydotbenford4congress>; rel="memento"; datetime="Sat, 05 Dec 2020 17:42:17 GMT",
+<http://web.archive.org/web/20201212100240/https://secure.actblue.com/donate/dorothydotbenford4congress>; rel="memento"; datetime="Sat, 12 Dec 2020 10:02:40 GMT",

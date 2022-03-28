@@ -1,0 +1,8 @@
+<http://secure.winred.com/crenshawforcongress/support>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/crenshawforcongress/support>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 05:33:49 GMT",
+<http://web.archive.org/web/https://secure.winred.com/crenshawforcongress/support>; rel="timegate",
+<http://web.archive.org/web/20201004053349/http://secure.winred.com/crenshawforcongress/support>; rel="first memento"; datetime="Sun, 04 Oct 2020 05:33:49 GMT",
+<http://web.archive.org/web/20201213090349/https://secure.winred.com/crenshawforcongress/support>; rel="memento"; datetime="Sun, 13 Dec 2020 09:03:49 GMT",
+<http://web.archive.org/web/20210508192628/https://secure.winred.com/crenshawforcongress/support>; rel="memento"; datetime="Sat, 08 May 2021 19:26:28 GMT",
+<http://web.archive.org/web/20211022051013/https://secure.winred.com/crenshawforcongress/support>; rel="memento"; datetime="Fri, 22 Oct 2021 05:10:13 GMT",
+<http://web.archive.org/web/20211027160500/https://secure.winred.com/crenshawforcongress/support>; rel="memento"; datetime="Wed, 27 Oct 2021 16:05:00 GMT",
