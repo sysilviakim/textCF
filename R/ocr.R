@@ -4,7 +4,6 @@ library(tesseract)
 
 set.seed(1)
 images <- list.files(here::here("data", "classifier", "no_trump"), full.names = TRUE) %>%
-  # sample(30, replace = FALSE) %>%
   c(list.files(here::here("data", "classifier", "trump"), full.names = TRUE))
 labels <- basename(dirname(images))
 
@@ -22,7 +21,31 @@ tesseract_opts <- list(
 
 tesseract_params()[["desc"]][match(names(tesseract_opts), tesseract_params()[["param"]])]
 
-classified <- lapply(images, ocr, engine = tesseract(options = tesseract_opts))
-names(classified) <- CLASS_NAMES[grepl("trump", classified, ignore.case = TRUE) + 1]
+engine <- tesseract()
+ocr_results <- data.frame(
+  ocr_output = I(lapply(images, ocr_data, engine = engine)),
+  image = images
+)
 
-table(labels, names(classified))
+ocr_results[["ocr_text"]] <- sapply(ocr_results[["ocr_output"]], function(x) {
+  paste(x[["word"]],
+    collapse = " "
+  )
+})
+
+ocr_results[["ocr_pred_class"]] <- CLASS_NAMES[sapply(
+  ocr_results[["ocr_output"]],
+  function(x) {
+    if (nrow(x) == 0) {
+      FALSE
+    } else {
+      any(grepl("trump", x[["word"]],
+        ignore.case =
+          TRUE
+      ))
+    }
+  }
+) + 1]
+
+# Prefer RDS over csv because of list column
+saveRDS(ocr_results, here::here("data", "classifier", "outputs", "ocr_results.Rds"))

@@ -1,43 +1,79 @@
 source(here::here("R/utilities.R"))
 source(here::here("R/classifier_utilities.R"))
+source("R/dropbox_utilities.R")
 # Subclass dataset function to hold images for analysis
 
 # Partly copied from https://blogs.rstudio.com/ai/posts/2020-11-30-torch-brain-segmentation/
 candidate_image_dataset <- torch::dataset(
-  name = "campaign_image_dataset",
+  name = "candidate_image_dataset",
   sample_weights = NULL,
   angle = NULL,
   flip_thresh = NULL,
   rescale_thresh = NULL,
   images = NULL,
   targets = NULL,
+  use_dropbox = NULL,
+  dropbox_token = NULL,
+  image_types = NULL,
+  sample = NULL,
   initialize = function(img_dir, sample_weights = NULL,
                         transform_params = NULL,
-                        class_labels = CLASS_NAMES) {
+                        class_labels = CLASS_NAMES,
+                        use_dropbox = FALSE,
+                        dropbox_token = NULL) {
     stopifnot(
-      dir.exists(img_dir),
+      # if (use_dropbox) isTRUE(dropbox_path_info(dropbox_token, dropbox_correct_path(img_dir), error_on_failure = FALSE) == "folder") else dir.exists(img_dir),
+      # if (use_dropbox) inherits(dropbox_token, "Token2.0"),
       all(sample_weights > 0),
       is.null(transform_params) || all(names(transform_params) %in% c("angle", "flip", "rescale"))
     ) # R thinks NULL >0, bizarrely
+
+    if (use_dropbox && is.null(dropbox_token)) message("dropbox_token is not NULL, but use_dropbox = FALSE")
     self$root <- img_dir
     self$labels <- class_labels
+    self$use_dropbox <- use_dropbox
 
     # Store images as simple vector of file paths, with names designating true label
-    # TODO names not retained correctly
-    images <- file.path(img_dir, self$labels) %>%
-      lapply(list.files, full.names = TRUE)
+    images <- file.path(img_dir, self$labels)
+    if (self$use_dropbox) {
+      dropbox_token <- dropbox_token$refresh()
+      self$dropbox_token <- dropbox_token
+      images <- lapply(images,
+        dropbox_list_files,
+        dropbox_token = self$dropbox_token,
+        recursive = TRUE,
+        full_paths = TRUE, target = "files", pattern = ".*"
+      )
+    } else {
+      images <- lapply(images, list.files, full.names = TRUE)
+    }
     new_names <- mapply(rep, self$labels, each = lengths(images)) %>%
       unlist(use.names = FALSE)
     images <- unlist(images, use.names = FALSE)
     names(images) <- new_names
     self$images <- images
-    self$targets <- match(names(images), setNames(self$labels, self$labels)) %>%
+
+    # If downloading from Dropbox, we need to
+    self$image_types <- c(jpg = "jpeg", jpeg = "jpeg", png = "png")[tolower(tools::file_ext(self$images))] %>%
+      unname()
+    if (use_dropbox && any(is.na(self$image_types))) stop("Some images have unknown types and use_dropbox = TRUE")
+
+    self$targets <- match(
+      names(images),
+      setNames(
+        self$labels,
+        self$labels
+      )
+    ) %>%
       torch::torch_tensor() %>%
       torch_squeeze()
 
     stopifnot(is.null(sample_weights) || length(sample_weights) == length(CLASS_NAMES))
     if (!is.null(sample_weights)) {
       self$sample_weights <- self$compute_sample_weights(self$images, sample_weights)
+      self$sample <- TRUE
+    } else {
+      self$sample <- FALSE
     }
     if (!is.null(transform_params)) {
       with(transform_params, {
@@ -48,14 +84,27 @@ candidate_image_dataset <- torch::dataset(
     }
   },
   .getitem = function(i) {
-    if (!is.null(self$sample_weights)) {
+    if (self$sample) {
       i <- sample(length(self), 1, prob = self$sample_weights)
     }
     # True class label
     y <- torch_tensor(match(names(self$images[i]), self$labels)) %>%
       torch_squeeze()
-    img <- self$images[i] %>%
-      read_image(to_raster = FALSE, drop_alpha = TRUE) %>%
+    # TODO vectorize image downloading for length(i) > 1
+    if (self$use_dropbox) {
+      self$dropbox_token$refresh()
+      img <- dropbox_download_file(
+        dropbox_token = self$dropbox_token,
+        dropbox_path = self$images[i],
+        save_file = FALSE,
+        content_parser = read_image_memory,
+        image_type = self$image_types[i],
+        to_raster = FALSE, drop_alpha = TRUE
+      )
+    } else {
+      img <- read_image(self$images[i], to_raster = FALSE, drop_alpha = TRUE)
+    }
+    img <- img %>%
       torchvision::transform_to_tensor() %>%
       (function(x) x$to(device = DEVICE)) %>%
       torchvision::transform_resize(c(224, 224))

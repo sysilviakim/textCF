@@ -5,6 +5,7 @@ library(luz)
 source(here::here("R", "utilities.R"))
 source(here::here("R", "classifier_utilities.R"))
 source(here::here("R", "candidate_image_dataset.R"))
+source(here::here("R", "dropbox_utilities.R"))
 
 #' Much of this is copied from [here](https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/)
 #' At present, this script uses the pretrained RESNET18 classifier to classify images as
@@ -14,7 +15,8 @@ source(here::here("R", "candidate_image_dataset.R"))
 #' is easier to debug than `keras`, an alternative, since it uses less abstraction.
 #' This script takes about 10 minutes to run on my machine.
 set.seed(1)
-data_dir <- here::here("data/classifier/trump_image")
+data_dir <- "data/classifier/trump_image"
+# dropbox_token <- dropbox_authenticate(refresh = TRUE)
 
 #' ## Preliminaries
 #'
@@ -34,14 +36,17 @@ sample_weights <- c(
 transform_params <- list(angle = 20, flip = .7, rescale = .9)
 train_ds <- candidate_image_dataset(
   img_dir = file.path(data_dir, "train"), sample_weights = sample_weights, transform_params = transform_params,
+  use_dropbox = FALSE, dropbox_token = NULL,
 )
 valid_ds <- candidate_image_dataset(
   img_dir = file.path(data_dir, "valid"),
-  sample_weights = sample_weights, transform_params = transform_params
+  sample_weights = sample_weights, transform_params = transform_params,
+  use_dropbox = FALSE, dropbox_token = NULL,
 )
 test_ds <- candidate_image_dataset(
   img_dir = file.path(data_dir, "test"),
-  sample_weights = sample_weights, transform_params = transform_params
+  sample_weights = sample_weights, transform_params = transform_params,
+  use_dropbox = FALSE, dropbox_token = NULL,
 )
 
 #' Right now I use the standard `dataloader` class, which creates an object capable of
@@ -155,6 +160,8 @@ roc_spec <- luz_metric_binary_auroc(thresholds = seq(.1, .9, .1))
 test_roc_auc <- roc_spec$new()
 test_roc_auc$update(torch_tensor(results$prob), torch_tensor(results$actual)$subtract(1))
 test_roc_auc$compute()
+
+# write.csv(results, here::here("data", "classifier", "outputs", "cnn_results.csv"))
 
 #' Unused code for fitting the model with `luz`, a higher-level `torch` interface.
 # fitted <- net %>%

@@ -84,15 +84,31 @@ read_image <- function(path, to_raster = TRUE, drop_alpha = TRUE) {
       stop("Unknown image format")
     }
   )
-  out <- fun(path)
+  img <- fun(path)
+  preprocess_image(img, to_raster = to_raster, drop_alpha = drop_alpha)
+}
+# Read image from character array instead of a file
+read_image_memory <- function(obj, image_type = c("jpeg", "png"),
+                              to_raster = TRUE,
+                              drop_alpha = TRUE) {
+  image_type <- match.arg(image_type)
+  if (image_type == "jpeg") {
+    img <- jpeg::readJPEG(obj)
+  } else {
+    img <- png::readPNG(obj)
+  }
+  preprocess_image(img, to_raster = to_raster, drop_alpha = drop_alpha)
+}
+
+preprocess_image <- function(img, to_raster = TRUE, drop_alpha = TRUE) {
   if (to_raster) {
-    out <- as.raster(out)
+    img <- as.raster(img)
   }
   # Remove alpha (fourth) channel from png, unneeded for neural network
-  if (drop_alpha && length(dim(out)) == 3) {
-    out <- out[, , -4]
+  if (drop_alpha && length(dim(img)) == 3) {
+    img <- img[, , -4]
   }
-  out
+  img
 }
 
 # Plots all images stored in a directory, chunked into plots of given dimension (default 4 x 4).
@@ -211,8 +227,6 @@ test_batch <- function(b) {
 process_batches <- function(dl, ...) {
   dots <- as.list(substitute(list(...)))[-1L]
   dl <- substitute(dl)
-  # batch_fun <- substitute(batch_fun)
-  # loss_vec <- substitute(loss_vec)
   bquote(
     {
       coro::loop(for (b in .(dl)) {
