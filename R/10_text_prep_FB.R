@@ -36,12 +36,12 @@ fb_unique <- fb_matched %>%
           grepl("victorypassport.com", ad_creative_link_caption) ~
           "Victory Passport",
           grepl("fundraiser", ad_creative_link_caption) ~ "Misc.",
-          is.na(ad_creative_link_caption) ~ "Non-financial",
-          # grepl(" ", ad_creative_link_caption) ~ "Non-financial",
+          is.na(ad_creative_link_caption) ~ "Voter-targeting",
+          # grepl(" ", ad_creative_link_caption) ~ "Voter-targeting",
           grepl(
             "conversation with |town hall|meet |tour stop |iwillvote.com",
             ad_creative_link_caption
-          ) ~ "Non-financial",
+          ) ~ "Voter-targeting",
           grepl(".gov", ad_creative_link_caption) ~ "Government Information",
           grepl("secure.|act.|action.|go.", ad_creative_link_caption) ~
           "Personal Contribution Link",
@@ -77,7 +77,7 @@ temp <- fb_unique %>%
               "ActBlue", "Anedot", "Misc.",
               "NGP VAN", "Victory Passport", "WinRed"
             )
-          ## Those that are donate == TRUE but type is NA or non-financial
+          ## Those that are donate == TRUE but type is NA or Voter-targeting
           ## Some of it is that it is targeting both types of electorates
         )
       ) %>%
@@ -163,7 +163,7 @@ fb_unique <- c(senate = "senate", house = "house") %>%
 assert_that(nrow(fb_unique_raw$senate) == nrow(fb_unique$senate))
 assert_that(nrow(fb_unique_raw$house) == nrow(fb_unique$house))
 
-## Some verification that "Non-financial" are targeting in-district
+## Some verification that "Voter-targeting" are targeting in-district
 temp <- fb_unique %>%
   map_dfr(
     ~ .x %>%
@@ -193,7 +193,7 @@ temp %>%
   )
 
 # # A tibble: 4 x 6
-#   party      chamber mean_Financial `mean_Non-financial` se_Financial `se_Non-financial`
+#   party      chamber mean_Financial `mean_Voter-targeting` se_Financial `se_Voter-targeting`
 #   <chr>      <chr>            <dbl>                <dbl>        <dbl>              <dbl>
 # 1 Democrat   Senate           0.520                0.812      0.00455            0.00576
 # 2 Republican Senate           0.551                0.912      0.00795            0.00438
@@ -210,7 +210,7 @@ dev.off()
 fb_unique %>%
   map_dbl(
     ~ .x %>%
-      filter(financial == "Non-Financial" & in_district < 0.5) %>%
+      filter(financial == "Voter-targeting" & in_district < 0.5) %>%
       nrow()
   )
 

@@ -92,10 +92,10 @@ dev.off()
 ## T-tests
 t.test(
   fb_unique$senate %>% 
-    filter(party == "Republican" & financial == "Financial") %>%
+    filter(party == "Republican" & financial == "Donor-targeting") %>%
     .$word_trump,
   fb_unique$senate %>% 
-    filter(party == "Republican" & financial == "Non-Financial") %>%
+    filter(party == "Republican" & financial == "Voter-targeting") %>%
     .$word_trump
 )
 
@@ -344,28 +344,28 @@ dev.off()
 fb_corpus_list <- list(
   ## Not a great practice; will try to fix later
   senate_rep_f = fb_unique$senate %>%
-    filter(party == "Republican" & financial == "Financial") %>%
+    filter(party == "Republican" & financial == "Donor-targeting") %>%
     corpus(., text_field = "ad_creative_body"),
   senate_rep_n = fb_unique$senate %>%
-    filter(party == "Republican" & financial == "Non-Financial") %>%
+    filter(party == "Republican" & financial == "Voter-targeting") %>%
     corpus(., text_field = "ad_creative_body"),
   senate_dem_f = fb_unique$senate %>%
-    filter(party == "Democrat" & financial == "Financial") %>%
+    filter(party == "Democrat" & financial == "Donor-targeting") %>%
     corpus(., text_field = "ad_creative_body"),
   senate_dem_n = fb_unique$senate %>%
-    filter(party == "Democrat" & financial == "Non-Financial") %>%
+    filter(party == "Democrat" & financial == "Voter-targeting") %>%
     corpus(., text_field = "ad_creative_body"),
   house_rep_f = fb_unique$house %>%
-    filter(party == "Republican" & financial == "Financial") %>%
+    filter(party == "Republican" & financial == "Donor-targeting") %>%
     corpus(., text_field = "ad_creative_body"),
   house_rep_n = fb_unique$house %>%
-    filter(party == "Republican" & financial == "Non-Financial") %>%
+    filter(party == "Republican" & financial == "Voter-targeting") %>%
     corpus(., text_field = "ad_creative_body"),
   house_dem_f = fb_unique$house %>%
-    filter(party == "Democrat" & financial == "Financial") %>%
+    filter(party == "Democrat" & financial == "Donor-targeting") %>%
     corpus(., text_field = "ad_creative_body"),
   house_dem_n = fb_unique$house %>%
-    filter(party == "Democrat" & financial == "Non-Financial") %>%
+    filter(party == "Democrat" & financial == "Voter-targeting") %>%
     corpus(., text_field = "ad_creative_body")
 )
 
@@ -381,7 +381,7 @@ lexi_plots <- lexi_list %>%
         simple_cap(str_match_all(.y, "_(.*?)_")[[1]][1, 2]), ", ",
         ifelse(
           grepl("f", str_match_all(.y, "_(.*?)$")[[1]][1, 2]),
-          "Financial", "Non-financial"
+          "Donor-targeting", "Voter-targeting"
         )
       )
     )
@@ -415,7 +415,7 @@ temp <- lexi_list %>%
       grepl("rep", type) ~ "Republican", TRUE ~ "Democrat"
     ),
     financial = case_when(
-      grepl("_f", type) ~ "Financial", TRUE ~ "Non-financial"
+      grepl("_f", type) ~ "Donor-targeting", TRUE ~ "Voter-targeting"
     )
   ) %>%
   party_factor(., outvar = "type")

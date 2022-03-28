@@ -83,13 +83,13 @@ donate_classify <- function(x) {
             "ActBlue|WinRed|NGP VAN|Anedot|Victory Passport|Misc.|",
             "Personal Contribution Link"
           ), type
-        ) ~ "Financial",
-        isTRUE(donate) ~ "Financial",
+        ) ~ "Donor-targeting",
+        isTRUE(donate) ~ "Donor-targeting",
         grepl(
-          "Non-financial|Government Information|Facebook Page",
+          "Voter-targeting|Government Information|Facebook Page",
           type
-        ) ~ "Non-Financial",
-        is.na(type) ~ "Non-Financial",
+        ) ~ "Voter-targeting",
+        is.na(type) ~ "Voter-targeting",
       )
     )
 }
@@ -1480,10 +1480,10 @@ top_freq_plot <- function(x, chamber, top, title = NULL, subtitle = NULL,
 }
 
 color4 <- c(
-  "Republican,\nFinancial" = "#ca0020", ## dark red
-  "Republican,\nNon-financial" = "#f4a582", ## light red
-  "Democrat,\nFinancial" = "#0571b0", ## dark blue
-  "Democrat,\nNon-financial" = "#92c5de" ## light blue
+  "Republican,\nDonor-targeting" = "#ca0020", ## dark red
+  "Republican,\nVoter-targeting" = "#f4a582", ## light red
+  "Democrat,\nDonor-targeting" = "#0571b0", ## dark blue
+  "Democrat,\nVoter-targeting" = "#92c5de" ## light blue
 )
 
 color4_platform <- c(
@@ -1562,8 +1562,8 @@ party_factor <- function(x, outvar) {
       !!as.name(outvar) := factor(
         !!as.name(outvar),
         levels = c(
-          "Republican,\nFinancial", "Republican,\nNon-financial",
-          "Democrat,\nFinancial", "Democrat,\nNon-financial"
+          "Republican,\nDonor-targeting", "Republican,\nVoter-targeting",
+          "Democrat,\nDonor-targeting", "Democrat,\nVoter-targeting"
         )
       )
     )
@@ -1676,7 +1676,7 @@ emotion_barplot <- function(x) {
         ",\n",
         ifelse(
           grepl("f", str_match_all(type, "_(.*?)$")[[1]][1, 2]),
-          "Financial", "Non-financial"
+          "Donor-targeting", "Voter-targeting"
         )
       )
     ) %>%

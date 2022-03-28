@@ -228,7 +228,7 @@ keepPostType <- fb_house %>%
   pull(post)
 
 fb_house %>%
-  # filter(type %in% c("ActBlue","Winred","Non-financial",
+  # filter(type %in% c("ActBlue","Winred","Voter-targeting",
   #                    "Personal Contribution Link")) %>%
   mutate(post = glue("{type} posted by {party}")) %>%
   filter(post %in% keepPostType) %>%

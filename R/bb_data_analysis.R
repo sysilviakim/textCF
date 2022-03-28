@@ -32,7 +32,7 @@ NRC <- dictionary(NRC)
 senate_data <- fb_unique[["senate"]]
 house_data <- fb_unique[["house"]]
 # Now, there are all sorts of different corpuses we could gather to perform the
-# sentiment analyses on, including all manner of variables. 
+# sentiment analyses on, including all manner of variables.
 # We could separate out winners and losers (based on vote_share, assuming that
 # anything greater than 0.5 constitutes a victory...
 # What I have below is just one example of what we might do:
@@ -45,80 +45,98 @@ senate_dem <- senate_data[senate_data$party == "DEMOCRAT", ]
 senate_gop <- senate_gop[rowSums(is.na(senate_gop)) != ncol(senate_gop), ]
 senate_dem <- senate_dem[rowSums(is.na(senate_dem)) != ncol(senate_dem), ]
 s_gop_corpus <- corpus(senate_gop %>% select(
-  name = candidate, 
-  text = ad_creative_body))
+  name = candidate,
+  text = ad_creative_body
+))
 s_dem_corpus <- corpus(senate_dem %>% select(
-  name = candidate, 
-  text = ad_creative_body))
+  name = candidate,
+  text = ad_creative_body
+))
 
 s_gop_Lexicoder <- liwcalike(s_gop_corpus, dictionary = NRC)
-#s_gop_MFD <- liwcalike(c2, dictionary = MFD)
+# s_gop_MFD <- liwcalike(c2, dictionary = MFD)
 s_dem_Lexicoder <- liwcalike(s_dem_corpus, dictionary = NRC)
-#s_dem_MFD <- liwcalike(c1, dictionary = MFD)
+# s_dem_MFD <- liwcalike(c1, dictionary = MFD)
 
 (
-  F1 <- s_gop_Lexicoder %>% 
+  F1 <- s_gop_Lexicoder %>%
     filter(Dic > 0) %>%
     mutate(index = row_number()) %>%
-    select(index, Dic, anger, anticipation, disgust, fear, joy, negative, 
-           positive, sadness, surprise, trust) %>%
+    select(
+      index, Dic, anger, anticipation, disgust, fear, joy, negative,
+      positive, sadness, surprise, trust
+    ) %>%
     mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
     select(index, anger, disgust, fear, negative, positive) %>%
     mutate(other = 100 - anger - disgust - fear - negative - positive) %>%
     pivot_longer(cols = anger:other) %>%
-    ggplot(aes(y = fct_reorder(factor(index),value), x = value, color = name, 
-               fill = name)) +
+    ggplot(aes(
+      y = fct_reorder(factor(index), value), x = value, color = name,
+      fill = name
+    )) +
     geom_col() +
     jcolors::scale_fill_jcolors(palette = "pal4") +
     jcolors::scale_color_jcolors(palette = "pal4") +
-    labs(x="Proportion of Classified Words", y = "", 
-         title = "NRC Language Analysis of Senate Republican Statements",
-         color = "", fill = "") +
-    theme(axis.text.y=element_blank())
+    labs(
+      x = "Proportion of Classified Words", y = "",
+      title = "NRC Language Analysis of Senate Republican Statements",
+      color = "", fill = ""
+    ) +
+    theme(axis.text.y = element_blank())
 )
 
 (
-  F2 <- s_dem_Lexicoder %>% 
+  F2 <- s_dem_Lexicoder %>%
     filter(Dic > 0) %>%
     mutate(index = row_number()) %>%
-    select(index, Dic, anger, anticipation, disgust, fear, joy, negative, 
-           positive, sadness, surprise, trust) %>%
+    select(
+      index, Dic, anger, anticipation, disgust, fear, joy, negative,
+      positive, sadness, surprise, trust
+    ) %>%
     mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
     select(index, anger, disgust, fear, negative, positive) %>%
     mutate(other = 100 - anger - disgust - fear - negative - positive) %>%
     pivot_longer(cols = anger:other) %>%
-    ggplot(aes(y = fct_reorder(factor(index),value), x = value, color = name, 
-               fill = name)) +
+    ggplot(aes(
+      y = fct_reorder(factor(index), value), x = value, color = name,
+      fill = name
+    )) +
     geom_col() +
     jcolors::scale_fill_jcolors(palette = "pal4") +
     jcolors::scale_color_jcolors(palette = "pal4") +
-    labs(x="Proportion of Classified Words", y = "", 
-         title = "NRC Language Analysis  of Senate Democrat Statements",
-         color = "", fill = "") +
-    theme(axis.text.y=element_blank())
+    labs(
+      x = "Proportion of Classified Words", y = "",
+      title = "NRC Language Analysis  of Senate Democrat Statements",
+      color = "", fill = ""
+    ) +
+    theme(axis.text.y = element_blank())
 )
 # Something's up here...one of the rows has an impossible range...
 
-# 2: Senate Financial/Non-Financial, By Party
+# 2: Senate Donor-targeting/Voter-targeting, By Party
 
-senate_gop_f <- senate_gop[senate_gop$financial == "Financial", ]
-senate_gop_nf <- senate_gop[senate_gop$financial == "Non-Financial", ]
-senate_dem_f <- senate_dem[senate_dem$financial == "Financial", ]
-senate_dem_nf <- senate_dem[senate_dem$financial == "Non-Financial", ] 
+senate_gop_f <- senate_gop[senate_gop$financial == "Donor-targeting", ]
+senate_gop_nf <- senate_gop[senate_gop$financial == "Voter-targeting", ]
+senate_dem_f <- senate_dem[senate_dem$financial == "Donor-targeting", ]
+senate_dem_nf <- senate_dem[senate_dem$financial == "Voter-targeting", ]
 # No extraneous NA rows generated here
 
 senate_gop_f_corpus <- corpus(senate_gop_f %>% select(
-  name = candidate, 
-  text = ad_creative_body))
+  name = candidate,
+  text = ad_creative_body
+))
 senate_gop_nf_corpus <- corpus(senate_gop_nf %>% select(
-  name = candidate, 
-  text = ad_creative_body))
+  name = candidate,
+  text = ad_creative_body
+))
 senate_dem_f_corpus <- corpus(senate_dem_f %>% select(
-  name = candidate, 
-  text = ad_creative_body))
+  name = candidate,
+  text = ad_creative_body
+))
 senate_dem_nf_corpus <- corpus(senate_dem_nf %>% select(
-  name = candidate, 
-  text = ad_creative_body))
+  name = candidate,
+  text = ad_creative_body
+))
 
 s_gop_f_Lexicoder <- liwcalike(senate_gop_f_corpus, dictionary = NRC)
 s_gop_nf_Lexicoder <- liwcalike(senate_gop_nf_corpus, dictionary = NRC)
@@ -126,87 +144,111 @@ s_dem_f_Lexicoder <- liwcalike(senate_dem_f_corpus, dictionary = NRC)
 s_dem_nf_Lexicoder <- liwcalike(senate_dem_nf_corpus, dictionary = NRC)
 
 (
-  F3 <- s_gop_f_Lexicoder %>% 
+  F3 <- s_gop_f_Lexicoder %>%
     filter(Dic > 0) %>%
     mutate(index = row_number()) %>%
-    select(index, Dic, anger, anticipation, disgust, fear, joy, negative, 
-           positive, sadness, surprise, trust) %>%
+    select(
+      index, Dic, anger, anticipation, disgust, fear, joy, negative,
+      positive, sadness, surprise, trust
+    ) %>%
     mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
     select(index, anger, disgust, fear, negative, positive) %>%
     mutate(other = 100 - anger - disgust - fear - negative - positive) %>%
     pivot_longer(cols = anger:other) %>%
-    ggplot(aes(y = fct_reorder(factor(index),value), x = value, color = name, 
-               fill = name)) +
+    ggplot(aes(
+      y = fct_reorder(factor(index), value), x = value, color = name,
+      fill = name
+    )) +
     geom_col() +
     jcolors::scale_fill_jcolors(palette = "pal4") +
     jcolors::scale_color_jcolors(palette = "pal4") +
-    labs(x="Proportion of Classified Words", y = "", 
-         title = "NRC Analysis of Senate Republican Financial Statements",
-         color = "", fill = "") +
-    theme(axis.text.y=element_blank())
+    labs(
+      x = "Proportion of Classified Words", y = "",
+      title = "NRC Analysis of Senate Republican Donor-targeting Statements",
+      color = "", fill = ""
+    ) +
+    theme(axis.text.y = element_blank())
 )
 
 (
-  F4 <- s_gop_nf_Lexicoder %>% 
+  F4 <- s_gop_nf_Lexicoder %>%
     filter(Dic > 0) %>%
     mutate(index = row_number()) %>%
-    select(index, Dic, anger, anticipation, disgust, fear, joy, negative, 
-           positive, sadness, surprise, trust) %>%
+    select(
+      index, Dic, anger, anticipation, disgust, fear, joy, negative,
+      positive, sadness, surprise, trust
+    ) %>%
     mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
     select(index, anger, disgust, fear, negative, positive) %>%
     mutate(other = 100 - anger - disgust - fear - negative - positive) %>%
     pivot_longer(cols = anger:other) %>%
-    ggplot(aes(y = fct_reorder(factor(index),value), x = value, color = name, 
-               fill = name)) +
+    ggplot(aes(
+      y = fct_reorder(factor(index), value), x = value, color = name,
+      fill = name
+    )) +
     geom_col() +
     jcolors::scale_fill_jcolors(palette = "pal4") +
     jcolors::scale_color_jcolors(palette = "pal4") +
-    labs(x="Proportion of Classified Words", y = "", 
-         title = "NRC Analysis  of Senate Republican Non-Financial Statements",
-         color = "", fill = "") +
-    theme(axis.text.y=element_blank())
+    labs(
+      x = "Proportion of Classified Words", y = "",
+      title = "NRC Analysis  of Senate Republican Voter-targeting Statements",
+      color = "", fill = ""
+    ) +
+    theme(axis.text.y = element_blank())
 )
 
 (
-  F5 <- s_dem_f_Lexicoder %>% 
+  F5 <- s_dem_f_Lexicoder %>%
     filter(Dic > 0) %>%
     mutate(index = row_number()) %>%
-    select(index, Dic, anger, anticipation, disgust, fear, joy, negative, 
-           positive, sadness, surprise, trust) %>%
+    select(
+      index, Dic, anger, anticipation, disgust, fear, joy, negative,
+      positive, sadness, surprise, trust
+    ) %>%
     mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
     select(index, anger, disgust, fear, negative, positive) %>%
     mutate(other = 100 - anger - disgust - fear - negative - positive) %>%
     pivot_longer(cols = anger:other) %>%
-    ggplot(aes(y = fct_reorder(factor(index),value), x = value, color = name, 
-               fill = name)) +
+    ggplot(aes(
+      y = fct_reorder(factor(index), value), x = value, color = name,
+      fill = name
+    )) +
     geom_col() +
     jcolors::scale_fill_jcolors(palette = "pal4") +
     jcolors::scale_color_jcolors(palette = "pal4") +
-    labs(x="Proportion of Classified Words", y = "", 
-         title = "NRC Analysis of Senate Democrat Financial Statements",
-         color = "", fill = "") +
-    theme(axis.text.y=element_blank())
+    labs(
+      x = "Proportion of Classified Words", y = "",
+      title = "NRC Analysis of Senate Democrat Donor-targeting Statements",
+      color = "", fill = ""
+    ) +
+    theme(axis.text.y = element_blank())
 )
 
 (
-  F6 <- s_dem_nf_Lexicoder %>% 
+  F6 <- s_dem_nf_Lexicoder %>%
     filter(Dic > 0) %>%
     mutate(index = row_number()) %>%
-    select(index, Dic, anger, anticipation, disgust, fear, joy, negative, 
-           positive, sadness, surprise, trust) %>%
+    select(
+      index, Dic, anger, anticipation, disgust, fear, joy, negative,
+      positive, sadness, surprise, trust
+    ) %>%
     mutate(sum = rowSums(across(anger:trust)) / Dic) %>%
     select(index, anger, disgust, fear, negative, positive) %>%
     mutate(other = 100 - anger - disgust - fear - negative - positive) %>%
     pivot_longer(cols = anger:other) %>%
-    ggplot(aes(y = fct_reorder(factor(index),value), x = value, color = name, 
-               fill = name)) +
+    ggplot(aes(
+      y = fct_reorder(factor(index), value), x = value, color = name,
+      fill = name
+    )) +
     geom_col() +
     jcolors::scale_fill_jcolors(palette = "pal4") +
     jcolors::scale_color_jcolors(palette = "pal4") +
-    labs(x="Proportion of Classified Words", y = "", 
-         title = "NRC Analysis  of Senate Democrat Non-Financial Statements",
-         color = "", fill = "") +
-    theme(axis.text.y=element_blank())
+    labs(
+      x = "Proportion of Classified Words", y = "",
+      title = "NRC Analysis  of Senate Democrat Voter-targeting Statements",
+      color = "", fill = ""
+    ) +
+    theme(axis.text.y = element_blank())
 )
 # Something's going on with this one...
 
@@ -228,7 +270,7 @@ s_dem_nf_Lexicoder <- liwcalike(senate_dem_nf_corpus, dictionary = NRC)
 ## moral foundations side of things -- should take another look at that code.
 
 ## This should be doable. Figure this out sooner rather than later.
-  
+
 # Trolling Words ===============================================================
 
 # Reading in the Trolling dictionary:
@@ -301,9 +343,11 @@ group_by(CANDdata_trollPROP, party) %>%
   )
 
 library("ggpubr")
-ggboxplot(CANDdata_trollPROP, x = "party", y = "troll", 
-          color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
-          ylab = "Proportion of Trolling Words", xlab = "Party")
+ggboxplot(CANDdata_trollPROP,
+  x = "party", y = "troll",
+  color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
+  ylab = "Proportion of Trolling Words", xlab = "Party"
+)
 
 ## Now, comparing copartisans in House/Senate
 dem_trollPROP <- CANDdata_trollPROP[CANDdata_trollPROP$party == "DEMOCRAT", ]
@@ -319,10 +363,12 @@ group_by(dem_trollPROP, chamber) %>%
     median = median(troll, na.rm = TRUE),
     IQR = IQR(troll, na.rm = TRUE)
   )
-ggboxplot(dem_trollPROP, x = "chamber", y = "troll", 
-          color = "chamber", palette = c("#00AFBB", "#E7B800"),
-          ylab = "Proportion of Trolling Words among Democrats", 
-          xlab = "Chamber")
+ggboxplot(dem_trollPROP,
+  x = "chamber", y = "troll",
+  color = "chamber", palette = c("#00AFBB", "#E7B800"),
+  ylab = "Proportion of Trolling Words among Democrats",
+  xlab = "Chamber"
+)
 
 group_by(gop_trollPROP, chamber) %>%
   summarise(
@@ -330,10 +376,12 @@ group_by(gop_trollPROP, chamber) %>%
     median = median(troll, na.rm = TRUE),
     IQR = IQR(troll, na.rm = TRUE)
   )
-ggboxplot(gop_trollPROP, x = "chamber", y = "troll", 
-          color = "chamber", palette = c("#00AFBB", "#E7B800"),
-          ylab = "Proportion of Trolling Words among Republicans", 
-          xlab = "Chamber")
+ggboxplot(gop_trollPROP,
+  x = "chamber", y = "troll",
+  color = "chamber", palette = c("#00AFBB", "#E7B800"),
+  ylab = "Proportion of Trolling Words among Republicans",
+  xlab = "Chamber"
+)
 
 # Now, comparing partisans within chamber
 house_trollPROP <- CANDdata_trollPROP[CANDdata_trollPROP$chamber == "house", ]
@@ -345,9 +393,11 @@ group_by(house_trollPROP, party) %>%
     median = median(troll, na.rm = TRUE),
     IQR = IQR(troll, na.rm = TRUE)
   )
-ggboxplot(house_trollPROP, x = "party", y = "troll", 
-          color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
-          ylab = "Proportion of Trolling Words", xlab = "Party")
+ggboxplot(house_trollPROP,
+  x = "party", y = "troll",
+  color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
+  ylab = "Proportion of Trolling Words", xlab = "Party"
+)
 
 group_by(sen_trollPROP, party) %>%
   summarise(
@@ -355,9 +405,11 @@ group_by(sen_trollPROP, party) %>%
     median = median(troll, na.rm = TRUE),
     IQR = IQR(troll, na.rm = TRUE)
   )
-ggboxplot(sen_trollPROP, x = "party", y = "troll", 
-          color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
-          ylab = "Proportion of Trolling Words", xlab = "Party")
+ggboxplot(sen_trollPROP,
+  x = "party", y = "troll",
+  color = "party", palette = c("#00AFBB", "#E7B800", "#5AAE61"),
+  ylab = "Proportion of Trolling Words", xlab = "Party"
+)
 # Moral Foundations ============================================================
 
 # General notes ================================================================
