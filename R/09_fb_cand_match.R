@@ -80,15 +80,20 @@ fb_matched <- vec %>%
 ##### Trying to figure out why we're getting NAs
 
 ## So, let's establish what we know. Senate as example, because less to search.
-match_sen_list <- as.data.frame(cbind(fb_matched[['senate']]$candidate,
-                                      fb_matched[['senate']]$inc))
+match_sen_list <- as.data.frame(cbind(
+  fb_matched[["senate"]]$candidate,
+  fb_matched[["senate"]]$inc
+))
 match_sen_list <- unique(match_sen_list)
-cc_sen_list <- as.data.frame(cbind(cong_complete[['senate']]$candidate,
-                                   cong_complete[['senate']]$inc))
-mismatches <- rbind(match_sen_list,cc_sen_list)
-# So, 248 in total...let's see how many of these aren't exact duplicates 
-mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches, 
-                                                 fromLast = TRUE)), ]
+cc_sen_list <- as.data.frame(cbind(
+  cong_complete[["senate"]]$candidate,
+  cong_complete[["senate"]]$inc
+))
+mismatches <- rbind(match_sen_list, cc_sen_list)
+# So, 248 in total...let's see how many of these aren't exact duplicates
+mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches,
+  fromLast = TRUE
+)), ]
 # 118 unique name-incumbency pairings
 ## not actually unique names (necessarily), but ones that R thinks are unique
 
@@ -107,9 +112,9 @@ mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches,
 ## Why are they getting messed up?
 
 ## Where are these lowercase names coming from? fb_list, it seems. Let's try...
-fb_list[['senate']]$candidate <- toupper(fb_list[['senate']]$candidate)
+fb_list[["senate"]]$candidate <- toupper(fb_list[["senate"]]$candidate)
 # To see if this worked...
-#test <- as.data.frame(unique(fb_list[['senate']]$candidate))
+# test <- as.data.frame(unique(fb_list[['senate']]$candidate))
 # yep, it worked...if we redo this step, will it at least sort out these folks?
 
 fb_matched <- vec %>%
@@ -125,28 +130,38 @@ fb_matched <- vec %>%
       select(candidate, page_id, page_name, inc, everything()) %>%
       mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
   )
-match_sen_list <- as.data.frame(cbind(fb_matched[['senate']]$candidate,
-                                      fb_matched[['senate']]$inc))
+match_sen_list <- as.data.frame(cbind(
+  fb_matched[["senate"]]$candidate,
+  fb_matched[["senate"]]$inc
+))
 match_sen_list <- unique(match_sen_list)
-cc_sen_list <- as.data.frame(cbind(cong_complete[['senate']]$candidate,
-                                   cong_complete[['senate']]$inc))
-mismatches <- rbind(match_sen_list,cc_sen_list)
-mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches, 
-                                                            fromLast = TRUE)), ]
+cc_sen_list <- as.data.frame(cbind(
+  cong_complete[["senate"]]$candidate,
+  cong_complete[["senate"]]$inc
+))
+mismatches <- rbind(match_sen_list, cc_sen_list)
+mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches,
+  fromLast = TRUE
+)), ]
 # This has worked for a significant number of these candidates --
 # where there were 118 mismatches, now there are 68.
 # Will do the same for the House -- hopefully will alleviate things there
-fb_list[['house']]$candidate <- toupper(fb_list[['house']]$candidate)
+fb_list[["house"]]$candidate <- toupper(fb_list[["house"]]$candidate)
 # Before we rerun, let's see about the House side of things...
-match_hr_list <- as.data.frame(cbind(fb_matched[['house']]$candidate,
-                                      fb_matched[['house']]$inc))
+match_hr_list <- as.data.frame(cbind(
+  fb_matched[["house"]]$candidate,
+  fb_matched[["house"]]$inc
+))
 match_hr_list <- unique(match_hr_list)
-cc_hr_list <- as.data.frame(cbind(cong_complete[['house']]$candidate,
-                                   cong_complete[['house']]$inc))
-mismatches_hr <- rbind(match_hr_list,cc_hr_list)
-mismatches_hr <- mismatches_hr[!(duplicated(mismatches_hr) | 
-                                   duplicated(mismatches_hr, 
-                                              fromLast = TRUE)), ]
+cc_hr_list <- as.data.frame(cbind(
+  cong_complete[["house"]]$candidate,
+  cong_complete[["house"]]$inc
+))
+mismatches_hr <- rbind(match_hr_list, cc_hr_list)
+mismatches_hr <- mismatches_hr[!(duplicated(mismatches_hr) |
+  duplicated(mismatches_hr,
+    fromLast = TRUE
+  )), ]
 # 281 mismatches...
 
 fb_matched <- vec %>%
@@ -162,15 +177,20 @@ fb_matched <- vec %>%
       select(candidate, page_id, page_name, inc, everything()) %>%
       mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
   )
-match_hr_list <- as.data.frame(cbind(fb_matched[['house']]$candidate,
-                                     fb_matched[['house']]$inc))
+match_hr_list <- as.data.frame(cbind(
+  fb_matched[["house"]]$candidate,
+  fb_matched[["house"]]$inc
+))
 match_hr_list <- unique(match_hr_list)
-cc_hr_list <- as.data.frame(cbind(cong_complete[['house']]$candidate,
-                                  cong_complete[['house']]$inc))
-mismatches_hr <- rbind(match_hr_list,cc_hr_list)
-mismatches_hr <- mismatches_hr[!(duplicated(mismatches_hr) | 
-                                   duplicated(mismatches_hr, 
-                                              fromLast = TRUE)), ]
+cc_hr_list <- as.data.frame(cbind(
+  cong_complete[["house"]]$candidate,
+  cong_complete[["house"]]$inc
+))
+mismatches_hr <- rbind(match_hr_list, cc_hr_list)
+mismatches_hr <- mismatches_hr[!(duplicated(mismatches_hr) |
+  duplicated(mismatches_hr,
+    fromLast = TRUE
+  )), ]
 # Still 281...
 
 
