@@ -61,10 +61,214 @@ cong_complete %>% map_dbl(nrow)
 # senate  house
 #    144    817
 
-# Match candidate-level characteristics ========================================
+# Creating initial fb_matched object ===========================================
+
+## FB original data
+fb_matched <- vec %>%
+  map(
+    ~ cong_complete[[.x]] %>%
+      ## Joining, by = "candidate"
+      left_join(
+        left_join(fb_list[[.x]], cand_list[[.x]]) %>%
+          rename(state_name = state) %>%
+          mutate(candidate = trimws(gsub('"', "", candidate))),
+        .
+      ) %>%
+      select(candidate, page_id, page_name, inc, everything()) %>%
+      mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
+  )
+
+# Identifying which candidates still have NAs ==================================
+
 ## Converting Senate candidates to upper -- this will reduce number of NAs in
-## fb_matched[['senate']] from 41 to 15 (see next section)
+## fb_matched[['senate']] from 41 to 15 (see further down in this section)
 fb_list[["senate"]]$candidate <- toupper(fb_list[["senate"]]$candidate)
+
+# The new version of fb_matched has removed most of the NAs! Let's figure out
+# a list of who still has an NA value for incumbency:
+matched_house_nas <- as.data.frame(cbind(fb_matched[["house"]]$candidate,
+                                         fb_matched[["house"]]$inc))
+matched_house_nas <- unique(matched_house_nas)
+names(matched_house_nas) <- c('candidate', 'inc')
+matched_house_nas <- matched_house_nas[is.na(matched_house_nas$inc),]
+# 43 NAs...
+save(matched_house_nas, file = here("data", "raw", "fb_matched_house_nas.Rda"))
+
+# Now, for the Senate:
+matched_senate_nas <- as.data.frame(cbind(fb_matched[["senate"]]$candidate,
+                                          fb_matched[["senate"]]$inc))
+matched_senate_nas <- unique(matched_senate_nas)
+names(matched_senate_nas) <- c('candidate', 'inc')
+matched_senate_nas <- matched_senate_nas[is.na(matched_senate_nas$inc),]
+# Tried this before running the line currently at line 67 -- was 41 NAs, not 15
+save(matched_senate_nas, file = here("data", "raw", 
+                                     "fb_matched_senate_nas.Rda"))
+
+# Diagnosing Issues for Candidates Missing Data ================================
+
+## Senate:
+# Using matched_senate_nas, cong_complete[["senate]], and list_sen (below), ID
+# which ones are mismatches and which ones are the results of something else
+list_sen <- as.data.frame(unique(fb_list[["senate"]]$candidate))
+## Not in one of the datasets:
+## Alex Padilla: Not in cong_complete
+### However, this is not concerning -- he was not running for Senate in 2020,
+### but was appointed after Kamala Harris had to resign her Senate seat
+## Pat Toomey: not in cong_complete...not sure why not, this is more concerning
+## Rand Paul: not in cong_complete...
+
+## Senate Mismatches:
+# Bob Casey: BOB CASEY in list, ROBERT P CASEY JR in cong_complete
+# Chris Murphy: CHRIS MURPHY in list, CHRISTOPHER S MURPHY in cong_complete
+# Chuck Schumer: CHUCK SCHUMER in list, CHARLES E. SCHUMER in cong_complete
+# Elizabeth Warren: ELIZABETH WARREN in list, ELIZABETH A. WARREN ~
+# John Thune: JOHN THUNE ~, JOHN R. THUNE ~
+# Kirsten Gillibrand: KIRSTEN GILLIBRAND ~, KIRSTEN E. GILLIBRAND ~
+# Martin Heinrich: MARTIN HEINRICH ~, MARTIN T HEINRICH ~
+# Mazie Hirono: MAZIE HIRONO ~, MAZIE K. HIRONO ~
+# Michael Bennet: MICHAEL BENNET ~, MICHAEL F. BENNET ~
+# Patrick Leahy: PATRICK LEAHY ~, PATRICK J. LEAHY ~
+# Roger Wicker: ROGER WICKER ~, ROGER F. WICKER ~
+# Todd Young: TODD YOUNG ~, TODD C. YOUNG ~
+
+# The plan: case_whens to bring these in -- turn cong_complete names into list
+# versions for computational efficiency, as there are a lot more rows in fb_list
+# than there are in cong_complete
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "ROBERT P CASEY JR"] <- "BOB CASEY"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "CHRISTOPHER S MURPHY"] <- "CHRIS MURPHY"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "CHARLES E. SCHUMER"] <- "CHUCK SCHUMER"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "ELIZABETH A. WARREN"] <- "ELIZABETH WARREN"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "JOHN R. THUNE"] <- "JOHN THUNE"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "KIRSTEN E. GILLIBRAND"] <- "KIRSTEN GILLIBRAND"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "MARTIN T HEINRICH"] <- "MARTIN HEINRICH"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "MAZIE K. HIRONO"] <- "MAZIE HIRONO"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "MICHAEL F. BENNET"] <- "MICHAEL BENNET"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "PATRICK J. LEAHY"] <- "PATRICK LEAHY"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "ROGER F. WICKER"] <- "ROGER WICKER"
+cong_complete[["senate"]]$candidate[
+  cong_complete[["senate"]]$candidate == "TODD C. YOUNG"] <- "TODD YOUNG"
+
+# Reran to double-check -- this worked! FOr all but the ones who aren't in
+# cong_complete, the variables are filled in.
+
+## House:
+# Using matched_house_nas, cong_complete[["house"]], and list_house (below), ID
+# which ones are mismatches and which ones are the results of something else
+list_house <- as.data.frame(unique(fb_list[["house"]]$candidate))
+
+## Not in one of the datasets:
+# Ben Gibson: Not in cong_complete
+# Ricky de la Fuente: Not in cong_complete
+# Christy Smith: Not in cong_complete
+# Dan Feehan: Not in cong_complete
+# David Scott: Not in cong_complete
+# David Torres: Not in cong_complete
+# Tawnja Zahradka:  Not in cong_complete, TAWNJA ZAHRADKA in list
+# Zach Raknerud: Not in cong_complete, ZACH RAKNERUD in list
+# Tracy Jennings: Not in cong_complete, TRACY JENNINGS in list
+# Diane E. Mitsch Busch: Not in cong_complete, DIANE E. MITSCH BUSH in list
+# Frank D. Lucas: Not in cong_complete, FRANK D. LUCAS in list
+# John Briscoe: Not in cong_complete, JOHN BRISCOE in list
+# Kevin Van Ausdal: ____ in cong_complete, KEVIN VAN AUSDAL in list
+# Liz Johnson: ____ in cong_complete, LIZ JOHNSON in list
+# Mark Razzoli: ____ in cong_complete, MARK RAZZOLI in list
+# Michael San Nicolas: ____ in cong_complete, MICHAEL F. Q. SAN NICOLAS in list
+# Quinn Nystrom: ____ in cong_complete, QUINN NYSTROM in list
+# Randy Weber: ____ in cong_complete, RANDY K. WEBER, SR. in list
+# Tim Kelly: ____ in cong_complete, TIM KELLY in list
+
+## Mismatches:
+# Scotty Robinson: SCOTTY ROBINSON in cong_complete, ¬ìSCOTTY¬î ROBINSON in list
+# Andre Carson: ANDRé CARSON in cong_complete, ANDR√© CARSON in list
+# Angelica Maria Duenas: ANGéLICA MARIA DUEñAS in cong_complete, ANG√©LICA MARIA DUE√±AS in list
+# Bill Pascrell: BILL PASCRELL, JR. in cong_complete, BILL PASCRELL,  JR. in list
+### The two Bills are not identical -- the space is different
+# C. Antonio Delgado: ANTONIO DELGADO in cong_complete, C. ANTONIO DELGADO in list
+# Dartanyon Dar Williams: DARTANYON DAW WILLIAMS in cong_complete, DARTANYON ¬ìDAW¬î WILLIAMS in list
+# Earl Buddy Carter: EARL L. BUDDY CARTER in cong_complete, EARL L. ¬ìBUDDY¬î CARTER in list
+# George Kelly:  GEORGE J. KELLY, JR. in cong_complete, GEORGE J. KELLY,  JR. in list
+### Same as with Bill Pascrells -- different space length
+# Georgette Gomez: GEORGETTE GóMEZ in cong_complete, GEORGETTE G√≥MEZ in list
+# Glenn Thompson: GLENN W. THOMPSON, JR. in cong_complete, GLENN W. THOMPSON,  JR. in list
+# Hillary O'Connor Mueri: HILLARY O'CONNOR MUERI in cong_complete, HILLARY O¬íCONNOR MUERI in list
+# Jim Pruden: JAMES JIM PRUDEN in cong_complete, JAMES ¬ìJIM¬î PRUDEN in list
+# Jesus Chuy Garcia: JESúS G. CHUY GARCíA in cong_complete, JES√∫S G. ¬ìCHUY¬î GARC√≠A in list
+# John W. Collick: JOHN W. COLLICK, JR. in cong_complete, JOHN W. COLLICK,  JR. in list
+# Linda T Sanchez: LINDA T. SáNCHEZ in cong_complete, LINDA T. S√°NCHEZ in list
+# Michael F. Doyle: MICHAEL F. DOYLE, JR. in cong_complete, MICHAEL F. DOYLE,  JR. in list
+# Nydia Velazquez: NYDIA M. VELáZQUEZ in cong_complete, NYDIA M. VEL√°ZQUEZ in list
+# Pat Hackett: PATRICIA PAT HACKETT in cong_complete, PATRICIA ¬ìPAT¬î HACKETT in list
+# Raul Griijalva: RAúL M. GRIJALVA in cong_complete, RA√∫L M. GRIJALVA in list
+# Bobby Scott: ROBERT C. BOBBY SCOTT in cong_complete, ROBERT C. ¬ìBOBBY¬î SCOTT in list
+# Bob Good: ROBERT G. BOB GOOD in cong_complete, ROBERT G. ¬ìBOB¬î GOOD in list
+# Candy Christophe: SANDRA CANDY CHRISTOPHE in cong_complete, SANDRA ¬ìCANDY¬î CHRISTOPHE in list
+# Tom O'Halleran: TOM O'HALLERAN in cong_complete, TOM O¬íHALLERAN in list
+# Bill Olson: WILLIAM P. BILL OLSON in cong_complete, WILLIAM P. ¬ìBILL¬î OLSON in list
+
+# While it will be more computationally intensive, the names in cong_complete
+# are generally more coherent; so, the names in fb_list will be replaced with
+# those in cong_complete:
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "¬ìSCOTTY¬î ROBINSON"] <- "SCOTTY ROBINSON"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "ANDR√© CARSON"] <- "ANDRé CARSON"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "ANG√©LICA MARIA DUE√±AS"] <- "ANGéLICA MARIA DUEñAS"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "BILL PASCRELL,  JR."] <- "BILL PASCRELL, JR."
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "C. ANTONIO DELGADO"] <- "ANTONIO DELGADO"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "DARTANYON ¬ìDAW¬î WILLIAMS"] <- "DARTANYON DAW WILLIAMS"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "EARL L. ¬ìBUDDY¬î CARTER"] <- "EARL L. BUDDY CARTER"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "GEORGE J. KELLY,  JR."] <- "GEORGE J. KELLY, JR."
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "GEORGETTE G√≥MEZ"] <- "GEORGETTE GóMEZ"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "GLENN W. THOMPSON,  JR."] <- "GLENN W. THOMPSON, JR."
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "HILLARY O¬íCONNOR MUERI"] <- "HILLARY O'CONNOR MUERI"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "JAMES ¬ìJIM¬î PRUDEN"] <- "JAMES JIM PRUDEN"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "JES√∫S G. ¬ìCHUY¬î GARC√≠A"] <- "JESúS G. CHUY GARCíA"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "JOHN W. COLLICK,  JR."] <- "JOHN W. COLLICK, JR."
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "LINDA T. S√°NCHEZ"] <- "LINDA T. SáNCHEZ"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "MICHAEL F. DOYLE,  JR."] <- "MICHAEL F. DOYLE, JR."
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "NYDIA M. VEL√°ZQUEZ"] <- "NYDIA M. VELáZQUEZ"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "PATRICIA ¬ìPAT¬î HACKETT"] <- "PATRICIA PAT HACKETT"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "RA√∫L M. GRIJALVA"] <- "RAúL M. GRIJALVA"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "ROBERT C. ¬ìBOBBY¬î SCOTT"] <- "ROBERT C. BOBBY SCOTT"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "ROBERT G. ¬ìBOB¬î GOOD"] <- "ROBERT G. BOB GOOD"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "SANDRA ¬ìCANDY¬î CHRISTOPHE"] <- "SANDRA CANDY CHRISTOPHE"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "TOM O¬íHALLERAN"] <- "TOM O'HALLERAN"
+fb_list[["house"]]$candidate[
+  fb_list[["house"]]$candidate == "WILLIAM P. ¬ìBILL¬î OLSON"] <- "WILLIAM P. BILL OLSON"
+
+# Match candidate-level characteristics ========================================
 
 ## FB original data
 fb_matched <- vec %>%
@@ -116,29 +320,9 @@ fb_matched <- fb_matched %>%
       rename(id = id_2)
   )
 
+# Saving fb_matched ============================================================
+
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
-
-# Identifying which candidates still have NAs ==================================
-
-# The new version of fb_matched has removed most of the NAs! Let's figure out
-# a list of who still has an NA value for incumbency:
-matched_house_nas <- as.data.frame(cbind(fb_matched[["house"]]$candidate,
-                                         fb_matched[["house"]]$inc))
-matched_house_nas <- unique(matched_house_nas)
-names(matched_house_nas) <- c('candidate', 'inc')
-matched_house_nas <- matched_house_nas[is.na(matched_house_nas$inc),]
-# 43 NAs...
-save(matched_house_nas, file = here("data", "raw", "fb_matched_house_nas.Rda"))
-
-# Now, for the Senate:
-matched_senate_nas <- as.data.frame(cbind(fb_matched[["senate"]]$candidate,
-                                          fb_matched[["senate"]]$inc))
-matched_senate_nas <- unique(matched_senate_nas)
-names(matched_senate_nas) <- c('candidate', 'inc')
-matched_senate_nas <- matched_senate_nas[is.na(matched_senate_nas$inc),]
-# Tried this before running the line currently at line 67 -- was 41 NAs, not 15
-save(matched_senate_nas, file = here("data", "raw", 
-                                     "fb_matched_senate_nas.Rda"))
 
 # Generate and store metadata for ads, before taking out unique ads ============
 fb_simple <- fb_matched %>%
