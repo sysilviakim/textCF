@@ -59,7 +59,7 @@ cand_list %>% map_dbl(nrow)
 
 cong_complete %>% map_dbl(nrow)
 # senate  house
-#    137    781
+#    144    817
 
 # Match candidate-level characteristics ========================================
 ## FB original data
@@ -77,20 +77,28 @@ fb_matched <- vec %>%
       mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
   )
 
+# The new version of cong_complete has removed most of the NAs! Let's figure out
+# a list of who still has an NA value for incumbency:
+matched_house_nas <- 
+
 ##### Trying to figure out why we're getting NAs
 
 ## So, let's establish what we know. Senate as example, because less to search.
+# This pulls the candidate and inc columns from fb_matched[["senate"]]:
 match_sen_list <- as.data.frame(cbind(
   fb_matched[["senate"]]$candidate,
   fb_matched[["senate"]]$inc
 ))
+# This takes only the unique candidates:
 match_sen_list <- unique(match_sen_list)
+# This takes the candidate and inc columns from cong_complete[["senate]]:
 cc_sen_list <- as.data.frame(cbind(
   cong_complete[["senate"]]$candidate,
   cong_complete[["senate"]]$inc
 ))
+# 'mismatches' joins the two together -- not mismatches yet, but soon
 mismatches <- rbind(match_sen_list, cc_sen_list)
-# So, 248 in total...let's see how many of these aren't exact duplicates
+# 248 between the two...let's see how many of these aren't exact duplicates
 mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches,
   fromLast = TRUE
 )), ]
@@ -111,7 +119,7 @@ mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches,
 ## What happened with them? Their names appear as they should in cong_complete.
 ## Why are they getting messed up?
 
-## Where are these lowercase names coming from? fb_list, it seems. Let's try...
+## Lowercase names are coming from fb_list. What if they were upper? Let's try:
 fb_list[["senate"]]$candidate <- toupper(fb_list[["senate"]]$candidate)
 # To see if this worked...
 # test <- as.data.frame(unique(fb_list[['senate']]$candidate))
@@ -145,6 +153,8 @@ mismatches <- mismatches[!(duplicated(mismatches) | duplicated(mismatches,
 )), ]
 # This has worked for a significant number of these candidates --
 # where there were 118 mismatches, now there are 68.
+# And Amy Klobuchar and Bernie Sanders have their variables filled in.
+
 # Will do the same for the House -- hopefully will alleviate things there
 fb_list[["house"]]$candidate <- toupper(fb_list[["house"]]$candidate)
 # Before we rerun, let's see about the House side of things...

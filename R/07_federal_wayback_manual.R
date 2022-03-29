@@ -391,4 +391,11 @@ cong_complete <-
         footer = case_when(is.na(footer) ~ "", TRUE ~ footer)
       )
   )
+# Cori Bush is duplicated here. Perhaps removing the duplicate will solve the
+# issue we're running into in `09`? Let's try that.
+cong_complete[["senate"]] = cong_complete[["senate"]][
+  !duplicated(cong_complete[["senate"]]$candidate),]
+cong_complete[["house"]] = cong_complete[["house"]][
+  !duplicated(cong_complete[["house"]]$candidate),]
+
 save(cong_complete, file = here("data", "tidy", "cong_complete.Rda"))
