@@ -157,6 +157,10 @@ fb_matched$senate <- fb_matched$senate %>%
       TRUE ~ inc
     )
   )
+### Removing Alex Padilla, because he wasn't running for Senate
+fb_matched$senate<-fb_matched$senate[
+  !(fb_matched$senate$candidate=="alex padilla"), ]
+
 
 ## House
 fb_matched$house <- fb_matched$house %>%
@@ -188,22 +192,9 @@ fb_matched$house <- fb_matched$house %>%
 
 # Match candidate-level characteristics ========================================
 
-## FB original data
-fb_matched <- vec %>%
-  map(
-    ~ cong_complete[[.x]] %>%
-      ## Joining, by = "candidate"
-      left_join(
-        left_join(fb_list[[.x]], cand_list[[.x]]) %>%
-          rename(state_name = state) %>%
-          mutate(candidate = trimws(gsub('"', "", candidate))),
-        .
-      ) %>%
-      select(candidate, page_id, page_name, inc, everything()) %>%
-      mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
-  )
-
 assert_that(nrow(fb_list$senate) == nrow(fb_matched$senate))
+# This now gives an error, but this is because we removed Alex Padilla's rows
+# from fb_matched. For fb_matched$house, it still holds true.
 assert_that(nrow(fb_list$house) == nrow(fb_matched$house))
 summary(fb_matched$senate$vote_share)
 summary(fb_matched$house$vote_share)
@@ -237,151 +228,6 @@ fb_matched <- fb_matched %>%
       rename(id_old = id) %>%
       rename(id = id_2)
   )
-
-# Filling in missing candidates ================================================p
-# Tim Kelly
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "107802437414608"] <- "CHALLENGER"
-)
-# David Torres
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "110300057228517"] <- "CHALLENGER"
-)
-# Nydia Velazquez
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "110909022379213"] <- "INCUMBENT"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "110909022379213"] <- "NYDIA VELAZQUEZ"
-)
-# Kevin Van Ausdal
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "111173810400632"] <- "CHALLENGER"
-)
-# John Briscoe
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "112634507219876"] <- "CHALLENGER"
-)
-# Zach Raknerud
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "115454783336289"] <- "CHALLENGER"
-)
-# TAWNJA ZAHRADKA
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "117188196357573"] <- "CHALLENGER"
-)
-# QUINN NYSTROM
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "123838185676931"] <- "CHALLENGER"
-)
-# JESv<U+222B>S G. ¬ìCHUY¬î GARCv<U+2260>A
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "1491458271125644"] <- "INCUMBENT"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "1491458271125644"] <- "JESUS CHUY GARCIA"
-)
-# CHRISTY SMITH
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "1517919588502283"] <- "CHALLENGER"
-)
-# DAVID SCOTT
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "159817223047"] <- "INCUMBENT"
-)
-# ANGv©LICA MARIA DUEv±AS
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "204623453392865"] <- "CHALLENGER"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "204623453392865"] <- "ANGELICA MARIA DUENAS"
-)
-# MICHAEL F. Q. SAN NICOLAS
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "240142306105643"] <- "INCUMBENT"
-)
-# RANDY K. WEBER, SR.
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "272083892815201"] <- "INCUMBENT"
-)
-# FRANK D. LUCAS
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "288035911228085"] <- "INCUMBENT"
-)
-# LINDA T. Sv°NCHEZ
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "29921386086"] <- "INCUMBENT"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "29921386086"] <- "LINDA SANCHEZ"
-)
-# TRACY JENNINGS
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "418894668649288"] <- "CHALLENGER"
-)
-# RICARDO ¬ìRICK¬î DE LA FUENTE
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "508284072665591"] <- "CHALLENGER"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "508284072665591"] <- "RICARDO DE LA FUENTE"
-)
-# BEN GIBSON
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "626082571363383"] <- "CHALLENGER"
-)
-# DAN FEEHAN
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "664770743730817"] <- "CHALLENGER"
-)
-# RAv<U+222B>L M. GRIJALVA
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "7707979947"] <- "INCUMBENT"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "7707979947"] <- "RAUL GRIJALVA"
-)
-# LIZ JOHNSON
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "881875042156266"] <- "CHALLENGER"
-)
-# GEORGETTE Gv=MEZ
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "927610307291393"] <- "OPEN"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "927610307291393"] <- "GEORGETTE GOMEZ"
-)
 
 # Saving fb_matched ============================================================
 
