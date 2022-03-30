@@ -61,6 +61,43 @@ NRC <- read.dic(here("data", "raw", "dictionaries", "NRC.dic"))
 NRC <- dictionary(NRC)
 
 # Functions ====================================================================
+## Because of this function, now
+## source(here("R/utilities.R"), encoding = 'UTF-8') will not work
+## take the encoding out!
+clean_candidate <- function(df, x = "candidate") {
+  ## .Rda ---> .csv ---> .Rda errors
+  ## this is double quotes being messed up ---> does not work
+  # df[[x]] <- gsub("¬í", "", df[[x]])
+  # df[[x]] <- gsub("í", "", df[[x]])
+  # df[[x]] <- gsub("î", "", df[[x]])
+  # ## this is accentuated alphabets messed up ---> also does not work
+  # df[[x]] <- gsub("v°", "A", df[[x]])
+  # df[[x]] <- gsub("v±", "N", df[[x]])
+  # df[[x]] <- gsub("v<U+222B>", "U", df[[x]])
+  # df[[x]] <- gsub("v©", "E", df[[x]])
+  # df[[x]] <- gsub("v=", "O", df[[x]])
+  # df[[x]] <- stringi::stri_trans_general(tolower(df[[x]]), "latin-ascii")
+  ## This will intentionally kill all accentuated letters
+  ## which butchers the name e.g., velazquez ---> velzquez, but will ensure
+  ## consistency for matching
+  df[[x]] <- gsub("[^ -~]", "", tolower(df[[x]]))
+  df[[x]] <-
+    gsub(
+      "[ \t]{2,}", " ",
+      gsub("^\\s+|\\s+$", "", gsub("[[:punct:]]", " ", df[[x]]))
+    )
+  ## delete middle names, perform twice
+  df[[x]] <- gsub(
+    gsub("\\s+", " ", paste(" ", letters %>% paste(collapse = " | "), " ")),
+    " ", df[[x]]
+  )
+  df[[x]] <- gsub(
+    gsub("\\s+", " ", paste(" ", letters %>% paste(collapse = " | "), " ")),
+    " ", df[[x]]
+  )
+  return(df)
+}
+
 donate_classify <- function(x) {
   x %>%
     mutate(

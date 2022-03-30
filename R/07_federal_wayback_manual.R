@@ -21,7 +21,7 @@ cong <- cong %>%
       filter(!grepl("paypal", url))
   )
 
-## 11 and 50
+## 11 and 49
 cong %>% map_dbl(nrow)
 
 # NGP VAN (but variation) ======================================================
@@ -389,13 +389,8 @@ cong_complete <-
         text = case_when(is.na(text) ~ "", TRUE ~ text),
         title = case_when(is.na(title) ~ "", TRUE ~ title),
         footer = case_when(is.na(footer) ~ "", TRUE ~ footer)
-      )
+      ) %>%
+      ungroup()
   )
-# Cori Bush is duplicated here. Perhaps removing the duplicate will solve the
-# issue we're running into in `09`? Let's try that.
-cong_complete[["senate"]] = cong_complete[["senate"]][
-  !duplicated(cong_complete[["senate"]]$candidate),]
-cong_complete[["house"]] = cong_complete[["house"]][
-  !duplicated(cong_complete[["house"]]$candidate),]
 
 save(cong_complete, file = here("data", "tidy", "cong_complete.Rda"))
