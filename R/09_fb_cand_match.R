@@ -147,12 +147,41 @@ fb_matched %>%
 # [20] "liz johnson"
 
 # Manual fixes =================================================================
-## This is an example. Please use case_when
+
+## Senate
 fb_matched$senate <- fb_matched$senate %>%
   mutate(
     inc = case_when(
       candidate == "pat toomey" ~ "INCUMBENT",
       candidate == "rand paul" ~ "INCUMBENT",
+      TRUE ~ inc
+    )
+  )
+
+## House
+fb_matched$house <- fb_matched$house %>%
+  mutate(
+    inc = case_when(
+      candidate == "mark razzoli" ~ "CHALLENGER",
+      candidate == "diane mitsch bush" ~ "OPEN",
+      candidate == "tim kelly" ~ "CHALLENGER",
+      candidate == "david torres" ~ "CHALLENGER",
+      candidate == "kevin van ausdal" ~ "OPEN",
+      candidate == "john briscoe" ~ "CHALLENGER",
+      candidate == "zach raknerud" ~ "CHALLENGER",
+      candidate == "tawnja zahradka" ~ "CHALLENGER",
+      candidate == "quinn nystrom" ~ "CHALLENGER",
+      candidate == "christy smith" ~ "CHALLENGER",
+      candidate == "david scott" ~ "INCUMBENT",
+      candidate == "michael san nicolas" ~ "INCUMBENT",
+      candidate == "randy weber sr" ~ "INCUMBENT",
+      candidate == "frank lucas" ~ "INCUMBENT",
+      candidate == "c antonio delgado" ~ "CHALLENGER",
+      candidate == "tracy jennings" ~ "CHALLENGER",
+      candidate == "ricardo rick de la fuente" ~ "CHALLENGER",
+      candidate == "ben gibson" ~ "CHALLENGER",
+      candidate == "dan feehan" ~ "CHALLENGER",
+      candidate == "liz johnson" ~ "CHALLENGER",
       TRUE ~ inc
     )
   )
@@ -209,80 +238,7 @@ fb_matched <- fb_matched %>%
       rename(id = id_2)
   )
 
-# Filling in missing candidates ================================================
-
-# Senate:
-## Rand Paul
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  inc[candidate == "RAND PAUL"] <- "INCUMBENT"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  state_name[candidate == "RAND PAUL"] <- "KENTUCKY"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  district[candidate == "RAND PAUL"] <- "statewide"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  party_detailed[candidate == "RAND PAUL"] <- "REPUBLICAN"
-)
-## Pat Toomey
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  state_name[candidate == "PAT TOOMEY"] <- "PENNSYLVANIA"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  district[candidate == "PAT TOOMEY"] <- "statewide"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  party_detailed[candidate == "PAT TOOMEY"] <- "REPUBLICAN"
-)
-## Alex Padilla
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  inc[candidate == "ALEX PADILLA"] <- "OPEN"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  state_name[candidate == "ALEX PADILLA"] <- "CALIFORNIA"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  district[candidate == "ALEX PADILLA"] <- "statewide"
-)
-fb_matched[["senate"]] <- within(
-  fb_matched[["senate"]],
-  party_detailed[candidate == "ALEX PADILLA"] <- "DEMOCRAT"
-)
-
-## For our House candidates, it looks like incumbency is the only thing missing
-## This will make things simpler!
-## Will also fill in names for the folks whose names got messed up
-
-# Mark Razzolli
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "102381944438965"] <- "CHALLENGER"
-)
-# Andre Carson
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "31116589096"] <- "INCUMBENT"
-)
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  candidate[fb_ad_library_id == "31116589096"] <- "ANDRE CARSON"
-)
-# Diane Mitsch Busch
-fb_matched[["house"]] <- within(
-  fb_matched[["house"]],
-  inc[fb_ad_library_id == "102959799834968"] <- "CHALLENGER"
-)
+# Filling in missing candidates ================================================p
 # Tim Kelly
 fb_matched[["house"]] <- within(
   fb_matched[["house"]],
