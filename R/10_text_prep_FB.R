@@ -55,7 +55,7 @@ fb_unique <- fb_matched %>%
 
 fb_unique %>% map_dbl(nrow)
 # senate  house
-#  26113  43866
+#  26113  43949
 
 ## Check nonclassified ad creative links
 # temp1 <- fb_unique$senate %>% filter(is.na(type))
@@ -193,12 +193,12 @@ temp %>%
   )
 
 # # A tibble: 4 x 6
-#   party      chamber `mean_Donor-targeting` `mean_Voter-targeting` `se_Donor-targeting` `se_Voter-targ~`
-#   <chr>      <chr>            <dbl>                <dbl>        <dbl>              <dbl>
-# 1 Democrat   Senate           0.520                0.812      0.00455            0.00576
-# 2 Republican Senate           0.551                0.912      0.00795            0.00438
-# 3 Democrat   House            0.635                0.902      0.00290            0.00233
-# 4 Republican House            0.746                0.945      0.00469            0.00159
+# party      chamber `mean_Donor-targeting` `mean_Voter-targeting` `se_Donor-targeting` `se_Voter-targeting`
+# <chr>      <chr>                    <dbl>                  <dbl>                <dbl>                <dbl>
+#   1 Democrat   Senate                   0.520                  0.812              0.00455              0.00576
+# 2 Republican Senate                   0.551                  0.912              0.00795              0.00438
+# 3 Democrat   House                    0.636                  0.902              0.00289              0.00232
+# 4 Republican House                    0.746                  0.945              0.00469              0.00159
 
 pdf(here("fig", "in_district_per_type_chamber.pdf"), width = 6, height = 2.8)
 print(

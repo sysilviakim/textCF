@@ -256,7 +256,7 @@ cand_list[["house"]]$candidate[
 cand_list[["house"]]$candidate[
   cand_list[["house"]]$candidate == "PATRICIA ¬ìPAT¬î HACKETT"] <- "PATRICIA PAT HACKETT"
 cand_list[["house"]]$candidate[
-  cand_list[["house"]]$candidate == "RA√∫L M. GRIJALVA"] <- "RAúL M. GRIJALVA"
+  cand_list[["house"]]$candidate == "RA√∫L M. GRIJALVA"] <- "RAUL M. GRIJALVA"
 cand_list[["house"]]$candidate[
   cand_list[["house"]]$candidate == "ROBERT C. ¬ìBOBBY¬î SCOTT"] <- "ROBERT C. BOBBY SCOTT"
 cand_list[["house"]]$candidate[
@@ -356,14 +356,103 @@ fb_matched[["senate"]] <- within(fb_matched[["senate"]],
 
 ## For our House candidates, it looks like incumbency is the only thing missing
 ## This will make things simpler!
+## Will also fill in names for the folks whose names got messed up
 
-matched_house_nas <- as.data.frame(cbind(fb_matched[["house"]]$candidate,
-                                          fb_matched[["house"]]$inc,
-                                          fb_matched[["house"]]$state_name,
-                                          fb_matched[["house"]]$district,
-                                          fb_matched[["house"]]$party))
-matched_house_nas <- unique(matched_house_nas)
-
+# Mark Razzolli
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                 inc[fb_ad_library_id == '102381944438965'] <- 'CHALLENGER')
+# Andre Carson
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '31116589096'] <- 'INCUMBENT')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '31116589096'] <- 'ANDRE CARSON')
+# Diane Mitsch Busch
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '102959799834968'] <- 'CHALLENGER')
+# Tim Kelly
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '107802437414608'] <- 'CHALLENGER')
+# David Torres
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '110300057228517'] <- 'CHALLENGER')
+# Nydia Velazquez
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '110909022379213'] <- 'INCUMBENT')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '110909022379213'] <- 'NYDIA VELAZQUEZ')
+# Kevin Van Ausdal
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '111173810400632'] <- 'CHALLENGER')
+# John Briscoe
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '112634507219876'] <- 'CHALLENGER')
+# Zach Raknerud
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '115454783336289'] <- 'CHALLENGER')
+# TAWNJA ZAHRADKA
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '117188196357573'] <- 'CHALLENGER')
+# QUINN NYSTROM
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '123838185676931'] <- 'CHALLENGER')
+# JES√∫S G. ¬ìCHUY¬î GARC√≠A
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '1491458271125644'] <- 'INCUMBENT')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '1491458271125644'] <- 'JESUS CHUY GARCIA')
+# CHRISTY SMITH
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '1517919588502283'] <- 'CHALLENGER')
+# DAVID SCOTT
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '159817223047'] <- 'INCUMBENT')
+# ANG√©LICA MARIA DUE√±AS
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '204623453392865'] <- 'CHALLENGER')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '204623453392865'] <- 'ANGELICA MARIA DUENAS')
+# MICHAEL F. Q. SAN NICOLAS
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '240142306105643'] <- 'INCUMBENT')
+# RANDY K. WEBER, SR.
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '272083892815201'] <- 'INCUMBENT')
+# FRANK D. LUCAS
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '288035911228085'] <- 'INCUMBENT')
+# LINDA T. S√°NCHEZ
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '29921386086'] <- 'INCUMBENT')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '29921386086'] <- 'LINDA SANCHEZ')
+# TRACY JENNINGS
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '418894668649288'] <- 'CHALLENGER')
+# RICARDO ¬ìRICK¬î DE LA FUENTE
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '508284072665591'] <- 'CHALLENGER')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '508284072665591'] <- 'RICARDO DE LA FUENTE')
+# BEN GIBSON
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '626082571363383'] <- 'CHALLENGER')
+# DAN FEEHAN
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '664770743730817'] <- 'CHALLENGER')
+# RA√∫L M. GRIJALVA
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '7707979947'] <- 'INCUMBENT')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '7707979947'] <- 'RAUL GRIJALVA')
+# LIZ JOHNSON
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '881875042156266'] <- 'CHALLENGER')
+# GEORGETTE G√≥MEZ
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                inc[fb_ad_library_id == '927610307291393'] <- 'OPEN')
+fb_matched[["house"]] <- within(fb_matched[["house"]], 
+                                candidate[fb_ad_library_id == '927610307291393'] <- 'GEORGETTE GOMEZ')
+                                
 # Saving fb_matched ============================================================
 
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
