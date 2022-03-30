@@ -217,56 +217,59 @@ list_house <- as.data.frame(unique(fb_list[["house"]]$candidate))
 # Bill Olson: WILLIAM P. BILL OLSON in cong_complete, WILLIAM P. ¬ìBILL¬î OLSON in list
 
 # While it will be more computationally intensive, the names in cong_complete
-# are generally more coherent; so, the names in fb_list will be replaced with
+# are generally more coherent; so, the names in cand_list will be replaced with
 # those in cong_complete:
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "¬ìSCOTTY¬î ROBINSON"] <- "SCOTTY ROBINSON"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "ANDR√© CARSON"] <- "ANDRé CARSON"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "ANG√©LICA MARIA DUE√±AS"] <- "ANGéLICA MARIA DUEñAS"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "BILL PASCRELL,  JR."] <- "BILL PASCRELL, JR."
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "C. ANTONIO DELGADO"] <- "ANTONIO DELGADO"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "DARTANYON ¬ìDAW¬î WILLIAMS"] <- "DARTANYON DAW WILLIAMS"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "EARL L. ¬ìBUDDY¬î CARTER"] <- "EARL L. BUDDY CARTER"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "GEORGE J. KELLY,  JR."] <- "GEORGE J. KELLY, JR."
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "GEORGETTE G√≥MEZ"] <- "GEORGETTE GóMEZ"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "GLENN W. THOMPSON,  JR."] <- "GLENN W. THOMPSON, JR."
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "HILLARY O¬íCONNOR MUERI"] <- "HILLARY O'CONNOR MUERI"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "JAMES ¬ìJIM¬î PRUDEN"] <- "JAMES JIM PRUDEN"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "JES√∫S G. ¬ìCHUY¬î GARC√≠A"] <- "JESúS G. CHUY GARCíA"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "JOHN W. COLLICK,  JR."] <- "JOHN W. COLLICK, JR."
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "LINDA T. S√°NCHEZ"] <- "LINDA T. SáNCHEZ"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "MICHAEL F. DOYLE,  JR."] <- "MICHAEL F. DOYLE, JR."
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "NYDIA M. VEL√°ZQUEZ"] <- "NYDIA M. VELáZQUEZ"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "PATRICIA ¬ìPAT¬î HACKETT"] <- "PATRICIA PAT HACKETT"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "RA√∫L M. GRIJALVA"] <- "RAúL M. GRIJALVA"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "ROBERT C. ¬ìBOBBY¬î SCOTT"] <- "ROBERT C. BOBBY SCOTT"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "ROBERT G. ¬ìBOB¬î GOOD"] <- "ROBERT G. BOB GOOD"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "SANDRA ¬ìCANDY¬î CHRISTOPHE"] <- "SANDRA CANDY CHRISTOPHE"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "TOM O¬íHALLERAN"] <- "TOM O'HALLERAN"
-fb_list[["house"]]$candidate[
-  fb_list[["house"]]$candidate == "WILLIAM P. ¬ìBILL¬î OLSON"] <- "WILLIAM P. BILL OLSON"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "¬ìSCOTTY¬î ROBINSON"] <- "SCOTTY ROBINSON"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "ANDR√© CARSON"] <- "ANDRE CARSON"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "ANG√©LICA MARIA DUE√±AS"] <- "ANGéLICA MARIA DUEñAS"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "BILL PASCRELL,  JR."] <- "BILL PASCRELL, JR."
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "C. ANTONIO DELGADO"] <- "ANTONIO DELGADO"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "DARTANYON ¬ìDAW¬î WILLIAMS"] <- "DARTANYON DAW WILLIAMS"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "EARL L. ¬ìBUDDY¬î CARTER"] <- "EARL L. BUDDY CARTER"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "GEORGE J. KELLY,  JR."] <- "GEORGE J. KELLY, JR."
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "GEORGETTE G√≥MEZ"] <- "GEORGETTE GóMEZ"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "GLENN W. THOMPSON,  JR."] <- "GLENN W. THOMPSON, JR."
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "HILLARY O¬íCONNOR MUERI"] <- "HILLARY O'CONNOR MUERI"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "JAMES ¬ìJIM¬î PRUDEN"] <- "JAMES JIM PRUDEN"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "JES√∫S G. ¬ìCHUY¬î GARC√≠A"] <- "JESúS G. CHUY GARCíA"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "JOHN W. COLLICK,  JR."] <- "JOHN W. COLLICK, JR."
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "LINDA T. S√°NCHEZ"] <- "LINDA T. SáNCHEZ"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "MICHAEL F. DOYLE,  JR."] <- "MICHAEL F. DOYLE, JR."
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "NYDIA M. VEL√°ZQUEZ"] <- "NYDIA M. VELáZQUEZ"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "PATRICIA ¬ìPAT¬î HACKETT"] <- "PATRICIA PAT HACKETT"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "RA√∫L M. GRIJALVA"] <- "RAúL M. GRIJALVA"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "ROBERT C. ¬ìBOBBY¬î SCOTT"] <- "ROBERT C. BOBBY SCOTT"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "ROBERT G. ¬ìBOB¬î GOOD"] <- "ROBERT G. BOB GOOD"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "SANDRA ¬ìCANDY¬î CHRISTOPHE"] <- "SANDRA CANDY CHRISTOPHE"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "TOM O¬íHALLERAN"] <- "TOM O'HALLERAN"
+cand_list[["house"]]$candidate[
+  cand_list[["house"]]$candidate == "WILLIAM P. ¬ìBILL¬î OLSON"] <- "WILLIAM P. BILL OLSON"
+
+
+# Apparently, none of this actually worked.
 
 # Match candidate-level characteristics ========================================
 
@@ -319,6 +322,47 @@ fb_matched <- fb_matched %>%
       rename(id_old = id) %>%
       rename(id = id_2)
   )
+
+# Filling in missing candidates ================================================
+
+# Senate:
+## Rand Paul
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 inc[candidate == 'RAND PAUL'] <- 'INCUMBENT')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 state_name[candidate == 'RAND PAUL'] <- 'KENTUCKY')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 district[candidate == 'RAND PAUL'] <- 'statewide')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 party_detailed[candidate == 'RAND PAUL'] <- 'REPUBLICAN')
+## Pat Toomey
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 inc[candidate == 'PAT TOOMEY'] <- 'INCUMBENT')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 state_name[candidate == 'PAT TOOMEY'] <- 'PENNSYLVANIA')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 district[candidate == 'PAT TOOMEY'] <- 'statewide')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 party_detailed[candidate == 'PAT TOOMEY'] <- 'REPUBLICAN')
+## Alex Padilla
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 inc[candidate == 'ALEX PADILLA'] <- 'OPEN')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 state_name[candidate == 'ALEX PADILLA'] <- 'CALIFORNIA')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 district[candidate == 'ALEX PADILLA'] <- 'statewide')
+fb_matched[["senate"]] <- within(fb_matched[["senate"]], 
+                                 party_detailed[candidate == 'ALEX PADILLA'] <- 'DEMOCRAT')
+
+## For our House candidates, it looks like incumbency is the only thing missing
+## This will make things simpler!
+
+matched_house_nas <- as.data.frame(cbind(fb_matched[["house"]]$candidate,
+                                          fb_matched[["house"]]$inc,
+                                          fb_matched[["house"]]$state_name,
+                                          fb_matched[["house"]]$district,
+                                          fb_matched[["house"]]$party))
+matched_house_nas <- unique(matched_house_nas)
 
 # Saving fb_matched ============================================================
 
