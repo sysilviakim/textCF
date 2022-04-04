@@ -259,9 +259,10 @@ sum(is.na(fb_matched$house$pvi)) ## 4,737 ---> 0
 # Match candidate-level characteristics ========================================
 
 assert_that(nrow(fb_list$senate) == nrow(fb_matched$senate))
-# This now gives an error, but this is because we removed Alex Padilla's rows
-# from fb_matched. For fb_matched$house, it still holds true.
 assert_that(nrow(fb_list$house) == nrow(fb_matched$house))
+# These now give errors, but this is because we removed Alex Padilla's rows
+# from fb_matched$ senate, and Michael San Nicolas's from fb_matched$house.
+
 summary(fb_matched$senate$vote_share)
 summary(fb_matched$house$vote_share)
 assert_that(
@@ -271,6 +272,7 @@ assert_that(
   )
   ## Problem with things like 1.58529E+15
 )
+# TRUE
 
 fb_matched <- fb_matched %>%
   map(
