@@ -100,14 +100,26 @@ fb_matched <- vec %>%
       mutate(vote_share = as.numeric(candidatevotes) / as.numeric(totalvotes))
   )
 
-## Sanity check
+## Sanity checks
 fb_matched$house %>%
   filter(candidate == "cori bush") %>%
   .$inc %>%
   table(useNA = "ifany")
 
+fb_matched$house %>%
+  filter(candidate == "cori bush") %>%
+  .$pvi %>%
+  table(useNA = "ifany")
+
+fb_matched$house %>%
+  filter(candidate == "kevin mccarthy") %>%
+  .$pvi %>%
+  table(useNA = "ifany")
+
 sum(is.na(fb_matched$senate$inc)) ## 147,196 ---> 152
 sum(is.na(fb_matched$house$inc)) ## 9,933 ---> 4,737
+sum(is.na(fb_matched$senate$pvi)) ## 152
+sum(is.na(fb_matched$house$pvi)) ## 4,737
 
 # Identifying which candidates still have NAs ==================================
 ## Need manual case_when fill-ins
@@ -148,7 +160,7 @@ fb_matched %>%
 
 # Manual fixes =================================================================
 
-## Senate
+## Senate Incumbency
 fb_matched$senate <- fb_matched$senate %>%
   mutate(
     inc = case_when(
@@ -162,7 +174,7 @@ fb_matched$senate<-fb_matched$senate[
   !(fb_matched$senate$candidate=="alex padilla"), ]
 
 
-## House
+## House Incumbency
 fb_matched$house <- fb_matched$house %>%
   mutate(
     inc = case_when(
@@ -189,6 +201,60 @@ fb_matched$house <- fb_matched$house %>%
       TRUE ~ inc
     )
   )
+
+sum(is.na(fb_matched$senate$inc)) ## 152 ---> 0
+sum(is.na(fb_matched$house$inc)) ## 4,737 ---> 0
+
+## Senate PVI
+
+class(fb_matched$house$pvi)
+class(fb_matched$senate$pvi)
+# Numeric
+
+fb_matched$senate <- fb_matched$senate %>%
+  mutate(
+    pvi = case_when(
+      candidate == "pat toomey" ~ -2,
+      candidate == "rand paul" ~ -18,
+      TRUE ~ pvi
+    )
+  )
+
+sum(is.na(fb_matched$senate$pvi)) ## 115 ---> 0 -- success!
+
+## House PVI
+
+fb_matched$house <- fb_matched$house %>%
+  mutate(
+    pvi = case_when(
+      candidate == "mark razzoli" ~ 16, # NJ-12; D+16
+      candidate == "diane mitsch bush" ~ -6, # CO-3; R+6
+      candidate == "tim kelly" ~ 5, # MI-5; D+5
+      candidate == "david torres" ~ 40, # PA-2; D+40
+      candidate == "kevin van ausdal" ~ -27, # GA-14; R+27
+      candidate == "john briscoe" ~ 13, # CA-47; D+13
+      candidate == "zach raknerud" ~ -16, # ND-AL; R+16
+      candidate == "tawnja zahradka" ~ -12, # MN-6; R+12
+      candidate == "quinn nystrom" ~ -4, # MN-8 R+4
+      candidate == "christy smith" ~ 0, # CA-25; EVEN
+      candidate == "david scott" ~ 20, # GA-13; D+20
+      #candidate == "michael san nicolas" ~ ___, # Guam...should probably remove
+      candidate == "randy weber sr" ~ -12, # TX-14; R+12
+      candidate == "frank lucas" ~ -27, # OK-3; R+27
+      candidate == "c antonio delgado" ~ 33, # CA-40; D+33
+      candidate == "tracy jennings" ~ 38, # IL-7; D+38
+      candidate == "ricardo rick de la fuente" ~ -13, # TX-27; R+13
+      candidate == "ben gibson" ~ -13, # LA-4; R+13
+      candidate == "dan feehan" ~ -5, # MN-1; R+5
+      candidate == "liz johnson" ~ -9, # GA-12; R+9
+      TRUE ~ pvi
+    )
+  )
+
+### Removing Michael San Nicolas, because he represents Guam (sorry, Guam)
+fb_matched$house<-fb_matched$house[
+  !(fb_matched$house$candidate=="michael san nicolas"), ]
+sum(is.na(fb_matched$house$pvi)) ## 4,737 ---> 0
 
 # Match candidate-level characteristics ========================================
 
