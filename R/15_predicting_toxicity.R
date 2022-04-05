@@ -18,7 +18,8 @@ merged <- left_join(
     clean_names() %>%
     select(-contains("word"), -contains("state")) %>%
     select(-donate, -financial, -vote_share, -type, -inc, -party, -chamber) %>%
-    dedup(),
+    dedup() %>%
+    clean_candidate(),
   fb %>%
     select(-n) %>%
     dedup()
@@ -41,33 +42,40 @@ merged <- left_join(
 
 temp <- merged %>%
   filter(!is.na(party) & !is.na(state_po) & party != "INDEPENDENT") %>%
-  mutate(inc = case_when(is.na(inc) ~ "CHALLENGER", TRUE ~ inc)) %>%
-  party_factor(., outvar = "Type")
+  party_factor(., outvar = "Type") %>%
+  mutate(
+    financial = factor(
+      financial,
+      levels = c("Voter-targeting", "Donor-targeting")
+    )
+  )
+
+table(temp$inc, useNA = "ifany")
+assert_that(!any(is.na(temp$inc)))
 
 # Over time plot ===============================================================
 color4_modified <- color4
-names(color4_modified) <- gsub("\n", " ", names(color4_modified)) 
+names(color4_modified) <- gsub("\n", " ", names(color4_modified))
 p <- temp %>%
   mutate(year_month = floor_date(min_ad_delivery_start_time, "month")) %>%
   filter(year_month >= as.Date("2019-01-01")) %>%
   mutate(Type = gsub("\n", " ", Type)) %>%
   group_by(Type, year_month) %>%
   count() %>%
-  ggplot(aes(x = year_month, y = n, group = Type, color = Type)) + 
-  geom_line() + 
-  scale_color_manual(values = color4_modified) + 
-  xlab("Election Cycle, Monthly") + 
-  ylab("Number of Unique Ads") + 
-  scale_x_date(breaks = "3 months", date_labels = "%Y\n%b") + 
+  ggplot(aes(x = year_month, y = n, group = Type, color = Type)) +
+  geom_line() +
+  scale_color_manual(values = color4_modified) +
+  xlab("Election Cycle, Monthly") +
+  ylab("Number of Unique Ads") +
+  scale_x_date(breaks = "3 months", date_labels = "%Y\n%b") +
   scale_y_continuous(labels = scales::comma)
 
 pdf(here("fig", "n_unique_ads_over_time.pdf"), width = 4.0, height = 3.2)
-plot_notitle(pdf_default(p)) + theme(legend.position = "bottom") + 
+plot_notitle(pdf_default(p)) + theme(legend.position = "bottom") +
   guides(colour = guide_legend(nrow = 2))
 dev.off()
 
-# OLS first for reference ======================================================
-
+# OLS first for reference (simple model) =======================================
 fit <- lm(
   toxicity ~
   party * financial + chamber + inc + min_ad_delivery_start_time + state_po,
@@ -91,7 +99,7 @@ etable(
 
 fit_fe <- feols(
   toxicity ~
-    financial + min_ad_delivery_start_time | candidate,
+  financial + min_ad_delivery_start_time | candidate,
   temp
 )
 
