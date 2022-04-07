@@ -137,10 +137,12 @@ prop(fb_unique$house, vars = "word_covid") ## 4.4%
 
 # Paste meta data ==============================================================
 fb_unique_raw <- fb_unique
+save(fb_unique_raw, file = here("data", "tidy", "fb_unique_raw.Rda"))
+
 fb_unique <- c(senate = "senate", house = "house") %>%
   map(
     function(x) {
-      left_join(fb_unique[[x]], fb_meta[[x]]) %>%
+      left_join(clean_candidate(fb_unique[[x]]), fb_meta[[x]]) %>%
         mutate(n = row_number()) %>%
         group_by(n) %>%
         group_split() %>%
