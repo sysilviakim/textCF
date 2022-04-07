@@ -11,8 +11,14 @@ fb_unique <- fb_matched %>%
     ~ .x %>%
       select(
         candidate,
-        fb_ad_library_id, page_name, party, inc, state_po, contains("state_cd"),
-        ad_creative_body, ad_creative_link_caption, vote_share
+        fb_ad_library_id, page_name, party, inc, state_po, pvi, 
+        contains("state_cd"), ad_creative_body, ad_creative_link_caption, 
+        vote_share, contains("ad_"), contains("spend_"), contains("potential_"),
+        contains("impressions_"),
+        matches(
+          paste0("^", tolower(state.abb) %>% paste(collapse = "$|^"), "$")
+        ),
+        contains("male_"), contains("female_"), contains("unknown_"),
       ) %>%
       distinct() %>%
       filter(ad_creative_body != "") %>%
