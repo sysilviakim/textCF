@@ -5,7 +5,7 @@ library(torchvision)
 # Much of this copied from R torch official site
 # (https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/)
 
-# apparently expected by pretrained classifier
+# Expected by pretrained classifier
 
 RESNET18_CONSTANTS <-
   list(mean = c(0.485, 0.456, 0.406), std = c(0.229, 0.224, 0.225))
@@ -16,6 +16,14 @@ IMAGE_FUNS <- list(
   "jpg" = jpeg::readJPEG,
   "jpeg" = jpeg::readJPEG,
   "png" = png::readPNG
+)
+CNN_STATISTICS <- data.frame(
+  actual_class = integer(),
+  pred_class = integer(),
+  image = character(),
+  p_trump = double(),
+  log_p_trump = double(),
+  batch_loss = double()
 )
 
 
@@ -61,20 +69,25 @@ render_image <- function(path, pause = FALSE) {
 }
 
 # Pad matrix along shorter dimension with fill init_value
-# Quick way of making square images for plotting
+# Quick way of making square images for plotting; unsure if correct
 pad_matrix <- function(mat, fill = "#FFFFFF") {
   stopifnot("Fill must match type of matrix" = typeof(mat) == typeof(fill))
   dims <- dim(mat)
-  out <- if ((difference <- dims[[1]] - dims[[2]]) > 0) {
-    cbind(mat, matrix(fill, nrow = dims[[1]], ncol = difference))
+  if (length(dims) < 2) stop("Matrix must have 2 or more dimensions")
+  difference <- dims[[1]] - dims[[2]]
+  if (difference > 0) {
+    # More rows than columns
+    out <- cbind(mat, matrix(fill, nrow = dims[[1]], ncol = difference))
   } else if (difference < 0) {
-    rbind(mat, matrix(fill, nrow = -difference, ncol = dims[[2]]))
+    # More columns than rows
+    out <- rbind(mat, matrix(fill, nrow = -difference, ncol = dims[[2]]))
   } else {
-    mat
+    out <- mat
   }
   as.raster(out)
 }
 
+# Load image from a file path
 read_image <- function(path, to_raster = TRUE, drop_alpha = TRUE) {
   fun <- switch(tools::file_ext(path),
     "jpg" = ,
@@ -100,6 +113,7 @@ read_image_memory <- function(obj, image_type = c("jpeg", "png"),
   preprocess_image(img, to_raster = to_raster, drop_alpha = drop_alpha)
 }
 
+# Helper to convert image to raster and/or remove alpha channel
 preprocess_image <- function(img, to_raster = TRUE, drop_alpha = TRUE) {
   if (to_raster) {
     img <- as.raster(img)
@@ -114,38 +128,65 @@ preprocess_image <- function(img, to_raster = TRUE, drop_alpha = TRUE) {
 # Plots all images stored in a directory, chunked into plots of given dimension (default 4 x 4).
 # Crops to square dimensions
 # May cause memory error if given too many images
-inspect_image_directory <- function(path, plot_dims = c(4, 4), shuffle = FALSE) {
+inspect_images_from_paths <- function(paths,
+                                      labels = "",
+                                      plot_dims = c(4, 4), shuffle = FALSE,
+                                      pause = if (interactive()) 3 else 0) {
+  if (length(paths) == 0) stop("Zero-length paths argument")
+  if (!length(labels) %in% c(1, length(paths))) {
+    stop(length(paths), " images, but ", length(labels), " labels")
+  }
   size <- prod(plot_dims)
-  images <- list.files(path, full.names = TRUE)
-  images <- images[tools::file_ext(images) %in% names(IMAGE_FUNS)]
+  if (all(file.info(paths)[["isdir"]])) paths <- list.files(paths, full.names = TRUE)
+  images <- paths[tools::file_ext(paths) %in% names(IMAGE_FUNS)]
   if (shuffle) {
     images <- images[sample(length(images), length(images), replace = FALSE)]
   }
   n_plots <- ceiling(length(images) / size)
   old <- par(c("mar", "mfcol"))
   par(mfcol = plot_dims, mar = rep(1, 4))
+  # splits <- rep(seq(n_plots), each = size)[seq_along(images)]
+  splits <- split(
+    seq_along(images),
+    rep(seq_len(n_plots), each = size)[seq_along(images)]
+  )
 
-  # Split list into chunks, each
-  images <- setNames(images, basename(images)) %>%
-    split(rep(seq(n_plots), each = size)[seq_along(images)])
-
-  # Recursively traverses possibly nested list of image rasters and plots them
-  plot_image_list <- function(lst, pause = 0) {
-    if (is.list(lst[[1]])) {
-      lapply(lst, plot_image_list, pause)
-    } else {
-      mapply(function(img, name) {
-        plot(pad_matrix(img))
-        title(name)
-      }, lst, names(lst))
-      Sys.sleep(pause)
+  # Split list into chunks, each with a distinct class
+  images <- data.frame(name = basename(images), image = images, label = labels) %>%
+    t()
+  # images <- split(images, splits)
+  #
+  ## Recursively traverses possibly nested list of image rasters and plots them
+  # plot_image_list <- function(lst, pause = 0) {
+  # if (is.list(lst[[1]])) {
+  # lapply(lst, plot_image_list, pause = pause)
+  # } else {
+  # for (i in seq_len(nrow(lst))) {
+  ## browser()
+  ## plot(pad_matrix(img))
+  # plot(lst[i, "img"])
+  # title(lst[i, "name"])
+  # mtext(lst[i, "label"], side = 1)
+  # }
+  # }
+  # Sys.sleep(pause)
+  # }
+  plot_image_params <- function(params, pause = 3) {
+    for (i in seq_len(ncol(params))) {
+      plot(read_image(params["image", i], drop_alpha = FALSE))
+      title(params["name", i])
+      mtext(params["label", i], side = 1)
     }
+    Sys.sleep(pause)
   }
 
-  lapply(images, function(x) {
-    lapply(x, read_image) %>%
-      plot_image_list(pause = 3)
-  })
+  # lapply(images, function(x) {
+  # lapply(x[["image"]], read_image, drop_alpha = FALSE) %>%
+  # plot_image_list(pause = pause)
+  # }, images, labels)
+  images <- lapply(splits, function(x) images[, x, drop = FALSE]) %>%
+    lapply(plot_image_params, pause = 3)
+
   # Reset plot parameters
   on.exit(do.call(par, old))
 }
@@ -188,39 +229,40 @@ find_lr <- function(train_dl, optimizer, init_value = 1e-8,
   data.frame(log_lrs = log_lrs, losses = losses)
 }
 
-train_batch <- function(b) {
+train_batch <- function(b, model, optimizer, criterion, scheduler) {
   optimizer$zero_grad()
-  output <- model(b[[1]])
+  output <- model(b[[1]]$to(device = DEVICE))
   loss <- criterion(output, b[[2]]$to(device = DEVICE))
   loss$backward()
   optimizer$step()
   scheduler$step()
   loss$item()
-  # Object configured to convert preds from logits
 }
 
-valid_batch <- function(b) {
+valid_batch <- function(b, model, criterion) {
   output <- model(b[[1]])
   loss <- criterion(output, b[[2]]$to(device = DEVICE))
   loss$item()
 }
 
-test_batch <- function(b) {
-  output <- model(b[[1]])
-  labels <- b[[2]]$to(device = DEVICE)
+test_batch <- function(b, model, criterion) {
+  output <- model(b[["x"]])
+  labels <- b[["y"]]$to(device = DEVICE)
   loss <- criterion(output, labels)
-
-  # torch_max returns a list, with position 1 containing the values (here log predicted probabilities)
+  predictions <- output$data()$clone()$detach()
+  # torch_max returns a list with position 1 containing the values (here log predicted probabilities)
   # and position 2 containing the respective indices
-  out <- nnf_softmax(output$data()$clone()$detach(), dim = 2)
   results <- data.frame(
-    # Softmax here?
-    actual = as.integer(b$y), prob = as.numeric(out[, 2]),
-    pred_class = as.integer(torch_max(out, dim = 2)[[2]])
+    actual_class = as.integer(b[["y"]]),
+    pred_class = as.integer(torch_max(predictions, dim = 2)[[2]]),
+    image = b[["path"]],
+    p_trump = as.double(nnf_softmax(predictions, dim = 2)[, 2]),
+    log_p_trump = as.double(predictions[, 2]),
+    batch_loss = as.double(loss$item())
   )
   # add number of correct classifications in this batch to the aggregate
-  correct <- sum(results[["pred_class"]] == results[["actual"]])
-  list(results = results, total = labels$size(1), correct = correct, loss = loss$item())
+  correct <- sum(results[["pred_class"]] == results[["actual_class"]])
+  list(results = results, total = labels$size(1), correct = correct)
 }
 
 # Generate code to create batch-processing loop with given symbols
@@ -260,4 +302,89 @@ inspect_image_batch <- function(batch, plot_dims = c(4, 4), class_names = CLASS_
       plot(.x)
       title(.y)
     })
+}
+
+
+
+# Replace argument values in character vector of command-line args with standard names from a named vector
+standardize_args <- function(args, mapping) {
+  args <- unlist(strsplit(args, "\\s+"))
+  identified <- args %in% names(mapping)
+  args[identified] <- mapping[args[identified]]
+  args
+}
+
+# Takes a character vector of arguments and parses
+# one by one. Names are looked up in a list containing the expected type, which determines the parsing method
+parse_args <- function(args, types) {
+  included <- intersect(args, names(types))
+  mandatory <- names(types)[sapply(types, function(x) !"default" %in% names(x))]
+  if (length(mandatory) > 0 && !all(included %in% mandatory)) stop("Value missing for mandatory argument")
+  # Only possible if none mandatory
+  if (length(included) == 0) {
+    return(lapply(types, function(x) x[["default"]]))
+  }
+
+  out <- vector("list", length(types))
+  names(out) <- names(types)
+
+  # Reduce charcter vector of arguments. If an argument is matched, record TRUE if its type is logical, otherwise consume next element (the value)
+  while (length(args) > 0) {
+    current <- args[[1]]
+    args <- args[-1]
+    # If arg type is logical, just record its presence.
+    # Otherwise, next element contains value
+    if (current %in% included) {
+      type <- types[[c(current, "type")]]
+      # Horrible special case of arg with default being last in list
+      if (length(args) == 0 && type != "logical") {
+        stop("Missing argument to ", current)
+        # if (is.null((default <- types[[c(current, "default")]]))) {
+        # break
+        # } else {
+        # out[[current]] <- default
+        # }
+      } else {
+        out[[current]] <- switch(type,
+          logical = TRUE,
+          character = args[[1]],
+          integer = as.integer(args[[1]]),
+          double = as.double(args[[1]]),
+          stop("Unhandled type ", type)
+          # If needed: add nargs to arg types list:
+          # Have switch expression instead consume that many args
+          # Add line here deleting that many args
+        )
+      }
+    }
+    # Substitute defaults for omitted arguments
+    missing <- setdiff(names(types), included)
+    if (length(missing) > 0) {
+      out[missing] <- lapply(types[missing], function(x) x[["default"]])
+    }
+  }
+  out
+}
+
+# Records classification performance on a test set
+# Args passed via ... available to expression
+aggregate_cnn_results <- function(..., model_loop, aggregation_df = CNN_STATISTICS) {
+  total <- correct <- 0
+  results <- aggregation_df
+  eval(model_loop, enclos = parent.frame())
+  list(results = results, total = total, correct = correct)
+}
+
+confusion_matrix <- function(actual, predicted, class_names = CLASS_NAMES) {
+  table(factor(class_names[actual], levels = class_names),
+    factor(class_names[predicted], levels = class_names),
+    dnn = c("truth", "predicted")
+  )
+}
+
+compute_loss_weights <- function(labels, weights, class_names = CLASS_NAMES) {
+  if (length(unique(labels)) != length(weights)) stop("Weights vector must have the same length as the number of unique class labels")
+  loss_weights <- 1 / prop.table(table(labels)) * weights
+  names(loss_weights) <- unname(class_names)
+  loss_weights
 }

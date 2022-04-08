@@ -1,6 +1,6 @@
-source(here::here("R/utilities.R"))
-source(here::here("R/classifier_utilities.R"))
-source("R/dropbox_utilities.R")
+source(here::here("R", "utilities.R"))
+source(here::here("R", "classifier_utilities.R"))
+source(here::here("R", "dropbox_utilities.R"))
 # Subclass dataset function to hold images for analysis
 
 # Partly copied from https://blogs.rstudio.com/ai/posts/2020-11-30-torch-brain-segmentation/
@@ -9,38 +9,65 @@ candidate_image_dataset <- torch::dataset(
   sample_weights = NULL,
   angle = NULL,
   flip_thresh = NULL,
-  rescale_thresh = NULL,
+  rescale_bounds = NULL,
   images = NULL,
   targets = NULL,
-  use_dropbox = NULL,
-  dropbox_token = NULL,
   image_types = NULL,
-  sample = NULL,
-  initialize = function(img_dir, sample_weights = NULL,
+  uses_dropbox = NULL,
+  uses_sample = FALSE,
+  uses_transform = FALSE,
+  full_image_paths = TRUE,
+  print = function() {
+    class_count <- table(names(self$images))
+    cat(
+      "A candidate image dataset containing", length(self), "images",
+      "in", length(class_count), "classes", "\n"
+    )
+    print(class_count)
+    cat("Directory", self$root, "\n")
+  },
+  initialize = function(img_dir,
+                        sample_weights = NULL,
                         transform_params = NULL,
                         class_labels = CLASS_NAMES,
                         use_dropbox = FALSE,
-                        dropbox_token = NULL) {
+                        dropbox_token = NULL,
+                        full_image_paths = TRUE,
+                        debug = FALSE) {
     stopifnot(
-      # if (use_dropbox) isTRUE(dropbox_path_info(dropbox_token, dropbox_correct_path(img_dir), error_on_failure = FALSE) == "folder") else dir.exists(img_dir),
-      # if (use_dropbox) inherits(dropbox_token, "Token2.0"),
       all(sample_weights > 0),
-      is.null(transform_params) || all(names(transform_params) %in% c("angle", "flip", "rescale"))
+      is.null(transform_params) || all(names(transform_params) %in% c("angle", "flip", "rescale_min", "rescale_max") &&
+        length(transform_params) == 4)
     ) # R thinks NULL >0, bizarrely
 
-    if (use_dropbox && is.null(dropbox_token)) message("dropbox_token is not NULL, but use_dropbox = FALSE")
+    if (use_dropbox && is.null(dropbox_token)) {
+      stop("dropbox_token is NULL, but use_dropbox = TRUE")
+    }
+
+    private$.prev_error <- getOption("error")
+    if (debug) {
+      options(error = debug_handler)
+      message("Debugging enabled for this instance")
+    }
     self$root <- img_dir
     self$labels <- class_labels
-    self$use_dropbox <- use_dropbox
+    self$uses_dropbox <- use_dropbox
+    self$full_image_paths <- full_image_paths
+    if (self$full_image_paths) {
+      private$.path_transform <- identity
+    } else {
+      private$.path_transform <- basename
+    }
 
     # Store images as simple vector of file paths, with names designating true label
     images <- file.path(img_dir, self$labels)
-    if (self$use_dropbox) {
-      dropbox_token <- dropbox_token$refresh()
-      self$dropbox_token <- dropbox_token
+
+    # Whether using local storage or Dropbox, list images in train, test, and valid directories
+    if (self$uses_dropbox) {
+      self$configure_dropbox(dropbox_token)
       images <- lapply(images,
         dropbox_list_files,
-        dropbox_token = self$dropbox_token,
+        dropbox_token = private$.dropbox_token,
         recursive = TRUE,
         full_paths = TRUE, target = "files", pattern = ".*"
       )
@@ -53,11 +80,17 @@ candidate_image_dataset <- torch::dataset(
     names(images) <- new_names
     self$images <- images
 
-    # If downloading from Dropbox, we need to
-    self$image_types <- c(jpg = "jpeg", jpeg = "jpeg", png = "png")[tolower(tools::file_ext(self$images))] %>%
+    # If downloading from Dropbox, we need to know
+    # each image's file type to read it into memory
+    self$image_types <- c(
+      jpg = "jpeg",
+      jpeg = "jpeg",
+      png = "png"
+    )[tolower(tools::file_ext(self$images))] %>%
       unname()
-    if (use_dropbox && any(is.na(self$image_types))) stop("Some images have unknown types and use_dropbox = TRUE")
+    if (use_dropbox && any(is.na(self$image_types))) stop("Some images have unknown types, and use_dropbox = TRUE")
 
+    # Correct labels
     self$targets <- match(
       names(images),
       setNames(
@@ -68,45 +101,59 @@ candidate_image_dataset <- torch::dataset(
       torch::torch_tensor() %>%
       torch_squeeze()
 
-    stopifnot(is.null(sample_weights) || length(sample_weights) == length(CLASS_NAMES))
+    stopifnot(is.null(sample_weights) ||
+      length(sample_weights) == length(CLASS_NAMES))
     if (!is.null(sample_weights)) {
       self$sample_weights <- self$compute_sample_weights(self$images, sample_weights)
-      self$sample <- TRUE
-    } else {
-      self$sample <- FALSE
+      self$uses_sample <- TRUE
     }
+    # Must specify all params or none
     if (!is.null(transform_params)) {
       with(transform_params, {
         self$angle <- angle %% 360
         self$flip_thresh <- flip
-        self$rescale_thresh <- rescale
+        self$rescale_bounds <- c(
+          rescale_min = rescale_min,
+          rescale_max = rescale_max
+        )
+        self$uses_transform <- TRUE
       })
     }
   },
   .getitem = function(i) {
-    if (self$sample) {
+    if (self$uses_sample) {
       i <- sample(length(self), 1, prob = self$sample_weights)
     }
+    path <- self$images[i]
     # True class label
-    y <- torch_tensor(match(names(self$images[i]), self$labels)) %>%
+    y <- torch_tensor(match(names(path), self$labels)) %>%
       torch_squeeze()
     # TODO vectorize image downloading for length(i) > 1
-    if (self$use_dropbox) {
-      self$dropbox_token$refresh()
+    if (self$uses_dropbox) {
+      if (!private$.dropbox_token$can_refresh()) {
+        private$.dropbox_token <- dropbox_authenticate(refresh = TRUE)
+      } else {
+        private$.dropbox_token$refresh()
+      }
       img <- dropbox_download_file(
-        dropbox_token = self$dropbox_token,
-        dropbox_path = self$images[i],
+        dropbox_token = private$.dropbox_token,
+        dropbox_path = path,
         save_file = FALSE,
         content_parser = read_image_memory,
         image_type = self$image_types[i],
-        to_raster = FALSE, drop_alpha = TRUE
+        to_raster = FALSE,
+        drop_alpha = TRUE
       )
     } else {
-      img <- read_image(self$images[i], to_raster = FALSE, drop_alpha = TRUE)
+      img <- read_image(path,
+        to_raster = FALSE,
+        drop_alpha = TRUE
+      )
     }
     img <- img %>%
       torchvision::transform_to_tensor() %>%
       (function(x) x$to(device = DEVICE)) %>%
+      # if(!all(dim(img)[-1] == c(224, 224)))
       torchvision::transform_resize(c(224, 224))
     # Found PNG with no channel dimension - bizarre
     if (dim(img)[[1]] != 3) {
@@ -114,25 +161,20 @@ candidate_image_dataset <- torch::dataset(
     }
     img <-
       do.call(torchvision::transform_normalize, c(img, RESNET18_CONSTANTS))
-
-    if (!is.null(self$angle)) {
-      img <- self$rotate(img, self$angle)
+    if (self$uses_transform) {
+      img <- self$rotate(img, self$angle) %>%
+        self$flip(self$flip_thresh) %>%
+        self$rescale(self$rescale_bounds)
     }
-    if (!is.null(self$flip_thresh)) {
-      img <- self$flip(img, self$flip_thresh)
-    }
-    if (!is.null(self$rescale_thresh)) {
-      img <- self$rescale(img, self$rescale_thresh)
-    }
-    list(x = img, y = y)
+    list(x = img, y = y, path = private$.path_transform(path))
   },
   # Sampling weights to apply to each class. Unweighted, all observations have an equal chance of being
-  # sampled; weights adjust the probabilities
+  # sampled. For instance, weights of c(1, 20) increase by a factor of 20 the second class's chance of being sampled
   compute_sample_weights = function(images, weights) {
-    counts <- table(names(images))
+    counts <- table(names(images)) # names are true labels
     proportions <- counts / length(self)
     proportions <- proportions[names(weights)] * weights
-    proportions[names(images)] * (1 / counts)[names(images)]
+    proportions[names(images)]
   },
   rotate = function(img, angle, ...) {
     angle <- runif(1, 1 - angle, 1 + angle)
@@ -144,9 +186,9 @@ candidate_image_dataset <- torch::dataset(
     }
     img
   },
-  rescale = function(img, scale) {
+  rescale = function(img, rescale_bounds) {
     img_size <- dim(img)[2]
-    rnd_scale <- runif(1, 1 - scale, 1 + scale)
+    rnd_scale <- runif(1, rescale_bounds[[1]], rescale_bounds[[2]])
     img <- torchvision::transform_resize(img, size = rnd_scale * img_size)
     diff <- dim(img)[2] - img_size
     if (diff > 0) {
@@ -165,5 +207,19 @@ candidate_image_dataset <- torch::dataset(
     }
     img
   },
-  .length = function() length(self$images)
+  .length = function() length(self$images),
+  # If debugging enabled, reset previous error handler
+  configure_dropbox = function(dropbox_token) {
+    dropbox_token <- dropbox_token_get(dropbox_token)
+    if (!dropbox_token$can_refresh()) dropbox_token <- dropbox_authenticate(refresh = TRUE)
+    dropbox_token$refresh()
+    private$.dropbox_token <- dropbox_token
+    self
+  },
+  finalize = function() options(error = private$.prev_error),
+  private = list(
+    .prev_error = NULL,
+    .dropbox_token = NULL,
+    .path_transform = NULL
+  )
 )

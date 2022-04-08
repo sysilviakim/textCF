@@ -53,3 +53,8 @@ data/raw/2022/winred/logo/*.jpg
 
 # Extra training images
 data/classifier/**/*_extra_*
+data/classifier/outputs/cnn*
+ocr_results.Rds
+
+# Debugging file
+last.dump.rda

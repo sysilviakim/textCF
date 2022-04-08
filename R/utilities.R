@@ -518,13 +518,14 @@ ngp_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -593,13 +594,14 @@ raisethemoney_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -659,13 +661,14 @@ clickandpledge_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Contribution amounts
   contribution_amounts <- read_html(remote$getPageSource()[[1]]) %>%
@@ -708,13 +711,14 @@ transaxt_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page footer
   landing_footer <- read_html(remote$getPageSource()[[1]]) %>%
@@ -766,13 +770,14 @@ donorbox_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text_title <- read_html(remote$getPageSource()[[1]]) %>%
@@ -835,13 +840,14 @@ authorize_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -896,13 +902,14 @@ piryx_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -973,13 +980,14 @@ numero_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1048,13 +1056,14 @@ efundraising_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1126,13 +1135,14 @@ fundhero_select_text <- function(url) {
   remote$navigate(url)
 
   ## Metadata
-  meta_data <- read_html(remote$getPageSource()[[1]]) %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- read_html(remote$getPageSource()[[1]]) %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(remote$getPageSource()[[1]]) %>%
@@ -1999,13 +2009,14 @@ winred_text_scrape <- function(x) {
   meta_data <- landing_text <- landing_logo <- landing_bgimg <-
     landing_footer <- NA
 
-  meta_data <- temp %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- temp %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(x) %>%
@@ -2066,13 +2077,14 @@ anedot_text_scrape <- function(x) {
     html_nodes("meta")
   meta_data <- landing_text <- landing_logo <- landing_bgimg <- NA
 
-  meta_data <- temp %>% {
-    tibble(
-      name = html_attr(., "name"),
-      property = html_attr(., "property"),
-      content = html_attr(., "content")
-    )
-  }
+  meta_data <- temp %>%
+    {
+      tibble(
+        name = html_attr(., "name"),
+        property = html_attr(., "property"),
+        content = html_attr(., "content")
+      )
+    }
 
   ## Landing page text
   landing_text <- read_html(x) %>%
@@ -2213,20 +2225,15 @@ list2tibble <- function(l, list_cols, numeric_cols = "percentage") {
 
 # Partition a directory containing directories for k image classes into test, train, and validation directories, each with a specified proportion (rounded) of images, stored in k subdirectories
 partition_data_dir <- function(data_dir = here::here("data", "classifier"),
+                               target_dir = file.path(data_dir, "images"),
                                proportions = c(train = 0.7, test = 0.15, valid = 0.15),
-                               out_dir = file.path(data_dir, "trump_image"),
-                               exclude_dirs = here::here("data/classifier", c("extra_image", "trump_image"))) {
+                               out_dir = file.path(data_dir, "trump_image")) {
   stopifnot(
     "Data directory must exist" = dir.exists(data_dir),
-    "Data directory mus contain at least one directory marked for processing" = length(to_process <- list.dirs(data_dir, recursive = FALSE) %>%
-      setdiff(exclude_dirs)) > 0,
+    "Data directory must contain at least one directory marked for processing" = length(to_process <- list.dirs(target_dir, recursive = FALSE)) > 0,
     "Split proportions must sum to 1" = sum(proportions) == 1,
-    "Splits must be named 'train', 'test', and 'valid'" = identical(
-      sort(names(proportions)),
-      c("test", "train", "valid")
-    ),
-    "Values must be valid proportions" = all(proportions >= 0 & proportions <= 1),
-    "Directories must not already exist" = !any(dir.exists(dirs <- file.path(data_dir, names(proportions))))
+    "Splits must be named 'train', 'test', and 'valid'" = all(names(proportions) %in% c("test", "train", "valid")),
+    "Values must be valid proportions" = all(proportions >= 0 & proportions <= 1)
   )
   splits <- lapply(to_process, partition_class_files, proportions = proportions) %>%
     unlist(recursive = FALSE) %>%
@@ -2248,6 +2255,8 @@ partition_data_dir <- function(data_dir = here::here("data", "classifier"),
   }
 }
 
+# Given a directory containing images for one class of a classification model, lists
+# the files in it and splits into test, training, and validation directories specified by a named vector of proportions
 partition_class_files <- function(class_dir, proportions) {
   files <- list.files(class_dir, full.names = TRUE)
   stopifnot("Must have at least 5 observations to split" = (n_obs <- length(files)) >= 5)
@@ -2257,4 +2266,56 @@ partition_class_files <- function(class_dir, proportions) {
   stopifnot(length(unique(splits)) == 3)
   names(files) <- rep(basename(class_dir), length(files))
   split(files, splits)
+}
+
+# Append to a csv if it exists instead of overwriting it. Should write it normally if it does not exist.
+append_csv <- function(object, file, sep = ",", row_names = FALSE, ...) {
+  write.table(
+    x = object, append = TRUE, file = file, sep = sep,
+    col.names = !file.exists(file),
+    row.names = row_names,
+    ...
+  )
+}
+
+add_images_to_directory <- function(dir, data_file,
+                                    url_column = "url",
+                                    name_column = "name",
+                                    subset = seq_len(nrow(images)), redownload = FALSE) {
+  images <- read.csv(data_file)
+  images <- images[subset, ]
+  if (!redownload) {
+    present <- list.files(dir)
+    already_downloaded <- as.logical(colSums(sapply(images[[name_column]], grepl, x = present)))
+    images <- images[!already_downloaded, ]
+    if (nrow(images) == 0) {
+      message("No new images to download")
+      return()
+    }
+  }
+  image_names <- paste0(
+    images[[name_column]],
+    "_extra_",
+    format(Sys.Date(), "%Y%m%d"),
+    ".",
+    tools::file_ext(images[[url_column]])
+  )
+  paths <- file.path(dir, image_names)
+  for (i in seq_len(nrow(images))) {
+    download.file(images[[url_column]][[i]],
+      paths[[i]],
+      method = "curl"
+    )
+    Sys.sleep(3)
+  }
+}
+
+# On crash, start browser in interactive mode, dump frames otherwise
+debug_handler <- function() {
+  if (interactive()) {
+    browser()
+  } else {
+    dump.frames(to.file = TRUE, include.GlobalEnv = TRUE)
+  }
+  if (!interactive()) q(status = 1)
 }

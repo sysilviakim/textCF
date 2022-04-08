@@ -3,8 +3,7 @@ source(here::here("R", "classifier_utilities.R"))
 library(tesseract)
 
 set.seed(1)
-images <- list.files(here::here("data", "classifier", "no_trump"), full.names = TRUE) %>%
-  c(list.files(here::here("data", "classifier", "trump"), full.names = TRUE))
+images <- list.files(here::here("data", "classifier", "images"), full.names = TRUE, recursive = TRUE)
 labels <- basename(dirname(images))
 
 # Characters to include
@@ -33,7 +32,7 @@ ocr_results[["ocr_text"]] <- sapply(ocr_results[["ocr_output"]], function(x) {
   )
 })
 
-ocr_results[["ocr_pred_class"]] <- CLASS_NAMES[sapply(
+ocr_results[["ocr_pred_class"]] <- sapply(
   ocr_results[["ocr_output"]],
   function(x) {
     if (nrow(x) == 0) {
@@ -45,7 +44,7 @@ ocr_results[["ocr_pred_class"]] <- CLASS_NAMES[sapply(
       ))
     }
   }
-) + 1]
+) + 1
 
 # Prefer RDS over csv because of list column
 saveRDS(ocr_results, here::here("data", "classifier", "outputs", "ocr_results.Rds"))

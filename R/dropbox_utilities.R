@@ -60,7 +60,7 @@ validate_path <- function(path) {
 }
 
 # If a token is a string, treat it as a path and try to load it; if an R object, confirm it has correct class
-dropbox_token_get <- function(dropbox_token) {
+dropbox_token_get <- function(dropbox_token = ".httr-oauth") {
   if (is.character(dropbox_token)) {
     if (!file.exists(dropbox_token)) {
       stop("Could not read ", dropbox_token)
@@ -79,18 +79,24 @@ dropbox_correct_path <- function(paths) {
   if (any(grepl("^\\./", paths))) {
     stop("Dropbox does not support relative paths")
   }
-  gsub("/$", "", gsub("^([^/])", "/\\1", paths))
+  gsub("[/ ]+$", "", gsub("^([^/])", "/\\1", paths))
 }
 
 # Lists paths in a Dropbox folder, optionally limitited to just files or folders.
 # Unavoidably slow in the latter case if a target type is specified, because that requires recursing
 # through folders at the R level
 # TODO possibly enable recursion for folders not matching pattern
-dropbox_list_files <- function(dropbox_token, dropbox_path, recursive = FALSE, full_paths = FALSE, pattern = ".*", target = c("all", "files", "folders")) {
+dropbox_list_files <- function(dropbox_token,
+                               dropbox_path = "/",
+                               recursive = FALSE,
+                               full_paths = FALSE,
+                               pattern = ".*",
+                               target = c("all", "files", "folders")) {
   if (full_paths && !recursive) recursive <- TRUE
   dropbox_token <- dropbox_token_get(dropbox_token)
   # API expects all paths prepended with /
   dropbox_path <- dropbox_correct_path(dropbox_path)
+  if (dropbox_path_info(dropbox_token, dropbox_path, error_on_failure = TRUE) == "file") stop(sQuote(dropbox_path), " is a file, not a folder")
   target <- match.arg(target)
   req <- form_request(
     url = form_url("files", "list_folder"),
@@ -101,40 +107,29 @@ dropbox_list_files <- function(dropbox_token, dropbox_path, recursive = FALSE, f
   )
   response <- eval(req)
   httr::stop_for_status(response)
-  current <- jsonlite::fromJSON(httr::content(response, as = "text", encoding = "UTF-8"))
+  current <- parse_json_response(response)
+  continue_url <- form_url("files", "list_folder", "continue")
+  continue_request <- form_request(encode = "json", url = continue_url, body = list(cursor = cursor))
 
-  # Page response
+  # Iterate over pages of response
   while (current[["has_more"]]) {
-    old <- currrent
-    cursor <- httr::POST(
-      url = "https://api.dropboxapi.com/2/files/list_folder/get_latest_cursor",
-      httr::config(token = dropbox_token),
-      body = list(path = folder),
-      encode = "json"
-    )
-    httr(stop_for_status(cursor))
-    cursor <- httr::content(req)[["cursor"]]
-
-    current <- httr::POST(
-      url = "https://api.dropboxapi.com/2/files/list_folder/continue",
-      httr::config(token = dropbox_token),
-      body = list(cursor = cursor)
-    )
-    httr(stop_for_status(cur))
-    current <- append(old, cur)
+    cursor <- current[["cursor"]]
+    additional <- eval(continue_request)
+    httr::stop_for_status(additional)
+    additional <- parse_json_response(additional)
+    # Update with new data from next page
+    current[["entries"]] <- rbind(current[["entries"]], additional[["entries"]])
+    current[c("has_more", "cursor")] <- additional[c("has_more", "cursor")]
   }
-  out <- current[[c("entries", "name")]] # unlist(c(sapply(
-  # current[names(current) == "entries"],
-  # function(x) sapply(x, function(y) y[["name"]])
+  paths <- current[[c("entries", "path_display")]]
+  out <- if (full_paths) paths else current[[c("entries", "name")]] # unlist(c(sapply(
   # )))
   names(out) <- NULL
   # Filter files that match pattern
   out <- out[grepl(pattern, out)]
-  paths <- file.path(dropbox_path, out)
-  if (full_paths) out <- paths
-  types <- sapply(paths, dropbox_path_info, dropbox_token = dropbox_token, error_on_failure = TRUE)
+  types <- current[[c("entries", ".tag")]]
   new_paths <- NULL
-  if (recursive && length(folders <- paths[isTRUE(types == "folder")]) > 0) {
+  if (recursive && length(folders <- paths[types == "folder"]) > 0) {
     # Descend into each folder and retrieve its contents of the correct type
     for (path in folders) {
       new_paths <- c(new_paths, unlist(dropbox_list_files(dropbox_token, path,
@@ -145,18 +140,9 @@ dropbox_list_files <- function(dropbox_token, dropbox_path, recursive = FALSE, f
   if (target != "all") {
     out <- out[types == sub("s$", "", target)]
   }
-  # if (recursive) {
-  # out <- setNames(vector("list", length(out)), out)
-  # for (path in names(out)) {
-  # if (dropbox_path_info(dropbox_token, path, error_on_failure = TRUE) == "folder") {
-  # out[[path]] <-
-  # dropbox_list_files(dropbox_token, file.path(dropbox_path, out), recursive = TRUE)
-  # }
-  # }
-  # }
   c(out, new_paths)
 }
-# Generate expression containing API call from parts. Like all generated code, no guarantee of validityj
+# Generate expression containing API call from parts. Like all generated code, no guarantee of validity
 form_request <- function(...,
                          type = httr::POST,
                          url,
@@ -300,7 +286,7 @@ dropbox_path_info <- function(dropbox_token,
   req <- form_request(body = list(path = dropbox_path), url = form_url("files", "get_metadata"), encode = "json")
   response <- eval(req)
   if ((status <- httr::status_code(response)) == 409) {
-    if (error_on_failure) stop(dropbox_path, " does_not_exist") else out <- NA
+    if (error_on_failure) stop(sQuote(dropbox_path), " does not exist") else out <- NA
   } else if (status >= 400) {
     stop("HTTP error", status)
   } else {
