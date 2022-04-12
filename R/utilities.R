@@ -31,6 +31,7 @@ library(knitr)
 library(kableExtra)
 library(stargazer)
 library(RColorBrewer)
+library(gender)
 
 ## devtools::install_github("hrbrmstr/wayback")
 library(wayback)
