@@ -50,3 +50,41 @@ unique_house_gen <- unique(house_gen)
 gender_data$house <- merge(gender_data$house, unique_house_gen, 
                             by = "firstname")
 
+# Perhaps, a new fb_matched should be saved...do we need it? I'm not sure ======
+
+# fb_unique ====================================================================
+load(here("data", "tidy", "fb_unique.Rda"))
+
+# Senate
+fb_unique$senate$firstname <- word(fb_unique$senate$candidate, 1)
+
+fbu_sen_gender <- gender(
+  fb_unique$senate$firstname,
+  years = c(1933, 1990), # 30 as of 2020, not 25
+  method = c("ssa"),
+  countries = c("United States")
+)
+fbu_sen_gender <- as.data.frame(cbind(fbu_sen_gender$name, 
+                                      fbu_sen_gender$gender))
+colnames(fbu_sen_gender) <- c("firstname", "gender")
+fbu_sen_gender <- unique(fbu_sen_gender)
+
+fb_unique$senate <- merge(fb_unique$senate, fbu_sen_gender, by = "firstname")
+
+# House
+fb_unique$house$firstname <- word(fb_unique$house$candidate, 1)
+
+fbu_house_gender <- gender(
+  fb_unique$house$firstname,
+  years = c(1933, 1995), # 25 as of 2020
+  method = c("ssa"),
+  countries = c("United States")
+)
+fbu_house_gender <- as.data.frame(cbind(fbu_house_gender$name, 
+                                      fbu_house_gender$gender))
+colnames(fbu_house_gender) <- c("firstname", "gender")
+fbu_house_gender <- unique(fbu_house_gender)
+
+fb_unique$house <- merge(fb_unique$house, fbu_house_gender, by = "firstname")
+
+
