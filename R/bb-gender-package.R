@@ -87,4 +87,4 @@ fbu_house_gender <- unique(fbu_house_gender)
 
 fb_unique$house <- merge(fb_unique$house, fbu_house_gender, by = "firstname")
 
-
+# I think we should discuss this method before I update the datasets
