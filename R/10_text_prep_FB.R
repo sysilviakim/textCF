@@ -13,12 +13,13 @@ fb_unique <- fb_matched %>%
         candidate,
         fb_ad_library_id, page_name, party, inc, state_po, pvi, 
         contains("state_cd"), ad_creative_body, ad_creative_link_caption, 
-        vote_share, contains("ad_"), contains("spend_"), contains("potential_"),
-        contains("impressions_"),
-        matches(
-          paste0("^", tolower(state.abb) %>% paste(collapse = "$|^"), "$")
-        ),
-        contains("male_"), contains("female_"), contains("unknown_"),
+        vote_share ##, 
+        ## contains("ad_"), contains("spend_"), contains("potential_"),
+        ## contains("impressions_"),
+        ## matches(
+        ##   paste0("^", tolower(state.abb) %>% paste(collapse = "$|^"), "$")
+        ## ),
+        ## contains("male_"), contains("female_"), contains("unknown_"),
       ) %>%
       distinct() %>%
       filter(ad_creative_body != "") %>%
@@ -200,14 +201,6 @@ temp %>%
     names_from = "financial", values_from = c("mean", "se")
   )
 
-# # A tibble: 4 x 6
-# party      chamber `mean_Donor-targeting` `mean_Voter-targeting` `se_Donor-targeting` `se_Voter-targeting`
-# <chr>      <chr>                    <dbl>                  <dbl>                <dbl>                <dbl>
-#   1 Democrat   Senate                   0.520                  0.812              0.00455              0.00576
-# 2 Republican Senate                   0.551                  0.912              0.00795              0.00438
-# 3 Democrat   House                    0.636                  0.902              0.00289              0.00232
-# 4 Republican House                    0.746                  0.945              0.00469              0.00159
-
 pdf(here("fig", "in_district_per_type_chamber.pdf"), width = 6, height = 2.8)
 print(
   fb_mention_plot(temp, xvar = "mean", se = "se", xlab = "") +
@@ -221,10 +214,6 @@ fb_unique %>%
       filter(financial == "Voter-targeting" & in_district < 0.5) %>%
       nrow()
   )
-
-# senate  house ----> so 9.2% of Senate financial, 5.7% of House financial
-#    818   1352
-
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
 
 # Building a corpus ============================================================
