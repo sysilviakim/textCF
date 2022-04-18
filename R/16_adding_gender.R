@@ -171,3 +171,56 @@ save(fb_meta, file = here("data", "tidy", "fb_meta.Rda"))
 
 ## fb_quanteda... ==============================================================
 
+# Bringing the generative code from `10` -- will make some additions
+
+fb_corpus <- fb_unique %>%
+  imap(
+    ~ corpus(
+      .x$ad_creative_body,
+      docvars = tibble(
+        financial = .x$financial,
+        candidate = .x$candidate,
+        party = .x$party,
+        vote_share = .x$vote_share,
+        gender = .x$gender,
+        chamber = .y
+      )
+    )
+  )
+
+## Rename the documents, adding by-chamber prefix:
+docnames(fb_corpus$house) <- paste0("house_", 1:ndoc(fb_corpus$house))
+docnames(fb_corpus$senate) <- paste0("senate_", 1:ndoc(fb_corpus$senate))
+
+## Combine two chambers
+corp_FB <- fb_corpus$senate + fb_corpus$house
+
+# Tokenize documents ===========================================================
+toks_FB <- tokens(corp_FB) %>%
+  tokens(
+    remove_url = TRUE,
+    remove_punct = TRUE,
+    include_docvars = TRUE
+  ) %>%
+  # tokens_wordstem() %>%
+  tokens_tolower() %>%
+  tokens_remove(stopwords("english")) %>%
+  tokens_remove(stopwords("spanish")) %>%
+  # tokens_remove(c("rt", "amp", "u8")) %>%
+  tokens_remove(setdiff(removing_tokens, c("strong", "center"))) %>%
+  tokens_remove(letters)
+
+# Each document will be an ad ==================================================
+dfm_FB_ad <- dfm(toks_FB)
+dfm_FB_ad_prop <- dfm_weight(dfm_FB_ad, scheme = "prop")
+
+# Each document will be a candidate ============================================
+dfm_FB_cand <- dfm_group(dfm_FB_ad, groups = candidate)
+dfm_FB_cand_prop <- dfm_weight(dfm_FB_cand, scheme = "prop")
+
+# Save for import ==============================================================
+save(
+  fb_corpus, toks_FB, dfm_FB_ad, dfm_FB_ad_prop, dfm_FB_cand, dfm_FB_cand_prop,
+  file = here("output", "fb_quanteda.Rda")
+)
+
