@@ -5,8 +5,10 @@ source(here::here("R", "utilities.R"))
 load(here("data/tidy/fb_matched.Rda"))
 matched_house <- fb_matched[["house"]]
 matched_senate <- fb_matched[["senate"]]
-unique_house <- matched_house[!duplicated(matched_house[, c("ad_creative_body")]), ]
-unique_senate <- matched_senate[!duplicated(matched_senate[, c("ad_creative_body")]), ]
+unique_house <-
+  matched_house[!duplicated(matched_house[, c("ad_creative_body")]), ]
+unique_senate <-
+  matched_senate[!duplicated(matched_senate[, c("ad_creative_body")]), ]
 
 hr_unique_ts <- ggplot(unique_house, aes(x = ad_creation_time)) +
   theme_bw() +
@@ -37,7 +39,8 @@ sen_unique_ts <- ggplot(unique_senate, aes(x = ad_creation_time)) +
 sen_unique_ts
 
 unique_ts <- ggarrange(hr_unique_ts, sen_unique_ts, ncol = 2, nrow = 1)
-unique_ts <- annotate_figure(unique_ts, top = text_grob("Unique Ads Created Over Time",
+unique_ts <- annotate_figure(
+  unique_ts, top = text_grob("Unique Ads Created Over Time",
   color = "black", face = "bold",
   size = 14
 ))
@@ -169,7 +172,7 @@ funds_ts <- annotate_figure(funds_ts,
 funds_ts
 ggsave("fig/funds_ts.pdf", plot = funds_ts, width = 8, height = 6)
 
-# Part 4: Donor-targeting/Voter-targeting Time Series ==================================
+# Part 4: Donor-targeting/Voter-targeting Time Series ==========================
 # Now, a slight hiccup for the next ones...fb_unique does not have the dates.
 # So, we shall recreate a version of fb_unique that features the dates the ads
 # were created. Will pull other variables of interest as well -- can potentially
@@ -225,8 +228,10 @@ fb_unique_dates <- fb_matched %>%
 
 ## Part A: Donor-targeting/Voter-targeting in the House
 house_unique <- fb_unique_dates[["house"]]
-house_financial <- house_unique[house_unique$financial == "Donor-targeting", ]
-house_nonfinancial <- house_unique[house_unique$financial == "Voter-targeting", ]
+house_financial <- 
+  house_unique[house_unique$financial == "Donor-targeting", ]
+house_nonfinancial <- 
+  house_unique[house_unique$financial == "Voter-targeting", ]
 
 hr_financial <- ggplot(house_financial, aes(x = ad_creation_time)) +
   theme_bw() +
@@ -270,8 +275,10 @@ ggsave("fig/house_financial.pdf", plot = house_financial, width = 8, height = 6)
 
 ## Part B: Donor-targeting/Voter-targeting in the Senate
 senate_unique <- fb_unique_dates[["senate"]]
-senate_financial <- senate_unique[senate_unique$financial == "Donor-targeting", ]
-senate_nonfinancial <- senate_unique[senate_unique$financial == "Voter-targeting", ]
+senate_financial <- 
+  senate_unique[senate_unique$financial == "Donor-targeting", ]
+senate_nonfinancial <- 
+  senate_unique[senate_unique$financial == "Voter-targeting", ]
 
 sen_financial <- ggplot(senate_financial, aes(x = ad_creation_time)) +
   theme_bw() +
@@ -319,14 +326,6 @@ ggsave("fig/senate_financial.pdf",
 ## After this point, moved figures to fig/time_series_plots folder
 
 # Part 5: Toxicity Time Series? ================================================
-
-## Is this one doable?
-
-# mergetest1 <- merge(house_unique, fb_perspective_House,
-#                    by.x = "ad_creative_body", by.y = "ad_creative_body")
-# mergetest2 <- merge(fb_perspective_House, house_unique,
-#                    by.x = "ad_creative_body", by.y = "ad_creative_body")
-# Both of these aggressively failed. Perhaps a different approach will work?
 mergetest3 <- merge(
   x = fb_perspective_House,
   y = house_unique[, c("ad_creative_body", "ad_creation_time")],

@@ -53,14 +53,14 @@ temp <- fb_unique %>%
     ~ .x %>%
       group_by(party, financial) %>%
       summarise(
-        mean_trump = mean(word_trump), 
-        sd_trump = sd(word_trump), 
+        mean_trump = mean(word_trump),
+        sd_trump = sd(word_trump),
         se_trump = sd_trump / sqrt(n()),
-        mean_biden = mean(word_biden), 
-        sd_biden = sd(word_biden), 
+        mean_biden = mean(word_biden),
+        sd_biden = sd(word_biden),
         se_biden = sd_biden / sqrt(n()),
-        mean_covid = mean(word_covid), 
-        sd_covid = sd(word_covid), 
+        mean_covid = mean(word_covid),
+        sd_covid = sd(word_covid),
         se_covid = sd_covid / sqrt(n())
       ),
     .id = "chamber"
@@ -72,29 +72,32 @@ temp <- fb_unique %>%
 
 pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(fb_mention_plot(
-  temp, xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
+  temp,
+  xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
 ))
 dev.off()
 
 ## So small that it seems unimportant
 pdf(here("fig", "mention_biden_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(fb_mention_plot(
-  temp, xvar = "mean_biden", se = "se_biden", xlab = "Mentions Biden"
+  temp,
+  xvar = "mean_biden", se = "se_biden", xlab = "Mentions Biden"
 ))
 dev.off()
 
 pdf(here("fig", "mention_covid_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(fb_mention_plot(
-  temp, xvar = "mean_covid", se = "se_covid", xlab = "Mentions COVID-19"
+  temp,
+  xvar = "mean_covid", se = "se_covid", xlab = "Mentions COVID-19"
 ))
 dev.off()
 
 ## T-tests
 t.test(
-  fb_unique$senate %>% 
+  fb_unique$senate %>%
     filter(party == "Republican" & financial == "Donor-targeting") %>%
     .$word_trump,
-  fb_unique$senate %>% 
+  fb_unique$senate %>%
     filter(party == "Republican" & financial == "Voter-targeting") %>%
     .$word_trump
 )
@@ -420,8 +423,8 @@ temp <- lexi_list %>%
   ) %>%
   party_factor(., outvar = "type")
 
-emo_temp <- temp %>% 
-  group_by(type, chamber) %>% 
+emo_temp <- temp %>%
+  group_by(type, chamber) %>%
   summarise(
     mean_anger = mean(anger / Dic, na.rm = TRUE),
     mean_disgust = mean(disgust / Dic, na.rm = TRUE),
@@ -435,9 +438,9 @@ emo_temp <- temp %>%
 pdf(here("fig", "anger_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(
   fb_mention_plot(
-    emo_temp %>% rename(Party = type), 
+    emo_temp %>% rename(Party = type),
     xvar = "mean_anger", se = "se_anger", xlab = ""
-  ) + 
+  ) +
     scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
 )
 dev.off()
@@ -445,9 +448,9 @@ dev.off()
 pdf(here("fig", "disgust_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(
   fb_mention_plot(
-    emo_temp %>% rename(Party = type), 
+    emo_temp %>% rename(Party = type),
     xvar = "mean_disgust", se = "se_disgust", xlab = ""
-  ) + 
+  ) +
     scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
 )
 dev.off()
@@ -455,9 +458,9 @@ dev.off()
 pdf(here("fig", "fear_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(
   fb_mention_plot(
-    emo_temp %>% rename(Party = type), 
+    emo_temp %>% rename(Party = type),
     xvar = "mean_fear", se = "se_fear", xlab = ""
-  ) + 
+  ) +
     scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
 )
 dev.off()

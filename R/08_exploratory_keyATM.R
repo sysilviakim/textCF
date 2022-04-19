@@ -37,35 +37,37 @@ toks_FB_STEMMED <- tokens(corp_FB) %>%
   tokens_remove(stopwords("spanish")) %>%
   # tokens_remove(c("rt", "amp", "u8")) %>%
   tokens_remove(letters) %>%
-  tokens_compound(pattern = phrase(c(
-    "stock market",
-    "white house",
-    "right to choose",
-    "right to life",
-    "climate change",
-    "green new deal",
-    "gdp growth",
-    "dow jones",
-    "wall street",
-    "income inequal*",
-    "gay marriage",
-    "fossil fuel",
-    "insurance compan*",
-    "drug compan*",
-    "prescription drug*",
-    "pharmaceutical compan*",
-    "big pharma",
-    "public health",
-    "health care",
-    "drug abuse",
-    "drug pric*",
-    "gas pric*",
-    "national security",
-    "affordable care act",
-    "middle class",
-    "student debt",
-    "national debt"
-  ))) %>%
+  tokens_compound(
+    pattern = phrase(c(
+      "stock market",
+      "white house",
+      "right to choose",
+      "right to life",
+      "climate change",
+      "green new deal",
+      "gdp growth",
+      "dow jones",
+      "wall street",
+      "income inequal*",
+      "gay marriage",
+      "fossil fuel",
+      "insurance compan*",
+      "drug compan*",
+      "prescription drug*",
+      "pharmaceutical compan*",
+      "big pharma",
+      "public health",
+      "health care",
+      "drug abuse",
+      "drug pric*",
+      "gas pric*",
+      "national security",
+      "affordable care act",
+      "middle class",
+      "student debt",
+      "national debt"
+    ))
+  ) %>%
   tokens_wordstem()
 
 dfm_FB_ad_stemmed <- dfm(toks_FB_STEMMED)
@@ -112,8 +114,10 @@ keywords_stemmed <- list(
     "vaccin", "#getvaccin", "#covid19vaccin",
     "moderna", "pfizer", "astrazeneca"
   ),
-  # Safety_and_Crime = c("crime","drug","crimin","gunshot",
-  #            "murder","robber","vandal"),
+  # Safety_and_Crime = c(
+  #   "crime", "drug", "crimin", "gunshot",
+  #   "murder", "robber", "vandal"
+  # ),
   Social_Issues_A = c(
     "rifl", "nra", "gun(s)", "violenc",
     "shoot", "shooter"
@@ -125,13 +129,15 @@ keywords_stemmed <- list(
     "sexism", "#metoo",
     "gay", "lesbian", "lbgtq"
   ),
-  # Race = c("anti-discrimin",
-  #                     "discrimin","discriminatori",
-  #                     "racism","racial","anti-racist",
-  #                     "bias",
-  #                     "#criminaljusticereform",
-  #                     "racialprofil",
-  #                     "floyd","#georgefloyd"),
+  # Race = c(
+  #   "anti-discrimin",
+  #   "discrimin", "discriminatori",
+  #   "racism", "racial", "anti-racist",
+  #   "bias",
+  #   "#criminaljusticereform",
+  #   "racialprofil",
+  #   "floyd", "#georgefloyd"
+  # ),
   Immigration = c(
     "immigr",
     "border",
@@ -151,16 +157,17 @@ keywords_stemmed <- list(
     "trump-republican"
   ),
   Patriotic = c("america", "usa", "nation", "country", "patriot", "#teamusa"),
-  # Foreign_Affairs = c("foreign","global",
-  #                    "china","russia","iran","war","afghanistan",
-  #                    "macron","merkel"),
+  # Foreign_Affairs = c(
+  #   "foreign", "global",
+  #   "china", "russia", "iran", "war", "afghanistan",
+  #   "macron", "merkel"
+  # ),
   Education = c(
     "educ", "school", "academi", "univers", "tuition",
     "student",
     "student_debt"
   )
 )
-
 
 # Necessary to drop non-textual matrix rows:
 dfmAnalaysis <- dfm_subset(dfm_FB_ad_stemmed, ntoken(dfm_FB_ad_stemmed) > 0)
@@ -171,20 +178,21 @@ key_dfm <- keyATM_read(
   keep_docnames = TRUE
 ) # Will merge based on docnames later!
 
-
 # House only:
 # dfmHouse <- dfm_FB_ad_stemmed %>%
-#                 dfm_subset(chamber=="house")
-#
+#   dfm_subset(chamber == "house")
+# 
 # # Necessary to drop non-textual matrix rows:
-# dfmHouseAnalaysis <- dfm_subset(dfmHouse,ntoken(dfmHouse) > 0)
-#
+# dfmHouseAnalaysis <- dfm_subset(dfmHouse, ntoken(dfmHouse) > 0)
+# 
 # # Add IDs to the matrix
 # dfmHouseAnalaysis$tempID <- 1:nrow(dfmHouseAnalaysis)
-#
+# 
 # # Prep keyATM object:
-# key_dfm_House <- keyATM_read(texts = dfmHouseAnalaysis,
-#                              keep_docnames = TRUE)
+# key_dfm_House <- keyATM_read(
+#   texts = dfmHouseAnalaysis,
+#   keep_docnames = TRUE
+# )
 
 # Base model ===================================================================
 
@@ -297,8 +305,8 @@ topic_plot(
     group_by(post, chamber) %>%
     dplyr::count(post, topic, chamber),
   gvar = "post", grouped = TRUE
-) + 
-  facet_wrap(~ chamber)
+) +
+  facet_wrap(~chamber)
 dev.off()
 
 merged %>%

@@ -141,7 +141,9 @@ toxDEMcand <- candidate_Tox %>%
     title = "Democratic Candidates"
   ) +
   geom_vline(
-    aes(xintercept = mean(`Avg. prob. toxic`)), col = "blue", size = 1.5) +
+    aes(xintercept = mean(`Avg. prob. toxic`)),
+    col = "blue", size = 1.5
+  ) +
   geom_text(
     aes(
       x = mean(`Avg. prob. toxic`) + .03,
@@ -163,7 +165,9 @@ toxREPcand <- candidate_Tox %>%
     title = "Republican Candidates"
   ) +
   geom_vline(
-    aes(xintercept = mean(`Avg. prob. toxic`)), col = "red", size = 1.5) +
+    aes(xintercept = mean(`Avg. prob. toxic`)),
+    col = "red", size = 1.5
+  ) +
   geom_text(
     aes(
       x = mean(`Avg. prob. toxic`) + .05,
@@ -184,23 +188,22 @@ ggarrange(toxDEMcand, toxREPcand) %>%
   )
 ggsave("fig/fig2_house_candidate_averages.pdf", width = 8, height = 5)
 
-
-
 candidate_Tox %>%
   filter(N >= 20) %>%
   filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(
-    y = party,
-    x = `Avg. prob. toxic`,
-    color = party,
-    label = candidate
-  )) +
+  ggplot(
+    aes(
+      y = party,
+      x = `Avg. prob. toxic`,
+      color = party,
+      label = candidate
+    )
+  ) +
   geom_boxplot() +
   geom_jitter(height = .25) +
   scale_color_brewer(palette = "Set1", direction = -1) +
   labs(y = "")
 ggsave("fig/fig2B_house_candidate_averages.pdf", width = 8, height = 4)
-
 
 # Keeping a type if N>100 for any party group:
 keepPostType <- fb_house %>%
@@ -229,7 +232,6 @@ fb_house %>%
     subtitle = "Type shown if at least 100 posts of a given type exists"
   )
 ggsave("fig/ridges_by_type.pdf", width = 8, height = 6)
-
 
 # Example of Toxic Ads =========================================================
 
@@ -284,7 +286,6 @@ tox_rep <- fb_house %>%
     )
   )
 
-
 ggarrange(tox_rep, tox_dem) %>%
   annotate_figure(
     top = text_grob("Distribution of toxicity probabilities in Facebook ads",
@@ -293,7 +294,6 @@ ggarrange(tox_rep, tox_dem) %>%
     bottom = text_grob("Prob(Ad text is toxic)")
   )
 ggsave("fig/SI_ad_level_toxicity.pdf", width = 8, height = 5)
-
 
 # Initial analysis =============================================================
 fb_house %>%
@@ -327,14 +327,15 @@ fb_house %>%
   filter(N >= 100, type != "") %>%
   mutate(post = glue("{type} posted by {party}")) %>%
   pivot_longer(cols = c(Toxic, `Obscene`)) %>%
-  ggplot(aes(
-    y = post,
-    x = value,
-    color = name
-  )) +
+  ggplot(
+    aes(
+      y = post,
+      x = value,
+      color = name
+    )
+  ) +
   geom_point() +
   facet_grid(~name)
-
 
 temp0notext <- candidate_Tox %>%
   filter(N >= 10) %>%
@@ -348,21 +349,23 @@ temp0notext <- candidate_Tox %>%
   geom_jitter() +
   scale_color_brewer(palette = "Set1", direction = -1) +
   labs(y = "")
+
 temp1 <- candidate_Tox %>%
   filter(N >= 10) %>%
   filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(
-    y = party,
-    x = `Avg. prob. toxic`,
-    color = party,
-    label = candidate
-  )) +
+  ggplot(
+    aes(
+      y = party,
+      x = `Avg. prob. toxic`,
+      color = party,
+      label = candidate
+    )
+  ) +
   geom_jitter() +
   ggrepel::geom_text_repel(max.overlaps = 100) +
   scale_color_brewer(palette = "Set1", direction = -1) +
   labs(y = "")
 ggarrange(temp0notext, temp1, ncol = 1)
-
 
 fb_house %>%
   group_by(candidate, party) %>%

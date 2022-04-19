@@ -132,30 +132,30 @@ fb_matched %>%
   )
 
 # $senate
-# [1] "alex padilla" ---> was not running for Senate in 2020, appointed 
-# [2] "rand paul"   
-# [3] "pat toomey"  
-# 
+# [1] "alex padilla" ---> was not running for Senate in 2020, appointed
+# [2] "rand paul"
+# [3] "pat toomey"
+#
 # $house
-# [1] "mark razzoli"             
-# [2] "diane mitsch bush"        
-# [3] "tim kelly"                
-# [4] "david torres"             
-# [5] "kevin van ausdal"         
-# [6] "john briscoe"             
-# [7] "zach raknerud"            
-# [8] "tawnja zahradka"          
-# [9] "quinn nystrom"            
-# [10] "christy smith"            
-# [11] "david scott"              
-# [12] "michael san nicolas"      
-# [13] "randy weber sr"           
-# [14] "frank lucas"              
-# [15] "c antonio delgado"        
-# [16] "tracy jennings"           
+# [1] "mark razzoli"
+# [2] "diane mitsch bush"
+# [3] "tim kelly"
+# [4] "david torres"
+# [5] "kevin van ausdal"
+# [6] "john briscoe"
+# [7] "zach raknerud"
+# [8] "tawnja zahradka"
+# [9] "quinn nystrom"
+# [10] "christy smith"
+# [11] "david scott"
+# [12] "michael san nicolas"
+# [13] "randy weber sr"
+# [14] "frank lucas"
+# [15] "c antonio delgado"
+# [16] "tracy jennings"
 # [17] "ricardo rick de la fuente"
-# [18] "ben gibson"               
-# [19] "dan feehan"               
+# [18] "ben gibson"
+# [19] "dan feehan"
 # [20] "liz johnson"
 
 # Manual fixes =================================================================
@@ -170,8 +170,9 @@ fb_matched$senate <- fb_matched$senate %>%
     )
   )
 ### Removing Alex Padilla, because he wasn't running for Senate
-fb_matched$senate<-fb_matched$senate[
-  !(fb_matched$senate$candidate=="alex padilla"), ]
+fb_matched$senate <- fb_matched$senate[
+  !(fb_matched$senate$candidate == "alex padilla"),
+]
 
 
 ## House Incumbency
@@ -238,7 +239,7 @@ fb_matched$house <- fb_matched$house %>%
       candidate == "quinn nystrom" ~ -4, # MN-8 R+4
       candidate == "christy smith" ~ 0, # CA-25; EVEN
       candidate == "david scott" ~ 20, # GA-13; D+20
-      #candidate == "michael san nicolas" ~ ___, # Guam...should probably remove
+      # candidate == "michael san nicolas" ~ ___, # Guam...should probably remove
       candidate == "randy weber sr" ~ -12, # TX-14; R+12
       candidate == "frank lucas" ~ -27, # OK-3; R+27
       candidate == "c antonio delgado" ~ 33, # CA-40; D+33
@@ -252,8 +253,9 @@ fb_matched$house <- fb_matched$house %>%
   )
 
 ### Removing Michael San Nicolas, because he represents Guam (sorry, Guam)
-fb_matched$house<-fb_matched$house[
-  !(fb_matched$house$candidate=="michael san nicolas"), ]
+fb_matched$house <- fb_matched$house[
+  !(fb_matched$house$candidate == "michael san nicolas"),
+]
 sum(is.na(fb_matched$house$pvi)) ## 4,737 ---> 0
 
 # Match candidate-level characteristics ========================================
@@ -312,20 +314,25 @@ fbmatch_sen_gender <- gender(
   countries = c("United States")
 )
 # Isolate the variables we'll need -- name (for merging), gender (because that's
-# what were here for, after all), and proportion_female (because the gender 
+# what were here for, after all), and proportion_female (because the gender
 # assigned to some of these names will need to be double-checked in some cases -
 # I believe Jamie Raskin, for example, will be coded as female here)
-fbmatch_sen_gender <- as.data.frame(cbind(fbmatch_sen_gender$name, 
-                                          fbmatch_sen_gender$gender,
-                                          fbmatch_sen_gender$proportion_female))
-colnames(fbmatch_sen_gender) <- c("firstname", "gender", 
-                                  "firstname_prop_female")
+fbmatch_sen_gender <- as.data.frame(cbind(
+  fbmatch_sen_gender$name,
+  fbmatch_sen_gender$gender,
+  fbmatch_sen_gender$proportion_female
+))
+colnames(fbmatch_sen_gender) <- c(
+  "firstname", "gender",
+  "firstname_prop_female"
+)
 # Now, we take out the duplicates here -- otherwise, the merge will fail
 fbmatch_sen_gender <- unique(fbmatch_sen_gender)
 
 # Merge variables into data
-fb_matched$senate <- merge(fb_matched$senate, fbmatch_sen_gender, 
-                           by = "firstname")
+fb_matched$senate <- merge(fb_matched$senate, fbmatch_sen_gender,
+  by = "firstname"
+)
 
 ## House
 # Repeat the Senate process for the House
@@ -337,15 +344,20 @@ fbmatch_house_gender <- gender(
   method = c("ssa"),
   countries = c("United States")
 )
-fbmatch_house_gender <- as.data.frame(cbind(fbmatch_house_gender$name, 
-                                            fbmatch_house_gender$gender,
-                                        fbmatch_house_gender$proportion_female))
-colnames(fbmatch_house_gender) <- c("firstname", "gender", 
-                                    "firstname_prop_female")
+fbmatch_house_gender <- as.data.frame(cbind(
+  fbmatch_house_gender$name,
+  fbmatch_house_gender$gender,
+  fbmatch_house_gender$proportion_female
+))
+colnames(fbmatch_house_gender) <- c(
+  "firstname", "gender",
+  "firstname_prop_female"
+)
 fbmatch_house_gender <- unique(fbmatch_house_gender)
 
-fb_matched$house <- merge(fb_matched$house, fbmatch_house_gender, 
-                          by = "firstname")
+fb_matched$house <- merge(fb_matched$house, fbmatch_house_gender,
+  by = "firstname"
+)
 
 # Saving fb_matched ============================================================
 
@@ -424,12 +436,14 @@ fbmeta_sen_gender <- gender(
   countries = c("United States")
 )
 # Isolate the variables we'll need -- name (for merging), gender (because that's
-# what were here for, after all), and proportion_female (because the genders 
+# what were here for, after all), and proportion_female (because the genders
 # assigned to some of these names will need to be double-checked in some cases -
 # Jaime Raskin, for example, will be coded as female here)
-fbmeta_sen_gender <- as.data.frame(cbind(fbmeta_sen_gender$name, 
-                                         fbmeta_sen_gender$gender,
-                                         fbmeta_sen_gender$proportion_female))
+fbmeta_sen_gender <- as.data.frame(cbind(
+  fbmeta_sen_gender$name,
+  fbmeta_sen_gender$gender,
+  fbmeta_sen_gender$proportion_female
+))
 colnames(fbmeta_sen_gender) <- c("firstname", "gender", "firstname_prop_female")
 # Now, we take out the duplicates here -- otherwise, the merge will fail
 fbmeta_sen_gender <- unique(fbmeta_sen_gender)
@@ -447,11 +461,15 @@ fbmeta_house_gender <- gender(
   method = c("ssa"),
   countries = c("United States")
 )
-fbmeta_house_gender <- as.data.frame(cbind(fbmeta_house_gender$name, 
-                                           fbmeta_house_gender$gender,
-                                         fbmeta_house_gender$proportion_female))
-colnames(fbmeta_house_gender) <- c("firstname", "gender", 
-                                   "firstname_prop_female")
+fbmeta_house_gender <- as.data.frame(cbind(
+  fbmeta_house_gender$name,
+  fbmeta_house_gender$gender,
+  fbmeta_house_gender$proportion_female
+))
+colnames(fbmeta_house_gender) <- c(
+  "firstname", "gender",
+  "firstname_prop_female"
+)
 fbmeta_house_gender <- unique(fbmeta_house_gender)
 
 fb_meta$house <- merge(fb_meta$house, fbmeta_house_gender, by = "firstname")

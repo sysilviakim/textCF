@@ -278,16 +278,16 @@ region <- region %>%
       select(stname, stabb) %>%
       mutate(
         stname = ifelse(
-          stname == "district of columbia", 
+          stname == "district of columbia",
           "washington, district of columbia", stname
         )
       )
   ) %>%
   ## Those without state names: either "unknown" or outside U.S. mainland
-  ## e.g., British Columbia, Ontario, England, ... 
+  ## e.g., British Columbia, Ontario, England, ...
   select(-stname) %>%
   ## So it requires grouping and combining percentages due to NAs
-  group_by(candidate, id, stabb) %>% 
+  group_by(candidate, id, stabb) %>%
   summarise(percentage = sum(percentage, na.rm = TRUE)) %>%
   pivot_wider(
     id_cols = c(candidate, id), names_from = "stabb", values_from = "percentage"

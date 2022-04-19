@@ -1,10 +1,6 @@
 library(peRspective)
 source(here::here("R", "utilities.R"))
 
-# usethis::edit_r_environ()
-# Sys.setenv(perspective_api_key = "AIzaSyBiSxBAIcVz_IvXPqF19TDkjFkjqrW8gLA")
-# load(here("output", "fb_quanteda.Rda"))
-
 # Load data ====================================================================
 load(here("data", "tidy", "fb_unique.Rda"))
 
@@ -41,7 +37,6 @@ fbHouse_Merged %>%
 # Estimate Senate data =========================================================
 fbs <- fb_unique$senate %>%
   mutate(persp_id = row_number())
-
 
 batchSen1 <- fbs %>%
   filter(persp_id %in% c(1:10000)) %>%
