@@ -457,5 +457,4 @@ fbmeta_house_gender <- unique(fbmeta_house_gender)
 fb_meta$house <- merge(fb_meta$house, fbmeta_house_gender, by = "firstname")
 
 # Saving fb_meta ===============================================================
-
 save(fb_meta, file = here("data", "tidy", "fb_meta.Rda"))
