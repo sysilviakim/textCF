@@ -11,9 +11,9 @@ fb_unique <- fb_matched %>%
     ~ .x %>%
       select(
         candidate,
-        fb_ad_library_id, page_name, party, inc, state_po, pvi, 
-        contains("state_cd"), ad_creative_body, ad_creative_link_caption, 
-        vote_share ##, 
+        fb_ad_library_id, page_name, party, inc, state_po, pvi,
+        contains("state_cd"), ad_creative_body, ad_creative_link_caption,
+        vote_share ## ,
         ## contains("ad_"), contains("spend_"), contains("potential_"),
         ## contains("impressions_"),
         ## matches(
@@ -230,12 +230,14 @@ fbu_sen_gender <- gender(
   countries = c("United States")
 )
 # Isolate the variables we'll need -- name (for merging), gender (because that's
-# what were here for, after all), and proportion_female (because the genders 
+# what were here for, after all), and proportion_female (because the genders
 # assigned to some of these names will need to be double-checked in some cases -
 # Jaime Raskin, for example, will be coded as female here)
-fbu_sen_gender <- as.data.frame(cbind(fbu_sen_gender$name, 
-                                      fbu_sen_gender$gender,
-                                      fbu_sen_gender$proportion_female))
+fbu_sen_gender <- as.data.frame(cbind(
+  fbu_sen_gender$name,
+  fbu_sen_gender$gender,
+  fbu_sen_gender$proportion_female
+))
 colnames(fbu_sen_gender) <- c("firstname", "gender", "firstname_prop_female")
 # Now, we take out the duplicates here -- otherwise, the merge will fail
 fbu_sen_gender <- unique(fbu_sen_gender)
@@ -253,9 +255,13 @@ fbu_house_gender <- gender(
   method = c("ssa"),
   countries = c("United States")
 )
-fbu_house_gender <- as.data.frame(cbind(fbu_house_gender$name, 
-                                        fbu_house_gender$gender,
-                                        fbu_house_gender$proportion_female))
+fbu_house_gender <- as.data.frame(
+  cbind(
+    fbu_house_gender$name,
+    fbu_house_gender$gender,
+    fbu_house_gender$proportion_female
+  )
+)
 colnames(fbu_house_gender) <- c("firstname", "gender", "firstname_prop_female")
 fbu_house_gender <- unique(fbu_house_gender)
 
