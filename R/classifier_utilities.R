@@ -174,7 +174,7 @@ inspect_images_from_paths <- function(paths,
   plot_image_params <- function(params, pause = 3) {
     for (i in seq_len(ncol(params))) {
       plot(read_image(params["image", i], drop_alpha = FALSE))
-      title(params["name", i])
+      title(params["name", i], cex.main = 0.85)
       mtext(params["label", i], side = 1)
     }
     Sys.sleep(pause)

@@ -105,7 +105,7 @@ start_time <- Sys.time()
 transform_params <- list(angle = 20, flip = .7, rescale_min = .9, rescale_max = 1.1)
 sample_weights <- c(
   no_trump = 1,
-  trump = 10
+  trump = 7
 )
 ds_call <- call("candidate_image_dataset",
   img_dir = quote(img_dir),
