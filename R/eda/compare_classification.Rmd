@@ -163,6 +163,8 @@ for (spl in split(subset, seq_len(nrow(subset)) %/% table_size)) {
 # Raw OCR Results
 
 The OCR characters for the classification disagreements largely look like gibberish, though some valid words are recognizable. 
+Here, I randomly sample 10 sets of words and 
+display them beside the name of the associated image.
 I suspect `tesseract` is struggling with images that contain text.
 ```{r, results = "asis"}
 texts <- sapply(combined[disagreements, "ocr_output"], `[[`, "word") %>%
@@ -173,10 +175,12 @@ texts <- sapply(combined[disagreements, "ocr_output"], `[[`, "word") %>%
   unname()
 
 size <- 10
-do.call(what = cat, append(paste(
+set.seed(1)
+indices <- sample(ncol(texts), size)
+do.call(what = cat, append(gsub("\\\\", "\\\\\\\\", paste(
   rep(c("Image:", "Text:"), times = size),
-  texts[seq_len(size)]
-), list(sep = "\n\n")))
+  texts[, indices]
+)), list(sep = "\n\n")))
 ```
 
 `tesseract` also returns its level of confidence (a percentage) in each identified word. 
@@ -195,7 +199,9 @@ The average is `r mean( combined[["average_confidence"]], na.rm = TRUE )`.
 
 The mean average confidence is quite different for observations where the classifiers disagreed.
 ```{r, results = "asis"}
-t.test(average_confidence ~ disagreements, data = combined)
+result <- broom::tidy(t.test(average_confidence ~ disagreements, data = combined))[, 1:5]
+colnames(result)[2:3] <- c("No Disagreement", "Disagreement")
+result
 ```
 
 Interestingly, it is nor much higher for cases where only the OCR prediction was correct than for those where only the CNN prediction was correct.
@@ -213,7 +219,7 @@ lemmatizing the words and confirming their presence in a reference of English wo
 library(quanteda)
 words <- union(tidytext::stop_words[["word"]], tidytext::parts_of_speech[["word"]])
 path <- udpipe::udpipe_download_model(language = "english")[["file_model"]]
-English <- udpipe_load_model(file = path)
+English <- udpipe::udpipe_load_model(file = path)
 
 # See https://stackoverflow.com/questions/46731429/quanteda-fastest-way-to-replace-tokens-with-lemma-from-dictionary
 combined[["valid_words"]] <- sapply(
@@ -265,8 +271,6 @@ colMeans(combined[, c("pred_class", "ocr_pred_class")] == combined[["actual_clas
   list2DF()
 ```
 
-
-
 # Conclusions 
 
 OCR seems capable of accurately reading text in 
@@ -275,5 +279,7 @@ It could be improved by experimenting with parameters,
 although there is no guarantee that would prove worthwhile.
 The convolutional network is surprisingly effective,
 given the mixed training data. I should create more examples of images with Trump to obtain a more accurate view of performance. While further 
+fine-tuning is clearly necessary, I think the strategy of combining a neural network with OCR remains workable. One issue I did not address is how to combine outputs from both methods into a single prediction.
+
 fine-tuning is clearly necessary, I think the strategy of combining a neural network with OCR remains workable. One issue I did not address is how to combine outputs from both methods into a single prediction.
 
