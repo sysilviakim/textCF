@@ -44,7 +44,9 @@ cong_complete <- loadRData("data/tidy/cong_complete.Rda") %>%
         -contains("shared_title"), -contains("shared_contribution_blurb"),
         -contains("full_background"), -contains("reusable")
       ) %>%
-      dedup()
+      dedup() %>%
+      ## use bind_rows(., id = "chamber") later; some missing values here
+      select(-chamber)
   )
 
 assert_that(!any(duplicated(cong_complete$senate$candidate)))
@@ -355,7 +357,8 @@ colnames(fbmatch_house_gender) <- c(
 )
 fbmatch_house_gender <- unique(fbmatch_house_gender)
 
-fb_matched$house <- merge(fb_matched$house, fbmatch_house_gender,
+fb_matched$house <- merge(
+  fb_matched$house, fbmatch_house_gender,
   by = "firstname"
 )
 

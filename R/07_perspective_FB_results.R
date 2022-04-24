@@ -23,7 +23,7 @@ df <- bind_rows(
 summ_df <- summ_df_fxn(df %>% group_by(party, financial, chamber))
 summ_df_full <- summ_df_fxn(
   df %>%
-    filter(financial == "Financial") %>%
+    filter(financial == "Donor-targeting") %>%
     mutate(
       type = case_when(
         type %in% c("WinRed", "ActBlue") ~ type,
