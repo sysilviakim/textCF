@@ -5,6 +5,9 @@ source(here::here("R", "utilities.R"))
 load(here("data", "tidy", "fb_unique.Rda"))
 
 # Estimate House data with perspective API =====================================
+fbh <- fb_unique$house %>%
+  mutate(persp_id = row_number())
+
 batchHouse1 <- fbh %>%
   filter(persp_id %in% c(1:20000)) %>%
   prsp_stream(
