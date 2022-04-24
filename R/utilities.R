@@ -1541,21 +1541,24 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
         xmin = !!as.name(xvar) - 1.96 * !!as.name(se)
       )
     ) +
-    geom_pointrange(size = 0.5) +
+    geom_col(width = .5) +
+    geom_errorbar(width = .2, size = 1, aes(color = "black")) +
     facet_wrap(~chamber) +
     scale_color_manual(values = color4) +
+    scale_fill_manual(values = color4) +
     labs(y = "", x = xlab)
 
   if (full) {
     p <- p +
-      scale_color_manual(values = color4_platform)
+      scale_color_manual(values = color4_platform) +
+      scale_fill_manual(values = color4_platform)
     pdf_default(p) +
       theme(legend.position = "none") +
-      scale_x_continuous(limits = c(0.06, 0.14))
+      scale_x_continuous(limits = c(0, 0.14))
   } else {
     pdf_default(p) +
       theme(legend.position = "none") +
-      scale_x_continuous(limits = c(0.06, 0.14))
+      scale_x_continuous(limits = c(0, 0.14))
   }
 }
 
