@@ -1554,11 +1554,11 @@ fb_perspective_plot <- function(df, xvar, se, xlab, full = FALSE) {
       scale_fill_manual(values = color4_platform)
     pdf_default(p) +
       theme(legend.position = "none") +
-      scale_x_continuous(limits = c(0, 0.14))
+      scale_x_continuous(limits = c(0, 0.151))
   } else {
     pdf_default(p) +
       theme(legend.position = "none") +
-      scale_x_continuous(limits = c(0, 0.14))
+      scale_x_continuous(limits = c(0, 0.151))
   }
 }
 

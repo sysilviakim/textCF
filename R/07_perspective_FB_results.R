@@ -52,7 +52,8 @@ p1 <- fb_perspective_plot(
   )
 )
 
-pdf(here("fig", "fb_toxic_means_by_type_chamber.pdf"), width = 6, height = 2.8)
+pdf(
+  here("fig", "fb_toxic_means_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(p1)
 dev.off()
 
@@ -65,7 +66,8 @@ p2 <- fb_perspective_plot(
   )
 )
 
-pdf(here("fig", "fb_obscene_means_by_type_chamber.pdf"), width = 6, height = 2.8)
+pdf(
+  here("fig", "fb_obscene_means_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(p2)
 dev.off()
 
@@ -78,7 +80,8 @@ p3 <- fb_perspective_plot(
   )
 )
 
-pdf(here("fig", "fb_identity_means_by_type_chamber.pdf"), width = 6, height = 2.8)
+pdf(
+  here("fig", "fb_identity_means_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(p3)
 dev.off()
 
