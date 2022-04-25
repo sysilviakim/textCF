@@ -1,84 +1,48 @@
 library(peRspective)
 source(here::here("R", "utilities.R"))
-
-# Load data ====================================================================
 load(here("data", "tidy", "fb_unique.Rda"))
+vec <- c(senate = "senate", house = "house")
 
-# Estimate House data with perspective API =====================================
-fbh <- fb_unique$house %>%
-  mutate(persp_id = row_number())
-
-batchHouse1 <- fbh %>%
-  filter(persp_id %in% c(1:20000)) %>%
-  prsp_stream(
-    text = ad_creative_body,
-    text_id = persp_id,
-    languages = "en",
-    score_model = c("IDENTITY_ATTACK", "TOXICITY", "OBSCENE")
+# Estimate House/Senate data with perspective API ==============================
+for (chamber in vec) {
+  df <- fb_unique[[chamber]] %>% mutate(persp_id = row_number())
+  
+  ## Batch-loop
+  batch_list <- vector("list", (nrow(df) %/% 1e2) + 1)
+  for (i in seq(nrow(df) %/% 1e2 + 1)) {
+    batch_list[[i]] <- df %>%
+      filter(persp_id %in% seq(1e2 * (i - 1) + 1, max(1e2 * i, nrow(df)))) %>%
+      prsp_stream(
+        text = ad_creative_body,
+        text_id = persp_id,
+        languages = "en",
+        score_model = c("TOXICITY", "OBSCENE")
+      )
+    print(paste0(i, "-th batch finished for ", chamber, "."))
+    save(batch_list, file = here("out", paste0("batch_", chamber, "_list.Rda")))
+  }
+  print("All batches finished!! ==============================================")
+  
+  fb_merged <- left_join(
+    df, 
+    batch_list %>% bind_rows() %>% rename(persp_id = text_id)
   )
+  
+  fb_merged %>%
+    saveRDS(
+      here(
+        "data", "tidy", 
+        paste0("fb_perspective_", chamber, "_", ymd(Sys.Date()), ".RDS")
+      )
+    )
+}
 
-batchHouse2 <- fbh %>%
-  filter(persp_id %in% c(20000:max(fbh$persp_id))) %>%
-  prsp_stream(
-    text = ad_creative_body,
-    text_id = persp_id,
-    languages = "en",
-    score_model = c("IDENTITY_ATTACK", "TOXICITY", "OBSCENE")
-  )
+df <- vec %>%
+  map(
+    ~ base::readRDS(
+      max(list.files(here("data", "tidy"), pattern = "fb_perspective_", .x))
+    )
+  ) %>%
+  bind_rows(., .id = "chamber")
 
-batch_combineHOUSE <- bind_rows(batchHouse1, batchHouse2)
-
-fbHouse_Merged <- left_join(
-  fbh,
-  batch_combineHOUSE %>%
-    dplyr::rename(persp_id = text_id)
-)
-
-fbHouse_Merged %>%
-  saveRDS(here("data", "tidy", "fb_perspective_House.RDS"))
-
-# Estimate Senate data =========================================================
-fbs <- fb_unique$senate %>%
-  mutate(persp_id = row_number())
-
-batchSen1 <- fbs %>%
-  filter(persp_id %in% c(1:10000)) %>%
-  prsp_stream(
-    text = ad_creative_body,
-    text_id = persp_id,
-    languages = "en",
-    score_model = c("IDENTITY_ATTACK", "TOXICITY", "OBSCENE")
-  )
-
-batchSen2 <- fbs %>%
-  filter(persp_id %in% c(10001:20000)) %>%
-  prsp_stream(
-    text = ad_creative_body,
-    text_id = persp_id,
-    languages = "en",
-    score_model = c("IDENTITY_ATTACK", "TOXICITY", "OBSCENE")
-  )
-
-batchSen3 <- fbs %>%
-  filter(persp_id %in% c(20001:max(fbs$persp_id))) %>%
-  prsp_stream(
-    text = ad_creative_body,
-    text_id = persp_id,
-    languages = "en",
-    score_model = c("IDENTITY_ATTACK", "TOXICITY", "OBSCENE")
-  )
-
-batch_combineSENATE <- bind_rows(
-  batchSen1,
-  batchSen2,
-  batchSen3
-)
-
-fbSenate_Merged <- left_join(
-  fbs,
-  batch_combineSENATE %>%
-    dplyr::rename(persp_id = text_id)
-)
-
-fbSenate_Merged %>%
-  saveRDS(here("data", "tidy", "fb_perspective_Senate.RDS"))
+save(df, file = here("output", "persp_final_results.Rda"))
