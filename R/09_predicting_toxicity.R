@@ -6,23 +6,24 @@ load(here("output", "persp_final_results.Rda"))
 load(here("data", "tidy", "fb_unique.Rda"))
 
 # Bind and merge ===============================================================
-fb <- fb_unique %>%
-  bind_rows(., .id = "chamber") %>%
+fb <- fb_unique %>% bind_rows(., .id = "chamber") %>%
   mutate(chamber = case_when(chamber == "senate" ~ "Senate", TRUE ~ "House"))
 
 ## Having to do this means that the code needs to be fixed somewhere
 ## Incumbency status also missing from somewhere;
 ## Currently patched up. Must fix
 merged <- left_join(
+  ## Joining, by = c("candidate", "fb_ad_library_id", "page_name", "ad_creative_body", "ad_creative_link_caption")
+  ## Everything in this subsetted df should be matched
   df %>%
     clean_names() %>%
     select(-contains("word"), -contains("state")) %>%
-    select(-donate, -financial, -vote_share, -type, -inc, -party, -chamber) %>%
+    select(-donate, -financial, -vote_share, -type, -inc, -chamber) %>%
     dedup() %>%
-    clean_candidate(),
-  fb %>%
-    select(-n) %>%
-    dedup()
+    clean_candidate() %>%
+    filter(party %in% c("Democrat", "Republican")) %>%
+    filter(candidate != "michael san nicolas"),
+  fb %>% select(-n, -party) %>% dedup()
 ) %>%
   dedup() %>%
   mutate(
@@ -37,8 +38,20 @@ merged <- left_join(
     max_ad_delivery_start_time =
       as.Date(round(max_ad_delivery_start_time), origin = "1970-01-01"),
     max_ad_delivery_stop_time =
-      as.Date(round(max_ad_delivery_stop_time), origin = "1970-01-01")
+      as.Date(round(max_ad_delivery_stop_time), origin = "1970-01-01"),
+    safety = case_when(
+      party == "Democrat" ~ pvi,
+      party == "Republican" ~ -pvi
+    )
   )
+
+## Only non-running Senators
+assert_that(
+  merged %>% filter(is.na(state_po) & chamber != "Senate") %>% nrow() == 0
+)
+assert_that(
+  merged %>% filter(is.na(party) & chamber != "Senate") %>% nrow() == 0
+)
 
 temp <- merged %>%
   filter(!is.na(party) & !is.na(state_po) & party != "INDEPENDENT") %>%
@@ -50,8 +63,13 @@ temp <- merged %>%
     )
   )
 
-table(temp$inc, useNA = "ifany")
+## Assertions for sanity check
 assert_that(!any(is.na(temp$inc)))
+assert_that(!any(is.na(temp$pvi)))
+assert_that(!any(is.na(temp$chamber)))
+assert_that(!any(is.na(temp$state_po)))
+assert_that(!any(is.na(temp$party)))
+nrow(temp)
 
 # Over time plot ===============================================================
 color4_modified <- color4
@@ -78,14 +96,16 @@ dev.off()
 # OLS first for reference (simple model) =======================================
 fit <- lm(
   toxicity ~
-  party * financial + chamber + inc + min_ad_delivery_start_time + state_po,
+  party * financial + chamber + inc + safety + gender + 
+    min_ad_delivery_start_time + state_po,
   temp
 )
 summary(fit)
 
 fit_se_cluster <- feols(
   toxicity ~
-  party * financial + chamber + inc + min_ad_delivery_start_time + state_po,
+  party * financial + chamber + inc + safety + gender + 
+    min_ad_delivery_start_time + state_po,
   temp
 )
 
