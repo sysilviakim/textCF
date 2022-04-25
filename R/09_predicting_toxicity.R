@@ -126,3 +126,25 @@ fit_fe <- feols(
 summary(fit_fe)
 etable(fit_fe)
 etable(fit_fe, tex = TRUE, file = here("tab", "fit_fe_toxicity.tex"))
+
+# Estimating text similarity ===================================================
+load(here("output", "fb_quanteda.Rda"))
+## simil_output <- textstat_simil(dfm_FB_ad) 
+##   ---> gives allocate vector error (18.2 Gb)
+
+simil_cosine_list <- simil_corr_list <- vector("list", length = nrow(dfm_FB_ad))
+for (i in seq(nrow(dfm_FB_ad))) {
+  ## Default = correlation
+  ## Jaro-Winkler string distance?
+  simil_corr_list[[i]] <- textstat_simil(dfm_FB_ad[i, ], dfm_FB_ad)
+  simil_cosine_list[[i]] <- 
+    textstat_simil(dfm_FB_ad[i, ], dfm_FB_ad, method = "cosine")
+  message(paste0(i, "-th similarity computed."))
+  
+  if (i %% 100 == 0) {
+    save(simil_corr_list, file = here("output", "simil_corr_list.Rda"))
+    save(simil_cosine_list, file = here("output", "simil_cosine_list.Rda"))
+  }
+}
+save(simil_corr_list, file = here("output", "simil_corr_list.Rda"))
+save(simil_cosine_list, file = here("output", "simil_cosine_list.Rda"))
