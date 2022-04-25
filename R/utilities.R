@@ -1791,6 +1791,29 @@ summ_df_fxn <- function(df, full = FALSE) {
   }
 }
 
+percentage_calc <- function(f, c, p = TRUE) {
+  if (p == TRUE) {
+    x1 <- summ_df %>%
+      filter(
+        grepl("Rep", party) & grepl(f, financial) & chamber == c
+      ) %>%
+      .$Toxic
+    x2 <- summ_df %>%
+      filter(
+        grepl("Dem", party) & grepl(f, financial) & chamber == c
+      ) %>%
+      .$Toxic
+  } else if (p == "Democrat" | p == "Republican") {
+    x1 <- summ_df %>%
+      filter(grepl(p, party) & grepl("Donor", financial) & chamber == c) %>%
+      .$Toxic
+    x2 <- summ_df %>%
+      filter(grepl(p, party) & grepl("Voter", financial) & chamber == c) %>%
+      .$Toxic
+  }
+  return((x1 - x2) / x2 * 100)
+}
+
 # Wayback-specific Functions ===================================================
 wayback_memento <- function(files) {
   files %>%

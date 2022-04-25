@@ -236,6 +236,19 @@ fb_house %>%
   )
 ggsave("fig/ridges_by_type.pdf", width = 8, height = 6)
 
+# Substantial interpretations ==================================================
+percentage_calc("Donor", "House") ## 19.89255
+percentage_calc("Donor", "Senate") ## 11.57267
+
+percentage_calc("Voter", "House") ## 19.54972
+percentage_calc("Voter", "Senate") ## 21.81272
+
+percentage_calc(c = "House", p = "Democrat") ## 5.716507
+percentage_calc(c = "House", p = "Republican") ## 6.019665
+
+percentage_calc(c = "Senate", p = "Democrat") ## 0.4045184
+percentage_calc(c = "Senate", p = "Republican") ## -8.035872
+
 # Example of Toxic Ads =========================================================
 
 ## Dem
