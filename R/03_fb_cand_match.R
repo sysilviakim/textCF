@@ -118,6 +118,10 @@ fb_matched$house %>%
   .$pvi %>%
   table(useNA = "ifany")
 
+fb_matched$house %>%
+  filter(candidate == "ilhan omar") %>%
+  nrow()
+
 sum(is.na(fb_matched$senate$inc)) ## 147,196 ---> 152
 sum(is.na(fb_matched$house$inc)) ## 9,933 ---> 4,737
 sum(is.na(fb_matched$senate$pvi)) ## 152
@@ -171,11 +175,11 @@ fb_matched$senate <- fb_matched$senate %>%
       TRUE ~ inc
     )
   )
-### Removing Alex Padilla, because he wasn't running for Senate
+
+## Removing Alex Padilla, because he wasn't running for Senate
 fb_matched$senate <- fb_matched$senate[
   !(fb_matched$senate$candidate == "alex padilla"),
 ]
-
 
 ## House Incumbency
 fb_matched$house <- fb_matched$house %>%
@@ -241,7 +245,7 @@ fb_matched$house <- fb_matched$house %>%
       candidate == "quinn nystrom" ~ -4, # MN-8 R+4
       candidate == "christy smith" ~ 0, # CA-25; EVEN
       candidate == "david scott" ~ 20, # GA-13; D+20
-      # candidate == "michael san nicolas" ~ ___, # Guam...should probably remove
+      # candidate == "michael san nicolas" ~ ___, # Guam... should prob. remove
       candidate == "randy weber sr" ~ -12, # TX-14; R+12
       candidate == "frank lucas" ~ -27, # OK-3; R+27
       candidate == "c antonio delgado" ~ 33, # CA-40; D+33
@@ -302,68 +306,73 @@ fb_matched <- fb_matched %>%
   )
 
 # Adding gender variable =======================================================
+fb_matched_old <- fb_matched
+fb_matched <- fb_matched %>%
+  map(
+    ~ .x %>%
+      ## so that if w gregory steube, we get "gregory" not "w"
+      mutate(
+        first_name = word(
+          gsub(
+            letters %>% paste(collapse = " |^") %>%
+              paste0("^", ., " "), "", candidate
+          ),
+          1
+        )
+      ) %>%
+      gender_mutate_df(., input_name = "first_name", years = c(1933, 1990))
+  )
 
-## Senate
-# First, generate a firstname column
-fb_matched$senate$firstname <- word(fb_matched$senate$candidate, 1)
+assert_that(!any(is.na(fb_matched$senate$gender)))
+fb_matched$house %>%
+  filter(is.na(gender)) %>%
+  .$candidate %>%
+  table()
 
-# Next, because the gender package's gender function generates a dataframe,
-# create this new data object
-fbmatch_sen_gender <- gender(
-  fb_matched$senate$firstname,
-  years = c(1933, 1990), # 30 as of 2020, not 25
-  method = c("ssa"),
-  countries = c("United States")
-)
-# Isolate the variables we'll need -- name (for merging), gender (because that's
-# what were here for, after all), and proportion_female (because the gender
-# assigned to some of these names will need to be double-checked in some cases -
-# I believe Jamie Raskin, for example, will be coded as female here)
-fbmatch_sen_gender <- as.data.frame(cbind(
-  fbmatch_sen_gender$name,
-  fbmatch_sen_gender$gender,
-  fbmatch_sen_gender$proportion_female
-))
-colnames(fbmatch_sen_gender) <- c(
-  "firstname", "gender",
-  "firstname_prop_female"
-)
-# Now, we take out the duplicates here -- otherwise, the merge will fail
-fbmatch_sen_gender <- unique(fbmatch_sen_gender)
+#       albio sires              andr carson            g butterfield 
+#                12                       18                       27 
+#        ilhan omar               j scholten             jahana hayes 
+#              2054                      123                      111 
+#       kat cammack             kweisi mfume           lovelynn gwinn 
+#               140                        8                        1 
+# manga anantatmula mariannette miller meeks         markwayne mullin 
+#                24                      100                      127 
+#         mo brooks           mondaire jones          pramila jayapal 
+#                 2                      242                     1064 
+#         ro khanna              steny hoyer          vennia francois 
+#              1579                       63                       53 
 
-# Merge variables into data
-fb_matched$senate <- merge(fb_matched$senate, fbmatch_sen_gender,
-  by = "firstname"
-)
-
-## House
-# Repeat the Senate process for the House
-fb_matched$house$firstname <- word(fb_matched$house$candidate, 1)
-
-fbmatch_house_gender <- gender(
-  fb_matched$house$firstname,
-  years = c(1933, 1995), # 25 as of 2020
-  method = c("ssa"),
-  countries = c("United States")
-)
-fbmatch_house_gender <- as.data.frame(cbind(
-  fbmatch_house_gender$name,
-  fbmatch_house_gender$gender,
-  fbmatch_house_gender$proportion_female
-))
-colnames(fbmatch_house_gender) <- c(
-  "firstname", "gender",
-  "firstname_prop_female"
-)
-fbmatch_house_gender <- unique(fbmatch_house_gender)
-
-fb_matched$house <- merge(
-  fb_matched$house, fbmatch_house_gender,
-  by = "firstname"
+## Manual adjustment
+fb_matched$house <- fb_matched$house %>%
+  mutate(
+    gender = case_when(
+      candidate == "albio sires" ~ "male",
+      candidate == "andr carson" ~ "male",
+      candidate == "g butterfield" ~ "male",
+      candidate == "ilhan omar" ~ "female",
+      candidate == "j scholten" ~ "male",
+      candidate == "jahana hayes" ~ "female",
+      candidate == "kat cammack" ~ "female",
+      candidate == "kweisi mfume" ~ "male",
+      candidate == "lovelynn gwinn" ~ "female",
+      candidate == "manga anantatmula" ~ "female",
+      candidate == "mariannette miller meeks" ~ "female",
+      candidate == "markwayne mullin" ~ "male",
+      candidate == "mo brooks" ~ "male",
+      candidate == "mondaire jones" ~ "male",
+      candidate == "pramila jayapal" ~ "female",
+      candidate == "ro khanna" ~ "male",
+      candidate == "steny hoyer" ~ "male",
+      candidate == "vennia francois" ~ "female",
+      TRUE ~ gender
+    )
+  )
+assert_that(!any(is.na(fb_matched$house$gender)))
+assert_that(
+  all(fb_matched %>% map_dbl(nrow) == fb_matched_old %>% map_dbl(nrow))
 )
 
 # Saving fb_matched ============================================================
-
 save(fb_matched, file = here("data", "tidy", "fb_matched.Rda"))
 
 # Generate and store metadata for ads, before taking out unique ads ============
@@ -423,59 +432,6 @@ fb_meta <- fb_simple %>%
 
 ## Make sure to NA the NaN values
 ## Make sure to as.Date(x, origin = "1970-01-01") for wrangled dates
-
-# Adding gender variable to fb_meta ============================================
-
-## Senate
-# First, generate a firstname column
-fb_meta$senate$firstname <- word(fb_meta$senate$candidate, 1)
-
-# Next, because the gender package's gender function generates a dataframe,
-# create this new data object
-fbmeta_sen_gender <- gender(
-  fb_meta$senate$firstname,
-  years = c(1933, 1990), # 30 as of 2020, not 25
-  method = c("ssa"),
-  countries = c("United States")
-)
-# Isolate the variables we'll need -- name (for merging), gender (because that's
-# what were here for, after all), and proportion_female (because the genders
-# assigned to some of these names will need to be double-checked in some cases -
-# Jaime Raskin, for example, will be coded as female here)
-fbmeta_sen_gender <- as.data.frame(cbind(
-  fbmeta_sen_gender$name,
-  fbmeta_sen_gender$gender,
-  fbmeta_sen_gender$proportion_female
-))
-colnames(fbmeta_sen_gender) <- c("firstname", "gender", "firstname_prop_female")
-# Now, we take out the duplicates here -- otherwise, the merge will fail
-fbmeta_sen_gender <- unique(fbmeta_sen_gender)
-
-# Merge variables into data
-fb_meta$senate <- merge(fb_meta$senate, fbmeta_sen_gender, by = "firstname")
-
-## House
-# Repeat the Senate process for the House
-fb_meta$house$firstname <- word(fb_meta$house$candidate, 1)
-
-fbmeta_house_gender <- gender(
-  fb_meta$house$firstname,
-  years = c(1933, 1995), # 25 as of 2020
-  method = c("ssa"),
-  countries = c("United States")
-)
-fbmeta_house_gender <- as.data.frame(cbind(
-  fbmeta_house_gender$name,
-  fbmeta_house_gender$gender,
-  fbmeta_house_gender$proportion_female
-))
-colnames(fbmeta_house_gender) <- c(
-  "firstname", "gender",
-  "firstname_prop_female"
-)
-fbmeta_house_gender <- unique(fbmeta_house_gender)
-
-fb_meta$house <- merge(fb_meta$house, fbmeta_house_gender, by = "firstname")
 
 # Saving fb_meta ===============================================================
 save(fb_meta, file = here("data", "tidy", "fb_meta.Rda"))

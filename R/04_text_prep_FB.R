@@ -11,7 +11,8 @@ fb_unique <- fb_matched %>%
     ~ .x %>%
       select(
         candidate,
-        fb_ad_library_id, page_name, party, inc, state_po, pvi,
+        fb_ad_library_id, page_name, party, inc, state_po, pvi, 
+        gender, proportion_female,
         contains("state_cd"), ad_creative_body, ad_creative_link_caption,
         vote_share ## ,
         ## contains("ad_"), contains("spend_"), contains("potential_"),
@@ -62,7 +63,7 @@ fb_unique <- fb_matched %>%
 
 fb_unique %>% map_dbl(nrow)
 # senate  house
-#  26113  43949
+#  26113  43949 ---> 26108  43862
 
 ## Check nonclassified ad creative links
 # temp1 <- fb_unique$senate %>% filter(is.na(type))
@@ -214,58 +215,6 @@ fb_unique %>%
       filter(financial == "Voter-targeting" & in_district < 0.5) %>%
       nrow()
   )
-
-# Adding gender variable to fb_unique ==========================================
-
-## Senate
-# First, generate a firstname column
-fb_unique$senate$firstname <- word(fb_unique$senate$candidate, 1)
-
-# Next, because the gender package's gender function generates a dataframe,
-# create this new data object
-fbu_sen_gender <- gender(
-  fb_unique$senate$firstname,
-  years = c(1933, 1990), # 30 as of 2020, not 25
-  method = c("ssa"),
-  countries = c("United States")
-)
-# Isolate the variables we'll need -- name (for merging), gender (because that's
-# what were here for, after all), and proportion_female (because the genders
-# assigned to some of these names will need to be double-checked in some cases -
-# Jaime Raskin, for example, will be coded as female here)
-fbu_sen_gender <- as.data.frame(cbind(
-  fbu_sen_gender$name,
-  fbu_sen_gender$gender,
-  fbu_sen_gender$proportion_female
-))
-colnames(fbu_sen_gender) <- c("firstname", "gender", "firstname_prop_female")
-# Now, we take out the duplicates here -- otherwise, the merge will fail
-fbu_sen_gender <- unique(fbu_sen_gender)
-
-# Merge variables into data
-fb_unique$senate <- merge(fb_unique$senate, fbu_sen_gender, by = "firstname")
-
-## House
-# Repeat the Senate process for the House
-fb_unique$house$firstname <- word(fb_unique$house$candidate, 1)
-
-fbu_house_gender <- gender(
-  fb_unique$house$firstname,
-  years = c(1933, 1995), # 25 as of 2020
-  method = c("ssa"),
-  countries = c("United States")
-)
-fbu_house_gender <- as.data.frame(
-  cbind(
-    fbu_house_gender$name,
-    fbu_house_gender$gender,
-    fbu_house_gender$proportion_female
-  )
-)
-colnames(fbu_house_gender) <- c("firstname", "gender", "firstname_prop_female")
-fbu_house_gender <- unique(fbu_house_gender)
-
-fb_unique$house <- merge(fb_unique$house, fbu_house_gender, by = "firstname")
 
 # Saving fb_unique =============================================================
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
