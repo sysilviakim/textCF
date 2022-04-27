@@ -6,7 +6,12 @@ batch_size <- 1e2
 
 # Estimate House/Senate data with perspective API ==============================
 for (chamber in vec) {
-  df <- fb_unique[[chamber]] %>% mutate(persp_id = row_number())
+  df <- fb_unique[[chamber]] %>% 
+    mutate(persp_id = row_number()) %>%
+    select(
+      persp_id, candidate, fb_ad_library_id, ad_creative_body,
+      page_name, ad_creative_body, ad_creative_link_caption
+    )
 
   ## Batch-loop
   batch_list <- vector("list", (nrow(df) %/% batch_size) + 1)
@@ -69,4 +74,5 @@ df <- vec %>%
   ) %>%
   bind_rows(., .id = "chamber")
 
+## Without metadata; just bare minimum for perspective matching
 save(df, file = here("output", "persp_final_results.Rda"))
