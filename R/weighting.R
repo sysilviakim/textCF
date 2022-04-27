@@ -54,6 +54,13 @@ house_weights <- house_weights[!duplicated(house_weights), ]
 # Number of rows goes significantly down with this...before, though, it was
 # greater than the number of rows in fb_matched$house, which didn't make sense
 
+# Adding toxic classifier -- 0.2 threshold? Can change as needed
+house_weights <- house_weights %>%
+  mutate(toxic = case_when(
+    TOXICITY >= 0.2 ~ "toxic",
+    TOXICITY < 0.2 ~ "nontoxic"
+  ))
+
 # Merging weighting variables into fb_senate ===================================
 
 # Sanity checks, before we get started...
@@ -91,3 +98,9 @@ assert_that(!any(is.na(senate_weights$ad_creation_time)))
 senate_weights <- senate_weights[!duplicated(senate_weights), ]
 assert_that(!any(duplicated(senate_weights)))
 
+# Adding toxic classifier -- 0.2 for the time being
+senate_weights <- senate_weights %>%
+  mutate(toxic = case_when(
+    TOXICITY >= 0.2 ~ "toxic",
+    TOXICITY < 0.2 ~ "nontoxic"
+  ))
