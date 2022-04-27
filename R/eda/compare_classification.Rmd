@@ -5,15 +5,17 @@ date: "`r format(Sys.Date(), '%B %e, %Y')`"
 header-includes:
   - \setlength{\parindent}{2em}
   - \setlength{\parskip}{2em}
-  - \usepackage{multirow}
+  - \usepackage{booktabs}
+  - \usepackage{hyperref}
 params:
     title: "Comparison of OCR and CNN Classification Results"
 output:
   pdf_document:
     highlight: "kate"
     df_print: "kable"
-url_color: "blue"
+urlcolor: "blue"
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -29,28 +31,38 @@ options(digits = 3)
 ```
 
 This document compares the results of classifying all 
-`r  list.files("data/classifier/images/", pattern = ".*",  recursive = TRUE)` images, using both a trained neural network and optical character 
-recognition with `tesseract`. 
+`r length(list.files(here::here("data", "classifier", "images"), pattern = ".*",  recursive = TRUE))` images currently available, using both a trained neural network and optical character recognition with `tesseract`.
+
+In the output below, blue text designates hyperlinks that should point to the relevant image in my Dropbox storage.
+
 ```{r}
+source(here::here("R", "utilities.R"))
 source(here::here("R", "classifier_utilities.R"))
+source(here::here("R", "dropbox_utilities.R"))
 ocr_results <- readRDS(here::here("data", "classifier", "outputs", "ocr_results.Rds"))
-cnn_results <- read.csv(here::here("data", "classifier", "outputs", "cnn_results.csv"))
-latest_date <- max(cnn_results[["date"]])
 cnn_results <- read.csv(here::here("data", "classifier", "outputs", "cnn_all_classifications.csv"))
 ```
-I opted to record results separately, since I planned to record CNN results many times. The datasets can be joined using `image` name as a key.
+I opted to record results separately, since I planned to record CNN results many times. The datasets can be joined using the `image` column as a key.
 The columns of `cnn_results` are: 
 
 * `actual_class`, `pred_class`: True and predicted classes, with 1 corresponding to non-Trump and 2 to Trump 
+
 * `image`: Path to the image corresponding to the row
+
 * `p_trump`: Predicted Trump probability
+
 * `log_p_trump`: Log of predicted Trump probability
+
 * `batch_loss`: Value of loss function for batch the observation belonged to
 
 The columns of `ocr_results` are: 
+
 * `image` and `ocr_pred_class`: The same meanings as in `cnn_results`
+
 * `ocr_text`: The raw text recognized by `tesseract`. Prediction was done by case-insensitive matching for the string "trump" in this text.
+
 * `ocr_output`: List column of detailed `tesseract` results. Each entry contains the columns `word` (each distinct recognized word, concatenated to form `ocr_text`), `confidence` (percentage confident in word identification), and `bbox` (bounding box of image coordinates corresponding to identified word). Because this is a list column, I chose to store the data as an RDS. 
+
 
 ```{r}
 combined <- merge(ocr_results, cnn_results, by = "image")
@@ -63,42 +75,58 @@ setequal(ocr_results$image, cnn_results$image)
 
 # Comparing Misclassifications
 
-A contingency table shows the different classifications. 
-Most agree.
-```{r}
-with(combined, table(cnn = CLASS_NAMES[pred_class], ocr = CLASS_NAMES[ocr_pred_class])) %>%
-  data.frame()
+A contingency table shows the different classifications, with the neural network 
+on the rows and OCR on the columns.
+Most agree, with the exception of the network predicting "Trump" far too often. 
+
+```{r, results = "asis"}
+present_table(with(
+  combined,
+  table(
+    cnn = CLASS_NAMES[pred_class],
+    ocr = CLASS_NAMES[ocr_pred_class]
+  )
+))
 ```
 
 Here is a more detailed breakdown of predicted and actual labels. The network appeared to be more likely to predict an image contained Trump than OCR. I added training and loss weights to compensate for the shortage of Trump images, but I think they may need to be adjusted downward.
-```{r}
-with(combined, table(cnn = CLASS_NAMES[pred_class], ocr = CLASS_NAMES[ocr_pred_class], true = CLASS_NAMES[actual_class])) %>%
-  knitr::kable()
+```{r, results = "asis"}
+with(combined, table(
+  cnn = CLASS_NAMES[pred_class],
+  ocr = CLASS_NAMES[ocr_pred_class],
+  true = CLASS_NAMES[actual_class]
+)) %>%
+  present_table(., FALSE)
 ```
 
 In most cases, both classifiers were correct. Interestingly, the number of cases where only one was correct is about the same for both.
-```{r}
+```{r, results = "asis"}
 combined <- within(combined, prediction_category <- ifelse(actual_class == ocr_pred_class,
   ifelse(pred_class == actual_class, "both", "ocr"),
   ifelse(pred_class == actual_class, "cnn", "neither")
 ))
 
 sort(table(combined[["prediction_category"]]), decreasing = TRUE) |>
-  as.list() |>
-  list2DF()
+  present_table()
+disagreements <- combined[["prediction_category"]] != "both"
 ```
-One or both classifiers was wrong in `r mean(disagreements)` of cases. 
+The proportion of cases where one or both classifiers was wrong `r mean(disagreements)`. 
 The overall error rate from naively predicting "not Trump" in every case would be `r 1 - max(prop.table(table(combined[["actual_class"]]))) `.
 
 We can examine the images where at least one classification was incorrect. This plot shows the first four of those `r sum(disagreements)` images. I don't see any obvious pattern. `tesseract` seems to have correctly classified some images with no text, which I have to regard as spurious.
 ```{r}
-disagreements <- combined[["prediction_category"]] != "both"
 to_plot <- seq_len(4)
 inspect_images_from_paths(
   paths = combined[disagreements, "image"][to_plot],
   labels = paste("Correctly classified by:", combined[disagreements, "prediction_category"][to_plot]),
   plot_dims = c(2, 2)
 )
+```
+
+
+```{r}
+urls <- read.csv(here::here("data", "classifier", "image_urls.csv"))
+combined <- merge(combined, urls, by = "image")
 ```
 
 Here are tables showing the true labels and predictions from both classifiers for the disagreements.
@@ -117,6 +145,10 @@ subset[, endsWith(colnames(subset), "class")] <-
     subset[, endsWith(colnames(subset), "class")],
     function(x) CLASS_NAMES[x]
   )
+subset[["prediction_category"]] <- latex_url(
+  display = subset[["prediction_category"]],
+  url = combined[disagreements, "url"]
+)
 subset[["image"]] <- gsub("_", "\n", subset$image) %>%
   lapply(strwrap, 20)
 n_lines <- lengths(subset[["image"]])
@@ -144,7 +176,7 @@ for (spl in split(subset, seq_len(nrow(subset)) %/% table_size)) {
   ))
 
 
-  display <- paste(
+  display_text <- paste(
     paste0("\\noindent \\begin{tabular}{", col_spec, "}\n"),
     "\\toprule\n",
     "Image & OCR Prediction & CNN Prediction & True Class & Which Correct \\\\\n",
@@ -155,7 +187,7 @@ for (spl in split(subset, seq_len(nrow(subset)) %/% table_size)) {
     "\\end{tabular}",
     collapse = "\n"
   )
-  cat(display, "\n\r\n")
+  cat(display_text, "\n\r\n")
 }
 ```
 \pagebreak
@@ -171,16 +203,19 @@ texts <- sapply(combined[disagreements, "ocr_output"], `[[`, "word") %>%
   sapply(paste, collapse = " ") %>%
   sapply(strwrap, width = 20) %>%
   lapply(paste, collapse = "\n") %>%
-  mapply(FUN = c, sQuote(basename(combined[disagreements, "image"])), .) %>%
+  mapply(FUN = c, markdown_url(
+    url = combined[disagreements, "url"],
+    display = basename(combined[disagreements, "image"])
+  ), .) %>%
   unname()
 
 size <- 10
 set.seed(1)
 indices <- sample(ncol(texts), size)
-do.call(what = cat, append(gsub("\\\\", "\\\\\\\\", paste(
+do.call(what = cat, append(gsub("\\\\(?!href)", "\\\\\\\\", paste(
   rep(c("Image:", "Text:"), times = size),
   texts[, indices]
-)), list(sep = "\n\n")))
+), perl = TRUE), list(sep = "\n\n")))
 ```
 
 `tesseract` also returns its level of confidence (a percentage) in each identified word. 
@@ -201,17 +236,16 @@ The mean average confidence is quite different for observations where the classi
 ```{r, results = "asis"}
 result <- broom::tidy(t.test(average_confidence ~ disagreements, data = combined))[, 1:5]
 colnames(result)[2:3] <- c("No Disagreement", "Disagreement")
-result
+present_table(result)
 ```
 
 Interestingly, it is nor much higher for cases where only the OCR prediction was correct than for those where only the CNN prediction was correct.
-```{r}
+```{r, results = "asis"}
 tapply(combined[["average_confidence"]], combined[["prediction_category"]],
   mean,
   na.rm = TRUE
-) |>
-  as.list() |>
-  list2DF()
+) %>%
+  present_table()
 ```
 I also check the number of recognizable words `tesseract` identified in each observation by 
 lemmatizing the words and confirming their presence in a reference of English words
@@ -257,18 +291,16 @@ if (file.exists(path)) invisible(file.remove(path))
 
 Most observations seemed to contain at least some
 valid words.
-```{r}
+```{r, results = "asis"}
 summary(combined[["valid_words"]]) %>%
-  as.list() %>%
-  list2DF()
+  present_table()
 ```
 
-Overall accuracies are almost identical.
+Lastly, overall accuracies are almost identical.
 
-```{r}
-colMeans(combined[, c("pred_class", "ocr_pred_class")] == combined[["actual_class"]]) |>
-  as.list() |>
-  list2DF()
+```{r, results = "asis"}
+colMeans(combined[, c("pred_class", "ocr_pred_class")] == combined[["actual_class"]]) %>%
+  present_table()
 ```
 
 # Conclusions 
@@ -280,6 +312,3 @@ although there is no guarantee that would prove worthwhile.
 The convolutional network is surprisingly effective,
 given the mixed training data. I should create more examples of images with Trump to obtain a more accurate view of performance. While further 
 fine-tuning is clearly necessary, I think the strategy of combining a neural network with OCR remains workable. One issue I did not address is how to combine outputs from both methods into a single prediction.
-
-fine-tuning is clearly necessary, I think the strategy of combining a neural network with OCR remains workable. One issue I did not address is how to combine outputs from both methods into a single prediction.
-

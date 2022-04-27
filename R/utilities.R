@@ -2319,3 +2319,32 @@ debug_handler <- function() {
   }
   if (!interactive()) q(status = 1)
 }
+
+# Format URL and display text for (R)Markdown document
+markdown_url <- function(url, display) paste0("[", display, "](", url, ")")
+
+# Format a URL for display in a LaTeX or RMarkdown document
+latex_url <- function(url, display = NULL) {
+  if (is.null(display)) {
+    paste0("\\url{", url, "}")
+  } else {
+    paste0("\\href{", url, "}{", display, "}")
+  }
+}
+
+latex_table <- function(x) knitr::kable(x, format = "latex")
+
+# Format LaTeX table for RMarkdown display
+present_table <- function(tab, lengthen_table = TRUE) {
+  if (lengthen_table) tab <- unclass(tab)
+  if (length(dim(tab)) > 1) {
+    tab <- data.frame(tab)
+  } else {
+    tab <- list2DF(as.list(tab))
+  }
+  tab <- knitr::kable(tab)
+  cat(paste(
+    "\\begin{center}",
+    tab, "\n\\end{center}\n"
+  ), collapse = "")
+}

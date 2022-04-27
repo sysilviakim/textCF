@@ -39,7 +39,11 @@ dropbox_authenticate <- function(app_key = "u6y3vt6q662jl67", app_secret = "pyil
   }
   dropbox_token <- httr::oauth2.0_token(
     endpoint = dropbox,
-    app = dropbox_app, cache = FALSE, scope = c("files.content.read", "files.content.write"), query_authorize_extra = query_authorize_extra
+    app = dropbox_app, cache = FALSE, scope = c(
+      "files.content.read",
+      "files.content.write", "sharing.write",
+      "sharing.read"
+    ), query_authorize_extra = query_authorize_extra
   )
 
   if (!is.null(token_path)) {
@@ -79,6 +83,8 @@ dropbox_correct_path <- function(paths) {
   if (any(grepl("^\\./", paths))) {
     stop("Dropbox does not support relative paths")
   }
+
+  if (paths == "/") stop("The root folder is unsupported")
   gsub("[/ ]+$", "", gsub("^([^/])", "/\\1", paths))
 }
 
@@ -87,7 +93,7 @@ dropbox_correct_path <- function(paths) {
 # through folders at the R level
 # TODO possibly enable recursion for folders not matching pattern
 dropbox_list_files <- function(dropbox_token,
-                               dropbox_path = "/",
+                               dropbox_path = "",
                                recursive = FALSE,
                                full_paths = FALSE,
                                pattern = ".*",
@@ -96,7 +102,7 @@ dropbox_list_files <- function(dropbox_token,
   dropbox_token <- dropbox_token_get(dropbox_token)
   # API expects all paths prepended with /
   dropbox_path <- dropbox_correct_path(dropbox_path)
-  if (dropbox_path_info(dropbox_token, dropbox_path, error_on_failure = TRUE) == "file") stop(sQuote(dropbox_path), " is a file, not a folder")
+  if (dropbox_path != "" && dropbox_path_info(dropbox_token, dropbox_path, error_on_failure = TRUE) == "file") stop(sQuote(dropbox_path), " is a file, not a folder")
   target <- match.arg(target)
   req <- form_request(
     url = form_url("files", "list_folder"),
@@ -288,7 +294,7 @@ dropbox_path_info <- function(dropbox_token,
   if ((status <- httr::status_code(response)) == 409) {
     if (error_on_failure) stop(sQuote(dropbox_path), " does not exist") else out <- NA
   } else if (status >= 400) {
-    stop("HTTP error", status)
+    stop("HTTP error ", status)
   } else {
     out <- jsonlite::fromJSON(httr::content(response, as = "text", encoding = "UTF-8"))[[".tag"]]
   }
@@ -611,4 +617,31 @@ dropbox_upload_folder <- function(dropbox_token,
     )
   }
   TRUE
+}
+
+# Return a shared link to a file or folder.
+# Generates informative failure if link already exists.
+dropbox_create_share_link <- function(dropbox_token, dropbox_path) {
+  # Currently not working due to permission error
+  dropbox_path <- dropbox_correct_path(dropbox_path)
+  dropbox_token <- dropbox_token_get(dropbox_token)
+  if (is.na(dropbox_path_info(dropbox_token, dropbox_path, error_on_failure = FALSE))) stop(sQuote(dropbox_path), " does not exist")
+  req <- form_request(
+    url = form_url(
+      "sharing",
+      "create_shared_link_with_settings"
+    ),
+    body = list(
+      path = dropbox_path,
+      settings = list(allow_download = TRUE)
+    ),
+    encode = "json"
+  )
+  response <- eval(req)
+  parsed <- parse_json_response(response)
+  if ("error_summary" %in% names(parsed) && grepl("shared_link", parsed[["error_summary"]])) {
+    stop("Shared link already created for ", sQuote(dropbox_path))
+  }
+  httr::stop_for_status(response)
+  parsed[["url"]]
 }

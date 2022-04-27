@@ -11,7 +11,7 @@ output:
   pdf_document:
     highlight: "kate"
     df_print: "kable"
-url_color: "blue"
+urlcolor: "blue"
 ---
 
 ```{r setup, include=FALSE}
@@ -29,6 +29,7 @@ knitr::opts_chunk$set(
 
 
 ```{r, child = here::here("R/eda/classifier.Rmd")}
+
 ```
 
 At present, I see the following areas to improve: 

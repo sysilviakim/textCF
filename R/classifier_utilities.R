@@ -388,3 +388,26 @@ compute_loss_weights <- function(labels, weights, class_names = CLASS_NAMES) {
   names(loss_weights) <- unname(class_names)
   loss_weights
 }
+
+# Use Dropbox API to get share links for all images in folder and save results to .csv
+store_image_share_links <- function() {
+  source(here::here("R", "classifier_utilities.R"))
+  source(here::here("R", "dropbox_utilities.R"))
+
+  ocr_results <- readRDS(here::here("data", "classifier", "outputs", "ocr_results.Rds"))
+  cnn_results <- read.csv(here::here("data", "classifier", "outputs", "cnn_all_classifications.csv"))
+  combined <- merge(ocr_results, cnn_results, by = "image")
+
+  dropbox_token <- dropbox_authenticate()
+  dropbox_folder <- "images"
+  dropbox_paths <- gsub(
+    paste0(
+      ".*(",
+      dropbox_folder, ".*)"
+    ),
+    "\\1",
+    combined[["image"]]
+  )
+  combined[["url"]] <- sapply(dropbox_paths, dropbox_create_share_link, dropbox_token = dropbox_token)
+  write.csv(data.frame(image = combined[["image"]], url = combined[["url"]]), here::here("data", "classifier", "image_urls.csv"), row.names = FALSE)
+}
