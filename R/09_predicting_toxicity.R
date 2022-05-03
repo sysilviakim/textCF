@@ -136,6 +136,21 @@ summary(fit_fe)
 etable(fit_fe)
 etable(fit_fe, tex = TRUE, file = here("tab", "fit_fe_toxicity.tex"))
 
+# Summary by cand/toxicity =====================================================
+## Just in case that number of ads are skewing the results
+temp2 <- temp %>%
+  group_by(
+    candidate, financial, party, inc, safety, gender, state_po, chamber
+  ) %>%
+  summarise(
+    time = mean(min_ad_delivery_start_time, na.rm = TRUE),
+    toxicity = mean(toxicity, na.rm = TRUE)
+  )
+
+fit_fe2 <- feols(toxicity ~ financial + time | candidate, temp2)
+summary(fit_fe2)
+etable(fit_fe2)
+
 # Very similar ads? ============================================================
 simil_df <- temp %>%
   group_by(candidate, toxicity) %>%
