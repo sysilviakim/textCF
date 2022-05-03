@@ -1,7 +1,7 @@
 # Simple script to classify all available images with a trained network and save the results
 source(here::here("R", "utilities.R"))
-source(here::here("R", "classifier_utilities.R"))
-source(here::here("R", "candidate_image_dataset.R"))
+source(here::here("R", "image", "classifier_utilities.R"))
+source(here::here("R", "image", "candidate_image_dataset.R"))
 
 model <- torch_load(here::here("data", "classifier", "outputs", "cnn_trained.Rds"))
 

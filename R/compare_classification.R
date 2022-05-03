@@ -1,4 +1,4 @@
-source(here::here("R", "classifier_utilities.R"))
+source(here::here("R", "image", "classifier_utilities.R"))
 ocr_results <- readRDS(here::here("data", "classifier", "outputs", "ocr_results.Rds"))
 cnn_results <- read.csv(here::here("data", "classifier", "outputs", "cnn_results.csv"))
 latest_date <- max(cnn_results[["date"]])
