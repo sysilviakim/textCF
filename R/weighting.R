@@ -74,10 +74,14 @@ senate_weights <- merge(
   y = matched$senate[, c("fb_ad_library_id", "ad_creative_body", 
                            "ad_creation_time",
                            "impressions_lower", "impressions_upper",
-                           "spend_lower", "spend_upper"
+                           "spend_lower", "spend_upper", "party"
   )],
   by = c("fb_ad_library_id", "ad_creative_body"), all.x = TRUE
 )
+# The party variable is NA for all those who were not running in 2020...this is
+# something to turn to our advantage! We can remove all those rows before we
+# plot impressions and funds raised
+
 # Sanity checks
 assert_that(!any(is.na(senate_weights$ad_creative_body))) # True
 assert_that(!any(is.na(senate_weights$toxicity))) # True
@@ -108,66 +112,100 @@ assert_that(!any(is.na(senate_weights$impressions_lower))) # True
 
 ## House Toxic
 house_tox <- subset(house_weights, toxic == "toxic")
+house_tox$ad_creation_time <- format(house_tox$ad_creation_time,
+       format = "%Y-%m")
+
 ## House Non-Toxic
 house_nontox <- subset(house_weights, toxic == "nontoxic")
+house_nontox$ad_creation_time <- format(house_nontox$ad_creation_time,
+                                     format = "%Y-%m")
 assert_that(nrow(house_tox)+nrow(house_nontox) == nrow(house_weights)) # True
+
+# For the Senate, for these plots, remove Senate candidates who weren't up for
+# re-election
+senate_weights <- senate_weights[!is.na(senate_weights$party), ]
+# Down to 92,746
+
 # Senate Toxic
 senate_tox <- subset(senate_weights, toxic == "toxic")
+senate_tox$ad_creation_time <- format(senate_tox$ad_creation_time,
+                                        format = "%Y-%m")
+
 # Senate Non-Toxic
 senate_nontox <- subset(senate_weights, toxic == "nontoxic")
+senate_nontox$ad_creation_time <- format(senate_nontox$ad_creation_time,
+                                        format = "%Y-%m")
 assert_that(nrow(senate_tox)+nrow(senate_nontox) == nrow(senate_weights)) # True
 
 # Weighting 1: Toxicity and funds spent ========================================
 
-# Before plotting, the current format won't be the most useful -- need to get 
-# sums of the amount of funds spent on each given day.
+## We want to group by month...will also take out any ads that initially were
+## aired in 2018
+
 # HR Toxic:
 hr_tox_funds <- house_tox %>% 
   group_by(ad_creation_time) %>%
   summarize(spend_upper)
 hr_tox_funds_plotting <- aggregate(spend_upper ~ ad_creation_time,
                           hr_tox_funds, sum)
-# Maximum may have been a mistake...this range is gonna be massive
+# None in 2018 -- none in 2020-12, either -- to make things neat, will add in
+# a 0 row
+hr_tox_funds_plotting[nrow(hr_tox_funds_plotting) + 1,] <- c("2020-12", 0)
+hr_tox_funds_plotting$spend_upper <- as.numeric(hr_tox_funds_plotting$spend_upper)
+
 # HR Nontoxic
 hr_nontox_funds <- house_nontox %>% 
   group_by(ad_creation_time) %>%
   summarize(spend_upper)
 hr_nontox_funds_plotting <- aggregate(spend_upper ~ ad_creation_time,
                                    hr_nontox_funds, sum)
+hr_nontox_funds_plotting <- hr_nontox_funds_plotting[!grepl("2018", 
+                                                            hr_nontox_funds_plotting$ad_creation_time),]
+
 # Senate Toxic:
 senate_tox_funds <- senate_tox %>% 
   group_by(ad_creation_time) %>%
   summarize(spend_upper)
 senate_tox_funds_plotting <- aggregate(spend_upper ~ ad_creation_time,
                                    senate_tox_funds, sum)
+senate_tox_funds_plotting <- senate_tox_funds_plotting[!grepl("2018", 
+                                                              senate_tox_funds_plotting$ad_creation_time),]
+
 # senate Nontoxic
 senate_nontox_funds <- senate_nontox %>% 
   group_by(ad_creation_time) %>%
   summarize(spend_upper)
 senate_nontox_funds_plotting <- aggregate(spend_upper ~ ad_creation_time,
                                       senate_nontox_funds, sum)
+senate_nontox_funds_plotting <- senate_nontox_funds_plotting[!grepl("2018", 
+                                                                    senate_nontox_funds_plotting$ad_creation_time),]
 
 # HR Toxic
+## Date format was lost -- will have to re-convert from character
+library(scales)
 house_tox_funds_ts <- ggplot(hr_tox_funds_plotting, aes(x = ad_creation_time,
                                                         y = spend_upper)) +
   theme_bw() +
+ coord_cartesian(ylim = c(0, 18000000)) +
   geom_bar(stat="identity") +
-  labs(x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("House Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31"))) +
-  ylim(0, 2100000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 house_tox_funds_ts
+
 # HR Nontoxic
 house_nontox_funds_ts <- ggplot(hr_nontox_funds_plotting, 
                                 aes(x = ad_creation_time,
                                     y = spend_upper)) +
   theme_bw() +
+  coord_cartesian(ylim = c(0, 18000000)) +
   geom_bar(stat="identity") +
   labs(x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("House Nontoxic Advertisements") +
@@ -175,16 +213,17 @@ house_nontox_funds_ts <- ggplot(hr_nontox_funds_plotting,
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31")))  +
-  ylim(0, 2100000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 house_nontox_funds_ts
+
 # Senate Toxic
 senate_tox_funds_ts <- ggplot(senate_tox_funds_plotting, 
                               aes(x = ad_creation_time,
                                   y = spend_upper)) +
   theme_bw() +
+  coord_cartesian(ylim = c(0, 18000000)) +
   geom_bar(stat="identity") +
   labs(x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("Senate Toxic Advertisements") +
@@ -192,16 +231,17 @@ senate_tox_funds_ts <- ggplot(senate_tox_funds_plotting,
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31")))  +
-  ylim(0, 2100000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 senate_tox_funds_ts
+
 # Senate Nontoxic
 senate_nontox_funds_ts <- ggplot(senate_nontox_funds_plotting, 
                                  aes(x = ad_creation_time,
                                      y = spend_upper)) +
   theme_bw() +
+  coord_cartesian(ylim = c(0, 18000000)) +
   geom_bar(stat="identity") +
   labs(x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("Senate Nontoxic Advertisements") +
@@ -209,10 +249,9 @@ senate_nontox_funds_ts <- ggplot(senate_nontox_funds_plotting,
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31")))  +
-  ylim(0, 2100000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 senate_nontox_funds_ts
 # Arranging figure
 funds_toxicity <- ggarrange(house_tox_funds_ts,
@@ -228,7 +267,7 @@ funds_toxicity <- annotate_figure(
 funds_toxicity
 
 ggsave("fig/funds_toxicity_ts.pdf", plot = funds_toxicity, 
-       width = 8, height = 8)
+       width = 10, height = 8)
 
 # Weighting 2: Toxicity and impressions ========================================
 
@@ -243,31 +282,42 @@ hr_tox_imps <- house_tox %>%
   summarize(impressions_lower)
 hr_tox_imps_plotting <- aggregate(impressions_lower ~ ad_creation_time,
                                    hr_tox_imps, sum)
-# Maximum may have been a mistake...this range is gonna be massive
+hr_tox_imps_plotting[nrow(hr_tox_imps_plotting) + 1,] <- c("2020-12", 0)
+hr_tox_imps_plotting$impressions_lower <- as.numeric(hr_tox_imps_plotting$impressions_lower)
+
 # HR Nontoxic
 hr_nontox_imps <- house_nontox %>% 
   group_by(ad_creation_time) %>%
   summarize(impressions_lower)
 hr_nontox_imps_plotting <- aggregate(impressions_lower ~ ad_creation_time,
                                       hr_nontox_imps, sum)
+hr_nontox_imps_plotting <- hr_nontox_imps_plotting[!grepl("2018", 
+                                                          hr_nontox_imps_plotting$ad_creation_time),]
+
 # Senate Toxic:
 senate_tox_imps <- senate_tox %>% 
   group_by(ad_creation_time) %>%
   summarize(impressions_lower)
 senate_tox_imps_plotting <- aggregate(impressions_lower ~ ad_creation_time,
                                        senate_tox_imps, sum)
+senate_tox_imps_plotting <- senate_tox_imps_plotting[!grepl("2018", 
+                                                            senate_tox_imps_plotting$ad_creation_time),]
+
 # senate Nontoxic
 senate_nontox_imps <- senate_nontox %>% 
   group_by(ad_creation_time) %>%
   summarize(impressions_lower)
 senate_nontox_imps_plotting <- aggregate(impressions_lower ~ ad_creation_time,
                                           senate_nontox_imps, sum)
+senate_nontox_imps_plotting <- senate_nontox_imps_plotting[!grepl("2018", 
+                                                                  senate_nontox_imps_plotting$ad_creation_time),]
 
 # HR Toxic
 house_tox_imps_ts <- ggplot(hr_tox_imps_plotting, 
                             aes(x = ad_creation_time,
                                 y = impressions_lower)) +
   theme_bw() +
+  coord_cartesian(ylim = c(0, 550000000)) +
   geom_bar(stat="identity") +
   labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
   ggtitle("House Toxic Advertisements") +
@@ -275,10 +325,9 @@ house_tox_imps_ts <- ggplot(hr_tox_imps_plotting,
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31"))) +
-  ylim(0, 53000000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 house_tox_imps_ts
 # HR Nontoxic
 house_nontox_imps_ts <- ggplot(hr_nontox_imps_plotting, 
@@ -286,22 +335,23 @@ house_nontox_imps_ts <- ggplot(hr_nontox_imps_plotting,
                                    y = impressions_lower)) +
   theme_bw() +
   geom_bar(stat="identity") +
+  coord_cartesian(ylim = c(0, 550000000)) +
   labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
   ggtitle("House Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31")))  +
-  ylim(0, 53000000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 house_nontox_imps_ts
 # Senate Toxic
 senate_tox_imps_ts <- ggplot(senate_tox_imps_plotting, 
                              aes(x = ad_creation_time,
                                  y = impressions_lower)) +
   theme_bw() +
+  coord_cartesian(ylim = c(0, 550000000)) +
   geom_bar(stat="identity") +
   labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
   ggtitle("Senate Toxic Advertisements") +
@@ -309,16 +359,16 @@ senate_tox_imps_ts <- ggplot(senate_tox_imps_plotting,
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31")))  +
-  ylim(0, 53000000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 senate_tox_imps_ts
 # Senate Nontoxic
 senate_nontox_imps_ts <- ggplot(senate_nontox_imps_plotting, 
                                 aes(x = ad_creation_time,
                                     y = impressions_lower)) +
   theme_bw() +
+  coord_cartesian(ylim = c(0, 550000000)) +
   geom_bar(stat="identity") +
   labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
   ggtitle("Senate Nontoxic Advertisements") +
@@ -326,10 +376,9 @@ senate_nontox_imps_ts <- ggplot(senate_nontox_imps_plotting,
     axis.text.x = element_text(angle = 30, hjust = 1),
     plot.title = element_text(hjust = 0.5)
   ) +
-  scale_x_date(date_breaks = "months", date_labels = "%Y-%m-%d") + # ,
-  #  limits = as.Date(c("2019-01-01", "2020-12-31"))) +
-  lims(x = as.Date(c("2019-01-01", "2020-12-31")))  +
-  ylim(0, 53000000)
+  scale_x_discrete(breaks = c("2019-02", "2019-05", "2019-08", "2019-11",
+                              "2020-02", "2020-05", "2020-08", "2020-11")) +
+  scale_y_continuous(labels = unit_format(unit = "M", scale = 1e-6))# +
 senate_nontox_imps_ts
 
 # Arranging figure
@@ -346,7 +395,7 @@ imps_toxicity <- annotate_figure(
 imps_toxicity
 
 ggsave("fig/imps_toxicity_ts.pdf", plot = imps_toxicity, 
-       width = 8, height = 8)
+       width = 10, height = 8)
 
 # Illustrative Percentages =====================================================
 
@@ -366,16 +415,17 @@ sum(hr_tox_imps$impressions_lower) / (sum(hr_tox_imps$impressions_lower) +
 # Senate
 ## Percent of Ads that are Toxic
 nrow(senate_tox) / (nrow(senate_tox) + nrow(senate_nontox))
-### 11.345% of Senate ads are toxic
+## 12,136/92,746
+### 13.085% of Senate ads (for senators running in 2020) are toxic
 ## Percent of Funds that go to Toxic ads
 sum(senate_tox_funds$spend_upper) / (sum(senate_tox_funds$spend_upper) + 
                                    sum(senate_nontox_funds$spend_upper))
-### 14.647% of funding goes to toxic ads
+### 15.716% of funding goes to toxic ads
 ## Percent of Impressions that go to Toxic Ads
 sum(senate_tox_imps$impressions_lower) / (
   sum(senate_tox_imps$impressions_lower) + 
     sum(senate_nontox_imps$impressions_lower))
-### 13.463% of impressions go to Toxic ads
+### 14.936% of impressions go to Toxic ads
 
 # Trump Mentions and Toxicity ==================================================
 
@@ -498,6 +548,46 @@ quantile(house_dem_notrump$toxicity)
 # 0%          25%          50%          75%         100% 
 # 3.799359e-05 0.05551384 0.07691913 0.1138114 0.9560496 
 
+### Plotting House =============================================================
+
+house_gop_trump$trump <- "Republican, Mention Trump"
+house_gop_notrump$trump <- "Republican, Don't Mention Trump"
+house_dem_trump$trump <- "Democrat, Mention Trump"
+house_dem_notrump$trump <- "Democrat, Don't Mention Trump"
+
+houseplot <- as.data.frame(rbind(house_gop_trump, house_gop_notrump,
+                                 house_dem_trump, house_dem_notrump))
+
+house_plot <- ggplot(houseplot) +
+  aes(x = trump, y = toxicity) +
+  geom_boxplot(fill = "#0c4c8a") +
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(x = "Party and Trump Mentions", y = "Toxicity") +
+  ggtitle("House") +
+  scale_x_discrete(guide = guide_axis(n.dodge=2))+
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5)#,
+    #axis.text.x = element_text(angle = 30, hjust = 1)
+  )
+
+### House difference-in-means tests ============================================
+
+# Wilcoxon
+wilcox.test(house_gop_trump$toxicity, 
+            house_gop_notrump$toxicity, 
+            alternative = "two.sided")
+wilcox.test(house_dem_trump$toxicity, 
+            house_dem_notrump$toxicity, 
+            alternative = "two.sided")
+
+# T
+housegop <- as.data.frame(rbind(house_gop_trump, house_gop_notrump))
+housedem <- as.data.frame(rbind(house_dem_notrump, house_dem_trump))
+t.test(toxicity ~ trump, data = housegop, var.equal = TRUE)
+t.test(toxicity ~ trump, data = housedem, var.equal = TRUE)
+
+
 ### Senate side -- Trump toxicity ==============================================
 
 senate_unique <- merge(
@@ -556,3 +646,44 @@ mean(senate_dem_notrump$toxicity)
 quantile(senate_dem_notrump$toxicity)
 ## 0%          25%          50%          75%         100% 
 ## 0.0002664225 0.0567164280 0.0778784900 0.1105391300 0.9326348300 
+
+### Plotting Senate ============================================================
+
+senate_gop_trump$trump <- "Republican, Mention Trump"
+senate_gop_notrump$trump <- "Republican, Don't Mention Trump"
+senate_dem_trump$trump <- "Democrat, Mention Trump"
+senate_dem_notrump$trump <- "Democrat, Don't Mention Trump"
+
+senateplot <- as.data.frame(rbind(senate_gop_trump, senate_gop_notrump,
+                                 senate_dem_trump, senate_dem_notrump))
+
+senate_plot <- ggplot(senateplot) +
+  aes(x = trump, y = toxicity) +
+  geom_boxplot(fill = "#0c4c8a") +
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(x = "Party and Trump Mentions", y = "Toxicity") +
+  ggtitle("Senate") +
+  scale_x_discrete(guide = guide_axis(n.dodge=2))+
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5)#,
+    #axis.text.x = element_text(angle = 30, hjust = 1)
+  )
+
+
+trump_toxicity <- ggarrange(house_plot, senate_plot,
+                            ncol = 2, nrow = 1)
+trump_toxicity <- annotate_figure(
+  trump_toxicity, 
+  top = text_grob("Advertisement Toxicity by Partisanship and Trump Mentions",
+                                  color = "black", face = "bold",
+                                  size = 14
+  ))
+trump_toxicity
+
+ggsave("fig/trump_toxicity.pdf", plot = trump_toxicity, 
+       width = 10, height = 8)
+
+
+### Senate difference-in-means tests (Wilcoxon) ================================
+
