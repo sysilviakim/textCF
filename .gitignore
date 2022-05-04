@@ -59,3 +59,8 @@ data/raw/wayback/senate/timestamp_donation/*.Rda
 
 # Extra training images
 data/classifier/**/*_extra_*
+data/classifier/outputs/cnn*
+ocr_results.Rds
+
+# Debugging file
+last.dump.rda
