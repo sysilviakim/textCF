@@ -567,6 +567,7 @@ house_plot <- ggplot(houseplot) +
   scale_x_discrete(guide = guide_axis(n.dodge=2))+
   theme_minimal() +
   theme(
+    text = element_text(size=10),
     plot.title = element_text(hjust = 0.5)#,
     #axis.text.x = element_text(angle = 30, hjust = 1)
   )
@@ -666,6 +667,7 @@ senate_plot <- ggplot(senateplot) +
   scale_x_discrete(guide = guide_axis(n.dodge=2))+
   theme_minimal() +
   theme(
+    text = element_text(size=10),
     plot.title = element_text(hjust = 0.5)#,
     #axis.text.x = element_text(angle = 30, hjust = 1)
   )
