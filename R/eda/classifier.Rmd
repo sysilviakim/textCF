@@ -5,8 +5,8 @@ library(torchvision)
 library(luz)
 
 source(here::here("R", "utilities.R"))
-source(here::here("R", "classifier_utilities.R"))
-source(here::here("R", "candidate_image_dataset.R"))
+source(here::here("R", "image", "classifier_utilities.R"))
+source(here::here("R", "image", "candidate_image_dataset.R"))
 ```
 
 Much of this is copied from [here](https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/)
