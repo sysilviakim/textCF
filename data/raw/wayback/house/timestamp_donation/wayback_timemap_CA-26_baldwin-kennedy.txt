@@ -1,0 +1,4 @@
+<https://secure.anedot.com/ronda-kennedy-for-congress/website-splash>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/ronda-kennedy-for-congress/website-splash>; rel="self"; type="application/link-format"; from="Fri, 07 Aug 2020 22:00:31 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/ronda-kennedy-for-congress/website-splash>; rel="timegate",
+<http://web.archive.org/web/20200807220031/https://secure.anedot.com/ronda-kennedy-for-congress/website-splash>; rel="first memento"; datetime="Fri, 07 Aug 2020 22:00:31 GMT",

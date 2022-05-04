@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="self"; type="application/link-format"; from="Sat, 27 Jun 2020 01:05:46 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="timegate",
+<http://web.archive.org/web/20200627010546/https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="first memento"; datetime="Sat, 27 Jun 2020 01:05:46 GMT",
+<http://web.archive.org/web/20200711064320/https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="memento"; datetime="Sat, 11 Jul 2020 06:43:20 GMT",
+<http://web.archive.org/web/20200711064321/https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="memento"; datetime="Sat, 11 Jul 2020 06:43:21 GMT",
+<http://web.archive.org/web/20200816221724/https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="memento"; datetime="Sun, 16 Aug 2020 22:17:24 GMT",
+<http://web.archive.org/web/20200928063243/https://secure.actblue.com/donate/drew-2020-l-l-c-1>; rel="memento"; datetime="Mon, 28 Sep 2020 06:32:43 GMT",

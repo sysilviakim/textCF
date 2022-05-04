@@ -1,0 +1,7 @@
+<https://secure.anedot.com/fallonforcongress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/fallonforcongress/donate>; rel="self"; type="application/link-format"; from="Thu, 05 Nov 2020 08:49:04 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/fallonforcongress/donate>; rel="timegate",
+<http://web.archive.org/web/20201105084904/https://secure.anedot.com/fallonforcongress/donate>; rel="first memento"; datetime="Thu, 05 Nov 2020 08:49:04 GMT",
+<http://web.archive.org/web/20201207184302/https://secure.anedot.com/fallonforcongress/donate>; rel="memento"; datetime="Mon, 07 Dec 2020 18:43:02 GMT",
+<http://web.archive.org/web/20201213111917/https://secure.anedot.com/fallonforcongress/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 11:19:17 GMT",
+<http://web.archive.org/web/20210509034536/https://secure.anedot.com/fallonforcongress/donate>; rel="memento"; datetime="Sun, 09 May 2021 03:45:36 GMT",

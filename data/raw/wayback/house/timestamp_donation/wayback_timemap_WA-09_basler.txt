@@ -1,0 +1,5 @@
+<https://secure.anedot.com/friends-of-doug-basler/basler4congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/friends-of-doug-basler/basler4congress>; rel="self"; type="application/link-format"; from="Sat, 12 Dec 2020 19:45:33 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/friends-of-doug-basler/basler4congress>; rel="timegate",
+<http://web.archive.org/web/20201212194533/https://secure.anedot.com/friends-of-doug-basler/basler4congress>; rel="first memento"; datetime="Sat, 12 Dec 2020 19:45:33 GMT",
+<http://web.archive.org/web/20211027052301/https://secure.anedot.com/friends-of-doug-basler/basler4congress>; rel="memento"; datetime="Wed, 27 Oct 2021 05:23:01 GMT",

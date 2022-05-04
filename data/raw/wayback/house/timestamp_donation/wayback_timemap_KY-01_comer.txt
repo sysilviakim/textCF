@@ -1,0 +1,5 @@
+<https://secure.anedot.com/comer-for-congress/comer-congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/comer-for-congress/comer-congress>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 22:26:08 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/comer-for-congress/comer-congress>; rel="timegate",
+<http://web.archive.org/web/20201004222608/https://secure.anedot.com/comer-for-congress/comer-congress>; rel="first memento"; datetime="Sun, 04 Oct 2020 22:26:08 GMT",
+<http://web.archive.org/web/20201212164802/https://secure.anedot.com/comer-for-congress/comer-congress>; rel="memento"; datetime="Sat, 12 Dec 2020 16:48:02 GMT",

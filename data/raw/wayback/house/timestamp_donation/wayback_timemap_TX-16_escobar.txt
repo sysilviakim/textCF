@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/voteforveronica2018>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/voteforveronica2018>; rel="self"; type="application/link-format"; from="Sat, 13 Jul 2019 00:38:36 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/voteforveronica2018>; rel="timegate",
+<http://web.archive.org/web/20190713003836/https://secure.actblue.com/donate/voteforveronica2018>; rel="first memento"; datetime="Sat, 13 Jul 2019 00:38:36 GMT",
+<http://web.archive.org/web/20191018052744/https://secure.actblue.com/donate/voteforveronica2018>; rel="memento"; datetime="Fri, 18 Oct 2019 05:27:44 GMT",
+<http://web.archive.org/web/20201004194009/https://secure.actblue.com/donate/voteforveronica2018>; rel="memento"; datetime="Sun, 04 Oct 2020 19:40:09 GMT",
+<http://web.archive.org/web/20201020032459/https://secure.actblue.com/donate/voteforveronica2018>; rel="memento"; datetime="Tue, 20 Oct 2020 03:24:59 GMT",
+<http://web.archive.org/web/20201122090259/https://secure.actblue.com/donate/voteforveronica2018>; rel="memento"; datetime="Sun, 22 Nov 2020 09:02:59 GMT",

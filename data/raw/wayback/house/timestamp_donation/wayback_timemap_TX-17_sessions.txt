@@ -1,0 +1,7 @@
+<https://secure.anedot.com/pete-sessions-for-congress/general-fund-c53196c67a5c038e68fbf>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/pete-sessions-for-congress/general-fund-c53196c67a5c038e68fbf>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 00:59:54 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/pete-sessions-for-congress/general-fund-c53196c67a5c038e68fbf>; rel="timegate",
+<http://web.archive.org/web/20201005005954/https://secure.anedot.com/pete-sessions-for-congress/general-fund-c53196c67a5c038e68fbf>; rel="first memento"; datetime="Mon, 05 Oct 2020 00:59:54 GMT",
+<http://web.archive.org/web/20201212191613/https://secure.anedot.com/pete-sessions-for-congress/general-fund-c53196c67a5c038e68fbf>; rel="memento"; datetime="Sat, 12 Dec 2020 19:16:13 GMT",
+<http://web.archive.org/web/20210509033842/https://secure.anedot.com/pete-sessions-for-congress/general-fund-c53196c67a5c038e68fbf>; rel="memento"; datetime="Sun, 09 May 2021 03:38:42 GMT",
+<http://web.archive.org/web/20211103162837/https://secure.anedot.com/pete-sessions-for-congress/general-fund-c53196c67a5c038e68fbf>; rel="memento"; datetime="Wed, 03 Nov 2021 16:28:37 GMT",

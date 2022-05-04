@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/james-averhart-1>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/James-Averhart-1>; rel="self"; type="application/link-format"; from="Mon, 28 Sep 2020 06:53:25 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/James-Averhart-1>; rel="timegate",
+<http://web.archive.org/web/20200928065325/https://secure.actblue.com/donate/james-averhart-1>; rel="first memento"; datetime="Mon, 28 Sep 2020 06:53:25 GMT",
+<http://web.archive.org/web/20201023095128/https://secure.actblue.com/donate/James-Averhart-1>; rel="memento"; datetime="Fri, 23 Oct 2020 09:51:28 GMT",
+<http://web.archive.org/web/20201031184212/https://secure.actblue.com/donate/James-Averhart-1>; rel="memento"; datetime="Sat, 31 Oct 2020 18:42:12 GMT",
+<http://web.archive.org/web/20201205102004/https://secure.actblue.com/donate/James-Averhart-1>; rel="memento"; datetime="Sat, 05 Dec 2020 10:20:04 GMT",
+<http://web.archive.org/web/20201212044724/https://secure.actblue.com/donate/James-Averhart-1>; rel="memento"; datetime="Sat, 12 Dec 2020 04:47:24 GMT",

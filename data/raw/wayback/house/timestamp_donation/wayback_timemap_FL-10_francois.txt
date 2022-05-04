@@ -1,0 +1,8 @@
+<https://secure.anedot.com/venniafrancois/web-donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/venniafrancois/web-donate>; rel="self"; type="application/link-format"; from="Tue, 12 Nov 2019 20:10:49 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/venniafrancois/web-donate>; rel="timegate",
+<http://web.archive.org/web/20191112201049/https://secure.anedot.com/venniafrancois/web-donate>; rel="first memento"; datetime="Tue, 12 Nov 2019 20:10:49 GMT",
+<http://web.archive.org/web/20201025001421/https://secure.anedot.com/venniafrancois/web-donate>; rel="memento"; datetime="Sun, 25 Oct 2020 00:14:21 GMT",
+<http://web.archive.org/web/20201126154126/https://secure.anedot.com/venniafrancois/web-donate>; rel="memento"; datetime="Thu, 26 Nov 2020 15:41:26 GMT",
+<http://web.archive.org/web/20201212154322/https://secure.anedot.com/venniafrancois/web-donate>; rel="memento"; datetime="Sat, 12 Dec 2020 15:43:22 GMT",
+<http://web.archive.org/web/20210514193851/https://secure.anedot.com/venniafrancois/web-donate>; rel="memento"; datetime="Fri, 14 May 2021 19:38:51 GMT",

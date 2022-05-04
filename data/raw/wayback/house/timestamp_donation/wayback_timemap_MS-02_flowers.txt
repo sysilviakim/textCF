@@ -1,0 +1,8 @@
+<https://secure.anedot.com/flowers-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/flowers-for-congress/donate>; rel="self"; type="application/link-format"; from="Sat, 05 Sep 2020 16:48:56 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/flowers-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20200905164856/https://secure.anedot.com/flowers-for-congress/donate>; rel="first memento"; datetime="Sat, 05 Sep 2020 16:48:56 GMT",
+<http://web.archive.org/web/20201101075309/https://secure.anedot.com/flowers-for-congress/donate>; rel="memento"; datetime="Sun, 01 Nov 2020 07:53:09 GMT",
+<http://web.archive.org/web/20201112202406/https://secure.anedot.com/flowers-for-congress/donate>; rel="memento"; datetime="Thu, 12 Nov 2020 20:24:06 GMT",
+<http://web.archive.org/web/20201212172137/https://secure.anedot.com/flowers-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 17:21:37 GMT",
+<http://web.archive.org/web/20210414174826/https://secure.anedot.com/flowers-for-congress/donate>; rel="memento"; datetime="Wed, 14 Apr 2021 17:48:26 GMT",

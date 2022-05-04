@@ -1,0 +1,6 @@
+<https://secure.anedot.com/bice-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/bice-for-congress/donate>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 00:23:14 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/bice-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20201005002314/https://secure.anedot.com/bice-for-congress/donate>; rel="first memento"; datetime="Mon, 05 Oct 2020 00:23:14 GMT",
+<http://web.archive.org/web/20201121182145/https://secure.anedot.com/bice-for-congress/donate>; rel="memento"; datetime="Sat, 21 Nov 2020 18:21:45 GMT",
+<http://web.archive.org/web/20201212182711/https://secure.anedot.com/bice-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 18:27:11 GMT",

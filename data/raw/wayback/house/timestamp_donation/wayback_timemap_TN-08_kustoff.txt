@@ -1,0 +1,6 @@
+<https://secure.anedot.com/kustoff-for-congress/kustoff-for-congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/kustoff-for-congress/kustoff-for-congress>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 00:51:52 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/kustoff-for-congress/kustoff-for-congress>; rel="timegate",
+<http://web.archive.org/web/20201005005152/https://secure.anedot.com/kustoff-for-congress/kustoff-for-congress>; rel="first memento"; datetime="Mon, 05 Oct 2020 00:51:52 GMT",
+<http://web.archive.org/web/20201212185048/https://secure.anedot.com/kustoff-for-congress/kustoff-for-congress>; rel="memento"; datetime="Sat, 12 Dec 2020 18:50:48 GMT",
+<http://web.archive.org/web/20210509034917/https://secure.anedot.com/kustoff-for-congress/kustoff-for-congress>; rel="memento"; datetime="Sun, 09 May 2021 03:49:17 GMT",

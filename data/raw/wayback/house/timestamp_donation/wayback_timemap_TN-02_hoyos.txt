@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="self"; type="application/link-format"; from="Sun, 27 Sep 2020 08:41:14 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="timegate",
+<http://web.archive.org/web/20200927084114/https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="first memento"; datetime="Sun, 27 Sep 2020 08:41:14 GMT",
+<http://web.archive.org/web/20201004110035/https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="memento"; datetime="Sun, 04 Oct 2020 11:00:35 GMT",
+<http://web.archive.org/web/20201024004322/https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="memento"; datetime="Sat, 24 Oct 2020 00:43:22 GMT",
+<http://web.archive.org/web/20201121020859/https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="memento"; datetime="Sat, 21 Nov 2020 02:08:59 GMT",
+<http://web.archive.org/web/20201212124528/https://secure.actblue.com/donate/renee-hoyos-for-congress-3>; rel="memento"; datetime="Sat, 12 Dec 2020 12:45:28 GMT",

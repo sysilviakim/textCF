@@ -1,0 +1,5 @@
+<https://secure.winred.com/alisonhayden/>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/alisonhayden/>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 03:00:59 GMT",
+<http://web.archive.org/web/https://secure.winred.com/alisonhayden/>; rel="timegate",
+<http://web.archive.org/web/20201005030059/https://secure.winred.com/alisonhayden/>; rel="first memento"; datetime="Mon, 05 Oct 2020 03:00:59 GMT",
+<http://web.archive.org/web/20201212203000/https://secure.winred.com/alisonhayden/>; rel="memento"; datetime="Sat, 12 Dec 2020 20:30:00 GMT",

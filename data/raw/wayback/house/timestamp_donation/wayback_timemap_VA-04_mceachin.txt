@@ -1,0 +1,5 @@
+<https://act.myngp.com/Forms/-2616864771316316416>; rel="original",
+<http://web.archive.org/web/timemap/link/https://act.myngp.com/Forms/-2616864771316316416>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 11:49:09 GMT",
+<http://web.archive.org/web/https://act.myngp.com/Forms/-2616864771316316416>; rel="timegate",
+<http://web.archive.org/web/20201005114909/https://act.myngp.com/Forms/-2616864771316316416>; rel="first memento"; datetime="Mon, 05 Oct 2020 11:49:09 GMT",
+<http://web.archive.org/web/20201213100439/https://act.myngp.com/Forms/-2616864771316316416>; rel="memento"; datetime="Sun, 13 Dec 2020 10:04:39 GMT",

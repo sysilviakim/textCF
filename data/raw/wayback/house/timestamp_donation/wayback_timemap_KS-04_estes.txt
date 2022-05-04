@@ -1,0 +1,5 @@
+<https://secure.anedot.com/ron-estes-congress/cb09546621e8243a43fbf>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/ron-estes-congress/cb09546621e8243a43fbf>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 22:24:41 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/ron-estes-congress/cb09546621e8243a43fbf>; rel="timegate",
+<http://web.archive.org/web/20201004222441/https://secure.anedot.com/ron-estes-congress/cb09546621e8243a43fbf>; rel="first memento"; datetime="Sun, 04 Oct 2020 22:24:41 GMT",
+<http://web.archive.org/web/20201212164623/https://secure.anedot.com/ron-estes-congress/cb09546621e8243a43fbf>; rel="memento"; datetime="Sat, 12 Dec 2020 16:46:23 GMT",

@@ -1,0 +1,5 @@
+<https://politics.raisethemoney.com/ccrawford>; rel="original",
+<http://web.archive.org/web/timemap/link/https://politics.raisethemoney.com/ccrawford>; rel="self"; type="application/link-format"; from="Sat, 12 Dec 2020 20:09:42 GMT",
+<http://web.archive.org/web/https://politics.raisethemoney.com/ccrawford>; rel="timegate",
+<http://web.archive.org/web/20201212200942/https://politics.raisethemoney.com/ccrawford>; rel="first memento"; datetime="Sat, 12 Dec 2020 20:09:42 GMT",
+<http://web.archive.org/web/20210509031552/https://politics.raisethemoney.com/ccrawford>; rel="memento"; datetime="Sun, 09 May 2021 03:15:52 GMT",

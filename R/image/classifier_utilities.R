@@ -26,7 +26,6 @@ CNN_STATISTICS <- data.frame(
   batch_loss = double()
 )
 
-
 transform_image <- function(img, train = FALSE, dims = c(224, 224)) {
   img <- img[, , -4]
   # first convert image to tensor
@@ -69,6 +68,7 @@ render_image <- function(path, pause = FALSE) {
 }
 
 # Pad matrix along shorter dimension with fill init_value
+
 # Quick way of making square images for plotting; unsure if correct
 pad_matrix <- function(mat, fill = "#FFFFFF") {
   stopifnot("Fill must match type of matrix" = typeof(mat) == typeof(fill))
@@ -83,6 +83,7 @@ pad_matrix <- function(mat, fill = "#FFFFFF") {
     out <- rbind(mat, matrix(fill, nrow = -difference, ncol = dims[[2]]))
   } else {
     out <- mat
+
   }
   as.raster(out)
 }
@@ -97,6 +98,7 @@ read_image <- function(path, to_raster = TRUE, drop_alpha = TRUE) {
       stop("Unknown image format")
     }
   )
+
   img <- fun(path)
   preprocess_image(img, to_raster = to_raster, drop_alpha = drop_alpha)
 }
@@ -128,6 +130,7 @@ preprocess_image <- function(img, to_raster = TRUE, drop_alpha = TRUE) {
 # Plots all images stored in a directory, chunked into plots of given dimension (default 4 x 4).
 # Crops to square dimensions
 # May cause memory error if given too many images
+
 inspect_images_from_paths <- function(paths,
                                       labels = "",
                                       plot_dims = c(4, 4), shuffle = FALSE,
@@ -139,6 +142,7 @@ inspect_images_from_paths <- function(paths,
   size <- prod(plot_dims)
   if (all(file.info(paths)[["isdir"]])) paths <- list.files(paths, full.names = TRUE)
   images <- paths[tools::file_ext(paths) %in% names(IMAGE_FUNS)]
+
   if (shuffle) {
     images <- images[sample(length(images), length(images), replace = FALSE)]
   }
@@ -240,6 +244,7 @@ train_batch <- function(b, model, optimizer, criterion, scheduler) {
 }
 
 valid_batch <- function(b, model, criterion) {
+
   output <- model(b[[1]])
   loss <- criterion(output, b[[2]]$to(device = DEVICE))
   loss$item()
@@ -303,8 +308,6 @@ inspect_image_batch <- function(batch, plot_dims = c(4, 4), class_names = CLASS_
       title(.y)
     })
 }
-
-
 
 # Replace argument values in character vector of command-line args with standard names from a named vector
 standardize_args <- function(args, mapping) {

@@ -1,0 +1,6 @@
+<https://beeler4congress.nationbuilder.com/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://beeler4congress.nationbuilder.com/donate>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 12:01:54 GMT",
+<http://web.archive.org/web/https://beeler4congress.nationbuilder.com/donate>; rel="timegate",
+<http://web.archive.org/web/20201005120154/https://beeler4congress.nationbuilder.com/donate>; rel="first memento"; datetime="Mon, 05 Oct 2020 12:01:54 GMT",
+<http://web.archive.org/web/20201105050630/https://beeler4congress.nationbuilder.com/donate>; rel="memento"; datetime="Thu, 05 Nov 2020 05:06:30 GMT",
+<http://web.archive.org/web/20201213101045/https://beeler4congress.nationbuilder.com/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 10:10:45 GMT",

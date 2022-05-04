@@ -1,0 +1,6 @@
+<https://secure.anedot.com/victoria-spartz-for-congress/c9bf30bfad4acee52d688>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/victoria-spartz-for-congress/c9bf30bfad4acee52d688>; rel="self"; type="application/link-format"; from="Fri, 28 Feb 2020 11:48:01 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/victoria-spartz-for-congress/c9bf30bfad4acee52d688>; rel="timegate",
+<http://web.archive.org/web/20200228114801/https://secure.anedot.com/victoria-spartz-for-congress/c9bf30bfad4acee52d688>; rel="first memento"; datetime="Fri, 28 Feb 2020 11:48:01 GMT",
+<http://web.archive.org/web/20201004221931/https://secure.anedot.com/victoria-spartz-for-congress/c9bf30bfad4acee52d688>; rel="memento"; datetime="Sun, 04 Oct 2020 22:19:31 GMT",
+<http://web.archive.org/web/20201212163708/https://secure.anedot.com/victoria-spartz-for-congress/c9bf30bfad4acee52d688>; rel="memento"; datetime="Sat, 12 Dec 2020 16:37:08 GMT",

@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="self"; type="application/link-format"; from="Sun, 20 Sep 2020 08:44:10 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="timegate",
+<http://web.archive.org/web/20200920084410/https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="first memento"; datetime="Sun, 20 Sep 2020 08:44:10 GMT",
+<http://web.archive.org/web/20200920084418/https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="memento"; datetime="Sun, 20 Sep 2020 08:44:18 GMT",
+<http://web.archive.org/web/20201018104616/https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="memento"; datetime="Sun, 18 Oct 2020 10:46:16 GMT",
+<http://web.archive.org/web/20201107022721/https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="memento"; datetime="Sat, 07 Nov 2020 02:27:21 GMT",
+<http://web.archive.org/web/20201113035822/https://secure.actblue.com/donate/mrwenstruptothesenate>; rel="memento"; datetime="Fri, 13 Nov 2020 03:58:22 GMT",

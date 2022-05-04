@@ -1,0 +1,7 @@
+<https://secure.winred.com/kandiss-taylor-for-u-s-senate/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/kandiss-taylor-for-u-s-senate/donate>; rel="self"; type="application/link-format"; from="Sun, 16 Aug 2020 20:14:09 GMT",
+<http://web.archive.org/web/https://secure.winred.com/kandiss-taylor-for-u-s-senate/donate>; rel="timegate",
+<http://web.archive.org/web/20200816201409/https://secure.winred.com/kandiss-taylor-for-u-s-senate/donate>; rel="first memento"; datetime="Sun, 16 Aug 2020 20:14:09 GMT",
+<http://web.archive.org/web/20201031201515/https://secure.winred.com/kandiss-taylor-for-u-s-senate/donate>; rel="memento"; datetime="Sat, 31 Oct 2020 20:15:15 GMT",
+<http://web.archive.org/web/20201106044138/https://secure.winred.com/kandiss-taylor-for-u-s-senate/donate>; rel="memento"; datetime="Fri, 06 Nov 2020 04:41:38 GMT",
+<http://web.archive.org/web/20201117003329/https://secure.winred.com/kandiss-taylor-for-u-s-senate/donate>; rel="memento"; datetime="Tue, 17 Nov 2020 00:33:29 GMT",

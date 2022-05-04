@@ -1,0 +1,7 @@
+<https://secure.anedot.com/amodei-for-nevada/caeb00811fac21d5219dd>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/amodei-for-nevada/caeb00811fac21d5219dd>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 23:08:48 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/amodei-for-nevada/caeb00811fac21d5219dd>; rel="timegate",
+<http://web.archive.org/web/20201004230848/https://secure.anedot.com/amodei-for-nevada/caeb00811fac21d5219dd>; rel="first memento"; datetime="Sun, 04 Oct 2020 23:08:48 GMT",
+<http://web.archive.org/web/20201004231049/https://secure.anedot.com/amodei-for-nevada/caeb00811fac21d5219dd>; rel="memento"; datetime="Sun, 04 Oct 2020 23:10:49 GMT",
+<http://web.archive.org/web/20201212172853/https://secure.anedot.com/amodei-for-nevada/caeb00811fac21d5219dd>; rel="memento"; datetime="Sat, 12 Dec 2020 17:28:53 GMT",
+<http://web.archive.org/web/20210509043716/https://secure.anedot.com/amodei-for-nevada/caeb00811fac21d5219dd>; rel="memento"; datetime="Sun, 09 May 2021 04:37:16 GMT",

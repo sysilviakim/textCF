@@ -1,0 +1,6 @@
+<https://secure.winred.com/mark-leyva-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/mark-leyva-for-congress/donate>; rel="self"; type="application/link-format"; from="Fri, 13 Nov 2020 02:06:44 GMT",
+<http://web.archive.org/web/https://secure.winred.com/mark-leyva-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20201113020644/https://secure.winred.com/mark-leyva-for-congress/donate>; rel="first memento"; datetime="Fri, 13 Nov 2020 02:06:44 GMT",
+<http://web.archive.org/web/20201212230503/https://secure.winred.com/mark-leyva-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 23:05:03 GMT",
+<http://web.archive.org/web/20210117085143/https://secure.winred.com/mark-leyva-for-congress/donate>; rel="memento"; datetime="Sun, 17 Jan 2021 08:51:43 GMT",

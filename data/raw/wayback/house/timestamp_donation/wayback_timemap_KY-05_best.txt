@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/best-for-kentucky-1>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/best-for-kentucky-1>; rel="self"; type="application/link-format"; from="Mon, 28 Sep 2020 06:43:26 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/best-for-kentucky-1>; rel="timegate",
+<http://web.archive.org/web/20200928064326/https://secure.actblue.com/donate/best-for-kentucky-1>; rel="first memento"; datetime="Mon, 28 Sep 2020 06:43:26 GMT",
+<http://web.archive.org/web/20201023154537/https://secure.actblue.com/donate/best-for-kentucky-1>; rel="memento"; datetime="Fri, 23 Oct 2020 15:45:37 GMT",
+<http://web.archive.org/web/20201106093237/https://secure.actblue.com/donate/best-for-kentucky-1>; rel="memento"; datetime="Fri, 06 Nov 2020 09:32:37 GMT",
+<http://web.archive.org/web/20201205155741/https://secure.actblue.com/donate/best-for-kentucky-1>; rel="memento"; datetime="Sat, 05 Dec 2020 15:57:41 GMT",
+<http://web.archive.org/web/20201212085139/https://secure.actblue.com/donate/best-for-kentucky-1>; rel="memento"; datetime="Sat, 12 Dec 2020 08:51:39 GMT",

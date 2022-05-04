@@ -1,0 +1,6 @@
+<https://secure.anedot.com/glenn-grothman-for-congress/support-glenn-grothman-for-congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/glenn-grothman-for-congress/support-glenn-grothman-for-congress>; rel="self"; type="application/link-format"; from="Tue, 29 Sep 2020 19:21:38 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/glenn-grothman-for-congress/support-glenn-grothman-for-congress>; rel="timegate",
+<http://web.archive.org/web/20200929192138/https://secure.anedot.com/glenn-grothman-for-congress/support-glenn-grothman-for-congress>; rel="first memento"; datetime="Tue, 29 Sep 2020 19:21:38 GMT",
+<http://web.archive.org/web/20201212194702/https://secure.anedot.com/glenn-grothman-for-congress/support-glenn-grothman-for-congress>; rel="memento"; datetime="Sat, 12 Dec 2020 19:47:02 GMT",
+<http://web.archive.org/web/20210509032830/https://secure.anedot.com/glenn-grothman-for-congress/support-glenn-grothman-for-congress>; rel="memento"; datetime="Sun, 09 May 2021 03:28:30 GMT",

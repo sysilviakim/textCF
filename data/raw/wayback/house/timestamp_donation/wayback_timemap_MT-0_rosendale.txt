@@ -1,0 +1,7 @@
+<https://secure.anedot.com/mattformontana/home-donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/mattformontana/home-donate>; rel="self"; type="application/link-format"; from="Fri, 21 Jun 2019 21:15:56 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/mattformontana/home-donate>; rel="timegate",
+<http://web.archive.org/web/20190621211556/https://secure.anedot.com/mattformontana/home-donate>; rel="first memento"; datetime="Fri, 21 Jun 2019 21:15:56 GMT",
+<http://web.archive.org/web/20201004230215/https://secure.anedot.com/mattformontana/home-donate>; rel="memento"; datetime="Sun, 04 Oct 2020 23:02:15 GMT",
+<http://web.archive.org/web/20201212172658/https://secure.anedot.com/mattformontana/home-donate>; rel="memento"; datetime="Sat, 12 Dec 2020 17:26:58 GMT",
+<http://web.archive.org/web/20210509043858/https://secure.anedot.com/mattformontana/home-donate>; rel="memento"; datetime="Sun, 09 May 2021 04:38:58 GMT",

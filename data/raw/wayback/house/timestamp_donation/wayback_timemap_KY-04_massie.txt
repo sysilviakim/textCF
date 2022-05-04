@@ -1,0 +1,7 @@
+<https://secure.anedot.com/thomas-massie-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/thomas-massie-for-congress/donate>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 22:32:24 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/thomas-massie-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20201004223224/https://secure.anedot.com/thomas-massie-for-congress/donate>; rel="first memento"; datetime="Sun, 04 Oct 2020 22:32:24 GMT",
+<http://web.archive.org/web/20201212165632/https://secure.anedot.com/thomas-massie-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 16:56:32 GMT",
+<http://web.archive.org/web/20210227160747/https://secure.anedot.com/thomas-massie-for-congress/donate>; rel="memento"; datetime="Sat, 27 Feb 2021 16:07:47 GMT",
+<http://web.archive.org/web/20210509045513/https://secure.anedot.com/thomas-massie-for-congress/donate>; rel="memento"; datetime="Sun, 09 May 2021 04:55:13 GMT",

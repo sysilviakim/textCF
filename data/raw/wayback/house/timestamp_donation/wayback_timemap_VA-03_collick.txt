@@ -1,0 +1,5 @@
+<https://donorbox.org/embed/collick2020?hide_donation_meter=true&designation=Area%20of%20greatest%20need>; rel="original",
+<http://web.archive.org/web/timemap/link/https://donorbox.org/embed/collick2020?hide_donation_meter=true&designation=Area%20of%20greatest%20need>; rel="self"; type="application/link-format"; from="Thu, 17 Oct 2019 20:18:07 GMT",
+<http://web.archive.org/web/https://donorbox.org/embed/collick2020?hide_donation_meter=true&designation=Area%20of%20greatest%20need>; rel="timegate",
+<http://web.archive.org/web/20191017201807/https://donorbox.org/embed/collick2020?hide_donation_meter=true&designation=Area%20of%20greatest%20need>; rel="first memento"; datetime="Thu, 17 Oct 2019 20:18:07 GMT",
+<http://web.archive.org/web/20201005114738/https://donorbox.org/embed/collick2020?hide_donation_meter=true&designation=Area%20of%20greatest%20need>; rel="memento"; datetime="Mon, 05 Oct 2020 11:47:38 GMT",

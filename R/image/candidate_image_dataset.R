@@ -154,6 +154,7 @@ candidate_image_dataset <- torch::dataset(
       torchvision::transform_to_tensor() %>%
       (function(x) x$to(device = DEVICE)) %>%
       # if(!all(dim(img)[-1] == c(224, 224)))
+
       torchvision::transform_resize(c(224, 224))
     # Found PNG with no channel dimension - bizarre
     if (dim(img)[[1]] != 3) {
@@ -161,6 +162,7 @@ candidate_image_dataset <- torch::dataset(
     }
     img <-
       do.call(torchvision::transform_normalize, c(img, RESNET18_CONSTANTS))
+
     if (self$uses_transform) {
       img <- self$rotate(img, self$angle) %>%
         self$flip(self$flip_thresh) %>%
@@ -175,6 +177,7 @@ candidate_image_dataset <- torch::dataset(
     proportions <- counts / length(self)
     proportions <- proportions[names(weights)] * weights
     proportions[names(images)]
+
   },
   rotate = function(img, angle, ...) {
     angle <- runif(1, 1 - angle, 1 + angle)

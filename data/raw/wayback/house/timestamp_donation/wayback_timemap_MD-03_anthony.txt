@@ -1,0 +1,6 @@
+<https://secure.anedot.com/charlesanthonyforcongress/contribute>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/charlesanthonyforcongress/contribute>; rel="self"; type="application/link-format"; from="Sat, 25 Jul 2020 03:48:45 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/charlesanthonyforcongress/contribute>; rel="timegate",
+<http://web.archive.org/web/20200725034845/https://secure.anedot.com/charlesanthonyforcongress/contribute>; rel="first memento"; datetime="Sat, 25 Jul 2020 03:48:45 GMT",
+<http://web.archive.org/web/20201212170648/https://secure.anedot.com/charlesanthonyforcongress/contribute>; rel="memento"; datetime="Sat, 12 Dec 2020 17:06:48 GMT",
+<http://web.archive.org/web/20211024022313/https://secure.anedot.com/charlesanthonyforcongress/contribute>; rel="memento"; datetime="Sun, 24 Oct 2021 02:23:13 GMT",

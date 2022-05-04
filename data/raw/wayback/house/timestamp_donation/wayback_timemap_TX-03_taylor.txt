@@ -1,0 +1,8 @@
+<https://secure.anedot.com/vantaylorcampaign/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/vantaylorcampaign/donate>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 00:55:25 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/vantaylorcampaign/donate>; rel="timegate",
+<http://web.archive.org/web/20201005005525/https://secure.anedot.com/vantaylorcampaign/donate>; rel="first memento"; datetime="Mon, 05 Oct 2020 00:55:25 GMT",
+<http://web.archive.org/web/20201005005615/https://secure.anedot.com/vantaylorcampaign/donate>; rel="memento"; datetime="Mon, 05 Oct 2020 00:56:15 GMT",
+<http://web.archive.org/web/20201105082754/https://secure.anedot.com/vantaylorcampaign/donate>; rel="memento"; datetime="Thu, 05 Nov 2020 08:27:54 GMT",
+<http://web.archive.org/web/20201212185748/https://secure.anedot.com/vantaylorcampaign/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 18:57:48 GMT",
+<http://web.archive.org/web/20210509034627/https://secure.anedot.com/vantaylorcampaign/donate>; rel="memento"; datetime="Sun, 09 May 2021 03:46:27 GMT",

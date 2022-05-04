@@ -1,0 +1,6 @@
+<https://secure.winred.com/emmer-for-congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/emmer-for-congress>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 06:51:07 GMT",
+<http://web.archive.org/web/https://secure.winred.com/emmer-for-congress>; rel="timegate",
+<http://web.archive.org/web/20201005065107/https://secure.winred.com/emmer-for-congress>; rel="first memento"; datetime="Mon, 05 Oct 2020 06:51:07 GMT",
+<http://web.archive.org/web/20201213053256/https://secure.winred.com/emmer-for-congress>; rel="memento"; datetime="Sun, 13 Dec 2020 05:32:56 GMT",
+<http://web.archive.org/web/20210509000925/https://secure.winred.com/emmer-for-congress>; rel="memento"; datetime="Sun, 09 May 2021 00:09:25 GMT",

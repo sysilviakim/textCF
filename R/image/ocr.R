@@ -4,6 +4,7 @@ library(tesseract)
 
 set.seed(1)
 images <- list.files(here::here("data", "classifier", "images"), full.names = TRUE, recursive = TRUE)
+
 labels <- basename(dirname(images))
 
 # Characters to include

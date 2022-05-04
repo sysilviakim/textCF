@@ -1,0 +1,4 @@
+<https://politics.raisethemoney.com/rwilliamsa8r3vFcVJ-RUmu-rVSBtLg>; rel="original",
+<http://web.archive.org/web/timemap/link/https://politics.raisethemoney.com/rwilliamsa8r3vFcVJ-RUmu-rVSBtLg>; rel="self"; type="application/link-format"; from="Sun, 13 Dec 2020 08:34:40 GMT",
+<http://web.archive.org/web/https://politics.raisethemoney.com/rwilliamsa8r3vFcVJ-RUmu-rVSBtLg>; rel="timegate",
+<http://web.archive.org/web/20201213083440/https://politics.raisethemoney.com/rwilliamsa8r3vFcVJ-RUmu-rVSBtLg>; rel="first memento"; datetime="Sun, 13 Dec 2020 08:34:40 GMT",

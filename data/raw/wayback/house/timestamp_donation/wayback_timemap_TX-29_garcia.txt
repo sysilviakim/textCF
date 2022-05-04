@@ -1,0 +1,8 @@
+<https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="self"; type="application/link-format"; from="Mon, 17 Aug 2020 06:58:16 GMT",
+<http://web.archive.org/web/https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="timegate",
+<http://web.archive.org/web/20200817065816/https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="first memento"; datetime="Mon, 17 Aug 2020 06:58:16 GMT",
+<http://web.archive.org/web/20201108092110/https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="memento"; datetime="Sun, 08 Nov 2020 09:21:10 GMT",
+<http://web.archive.org/web/20201207210715/https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="memento"; datetime="Mon, 07 Dec 2020 21:07:15 GMT",
+<http://web.archive.org/web/20201213094212/https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="memento"; datetime="Sun, 13 Dec 2020 09:42:12 GMT",
+<http://web.archive.org/web/20210906201340/https://secure.ngpvan.com/HRSGvJW1HECFcWPtvXrHfQ2>; rel="memento"; datetime="Mon, 06 Sep 2021 20:13:40 GMT",

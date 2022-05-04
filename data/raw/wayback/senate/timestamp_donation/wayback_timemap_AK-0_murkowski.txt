@@ -1,0 +1,6 @@
+<https://mystique.victorypassport.com/pages/murkowski/contribute?location=https%3A%2F%2Fgive.victorypassport.com%2Fmurkowski%2Fcontribute>; rel="original",
+<http://web.archive.org/web/timemap/link/https://mystique.victorypassport.com/pages/murkowski/contribute?location=https%3A%2F%2Fgive.victorypassport.com%2Fmurkowski%2Fcontribute>; rel="self"; type="application/link-format"; from="Thu, 03 Dec 2020 03:23:16 GMT",
+<http://web.archive.org/web/https://mystique.victorypassport.com/pages/murkowski/contribute?location=https%3A%2F%2Fgive.victorypassport.com%2Fmurkowski%2Fcontribute>; rel="timegate",
+<http://web.archive.org/web/20201203032316/https://mystique.victorypassport.com/pages/murkowski/contribute?location=https%3A%2F%2Fgive.victorypassport.com%2Fmurkowski%2Fcontribute>; rel="first memento"; datetime="Thu, 03 Dec 2020 03:23:16 GMT",
+<http://web.archive.org/web/20201208193658/https://mystique.victorypassport.com/pages/murkowski/contribute?location=https%3A%2F%2Fgive.victorypassport.com%2Fmurkowski%2Fcontribute>; rel="memento"; datetime="Tue, 08 Dec 2020 19:36:58 GMT",
+<http://web.archive.org/web/20210205204940/https://mystique.victorypassport.com/pages/murkowski/contribute?location=https%3A%2F%2Fgive.victorypassport.com%2Fmurkowski%2Fcontribute>; rel="memento"; datetime="Fri, 05 Feb 2021 20:49:40 GMT",

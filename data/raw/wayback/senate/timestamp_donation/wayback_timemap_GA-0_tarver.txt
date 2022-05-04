@@ -1,0 +1,7 @@
+<https://secure.actblue.com/donate/tarver-for-senate-1>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/tarver-for-senate-1>; rel="self"; type="application/link-format"; from="Tue, 07 Jul 2020 01:07:23 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/tarver-for-senate-1>; rel="timegate",
+<http://web.archive.org/web/20200707010723/https://secure.actblue.com/donate/tarver-for-senate-1>; rel="first memento"; datetime="Tue, 07 Jul 2020 01:07:23 GMT",
+<http://web.archive.org/web/20200915231925/https://secure.actblue.com/donate/tarver-for-senate-1>; rel="memento"; datetime="Tue, 15 Sep 2020 23:19:25 GMT",
+<http://web.archive.org/web/20201106033946/https://secure.actblue.com/donate/tarver-for-senate-1>; rel="memento"; datetime="Fri, 06 Nov 2020 03:39:46 GMT",
+<http://web.archive.org/web/20201108204514/https://secure.actblue.com/donate/tarver-for-senate-1>; rel="memento"; datetime="Sun, 08 Nov 2020 20:45:14 GMT",

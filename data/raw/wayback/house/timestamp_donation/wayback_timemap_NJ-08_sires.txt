@@ -1,0 +1,8 @@
+<https://secure.actblue.com/donate/albio-sires-3>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/albio-sires-3>; rel="self"; type="application/link-format"; from="Wed, 08 May 2019 04:50:20 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/albio-sires-3>; rel="timegate",
+<http://web.archive.org/web/20190508045020/https://secure.actblue.com/donate/albio-sires-3>; rel="first memento"; datetime="Wed, 08 May 2019 04:50:20 GMT",
+<http://web.archive.org/web/20190508065856/https://secure.actblue.com/donate/albio-sires-3>; rel="memento"; datetime="Wed, 08 May 2019 06:58:56 GMT",
+<http://web.archive.org/web/20200928064234/https://secure.actblue.com/donate/albio-sires-3>; rel="memento"; datetime="Mon, 28 Sep 2020 06:42:34 GMT",
+<http://web.archive.org/web/20201205182512/https://secure.actblue.com/donate/albio-sires-3>; rel="memento"; datetime="Sat, 05 Dec 2020 18:25:12 GMT",
+<http://web.archive.org/web/20201212103150/https://secure.actblue.com/donate/albio-sires-3>; rel="memento"; datetime="Sat, 12 Dec 2020 10:31:50 GMT",

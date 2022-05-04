@@ -1,0 +1,7 @@
+<https://secure.anedot.com/blake-moore-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/blake-moore-for-congress/donate>; rel="self"; type="application/link-format"; from="Wed, 04 Mar 2020 03:45:44 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/blake-moore-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20200304034544/https://secure.anedot.com/blake-moore-for-congress/donate>; rel="first memento"; datetime="Wed, 04 Mar 2020 03:45:44 GMT",
+<http://web.archive.org/web/20201005013426/https://secure.anedot.com/blake-moore-for-congress/donate>; rel="memento"; datetime="Mon, 05 Oct 2020 01:34:26 GMT",
+<http://web.archive.org/web/20201212193155/https://secure.anedot.com/blake-moore-for-congress/donate>; rel="memento"; datetime="Sat, 12 Dec 2020 19:31:55 GMT",
+<http://web.archive.org/web/20210509033442/https://secure.anedot.com/blake-moore-for-congress/donate>; rel="memento"; datetime="Sun, 09 May 2021 03:34:42 GMT",

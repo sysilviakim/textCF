@@ -1,0 +1,8 @@
+<https://secure.winred.com/dasha-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/dasha-for-congress/donate>; rel="self"; type="application/link-format"; from="Mon, 17 Aug 2020 05:15:27 GMT",
+<http://web.archive.org/web/https://secure.winred.com/dasha-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20200817051527/https://secure.winred.com/dasha-for-congress/donate>; rel="first memento"; datetime="Mon, 17 Aug 2020 05:15:27 GMT",
+<http://web.archive.org/web/20201102161943/https://secure.winred.com/dasha-for-congress/donate>; rel="memento"; datetime="Mon, 02 Nov 2020 16:19:43 GMT",
+<http://web.archive.org/web/20201109185929/https://secure.winred.com/dasha-for-congress/donate>; rel="memento"; datetime="Mon, 09 Nov 2020 18:59:29 GMT",
+<http://web.archive.org/web/20201109190418/https://secure.winred.com/dasha-for-congress/donate>; rel="memento"; datetime="Mon, 09 Nov 2020 19:04:18 GMT",
+<http://web.archive.org/web/20201213081436/https://secure.winred.com/dasha-for-congress/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 08:14:36 GMT",

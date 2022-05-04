@@ -1,0 +1,6 @@
+<https://secure.anedot.com/josh-barnett-for-arizona-congress>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/josh-barnett-for-arizona-congress>; rel="self"; type="application/link-format"; from="Sun, 04 Oct 2020 21:16:01 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/josh-barnett-for-arizona-congress>; rel="timegate",
+<http://web.archive.org/web/20201004211601/https://secure.anedot.com/josh-barnett-for-arizona-congress>; rel="first memento"; datetime="Sun, 04 Oct 2020 21:16:01 GMT",
+<http://web.archive.org/web/20201024232801/https://secure.anedot.com/josh-barnett-for-arizona-congress>; rel="memento"; datetime="Sat, 24 Oct 2020 23:28:01 GMT",
+<http://web.archive.org/web/20201212144724/https://secure.anedot.com/josh-barnett-for-arizona-congress>; rel="memento"; datetime="Sat, 12 Dec 2020 14:47:24 GMT",

@@ -1,0 +1,6 @@
+<https://secure.actblue.com/donate/mark-elworth-jr-for-us-representatives-1>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.actblue.com/donate/mark-elworth-jr-for-us-representatives-1>; rel="self"; type="application/link-format"; from="Mon, 28 Sep 2020 06:40:06 GMT",
+<http://web.archive.org/web/https://secure.actblue.com/donate/mark-elworth-jr-for-us-representatives-1>; rel="timegate",
+<http://web.archive.org/web/20200928064006/https://secure.actblue.com/donate/mark-elworth-jr-for-us-representatives-1>; rel="first memento"; datetime="Mon, 28 Sep 2020 06:40:06 GMT",
+<http://web.archive.org/web/20201205180133/https://secure.actblue.com/donate/mark-elworth-jr-for-us-representatives-1>; rel="memento"; datetime="Sat, 05 Dec 2020 18:01:33 GMT",
+<http://web.archive.org/web/20201212101619/https://secure.actblue.com/donate/mark-elworth-jr-for-us-representatives-1>; rel="memento"; datetime="Sat, 12 Dec 2020 10:16:19 GMT",

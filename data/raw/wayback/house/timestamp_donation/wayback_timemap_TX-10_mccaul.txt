@@ -1,0 +1,7 @@
+<https://secure.winred.com/mccaul-for-congress/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/mccaul-for-congress/donate>; rel="self"; type="application/link-format"; from="Mon, 17 Aug 2020 06:50:53 GMT",
+<http://web.archive.org/web/https://secure.winred.com/mccaul-for-congress/donate>; rel="timegate",
+<http://web.archive.org/web/20200817065053/https://secure.winred.com/mccaul-for-congress/donate>; rel="first memento"; datetime="Mon, 17 Aug 2020 06:50:53 GMT",
+<http://web.archive.org/web/20201105084822/https://secure.winred.com/mccaul-for-congress/donate>; rel="memento"; datetime="Thu, 05 Nov 2020 08:48:22 GMT",
+<http://web.archive.org/web/20201213091217/https://secure.winred.com/mccaul-for-congress/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 09:12:17 GMT",
+<http://web.archive.org/web/20210508191835/https://secure.winred.com/mccaul-for-congress/donate>; rel="memento"; datetime="Sat, 08 May 2021 19:18:35 GMT",

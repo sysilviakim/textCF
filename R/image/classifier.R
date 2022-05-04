@@ -17,7 +17,6 @@ source(here::here("R", "dropbox_utilities.R"))
 #' is easier to debug than `keras`, an alternative, since it uses less abstraction.
 #' This script takes about 10 minutes to run on my machine.
 
-
 #' Some complicated business here to parse command-line arguments. This makes it possible to call this script with different parameters.
 torch_manual_seed(1)
 args <- commandArgs(trailingOnly = TRUE)

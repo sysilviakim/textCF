@@ -1,0 +1,7 @@
+<https://secure.anedot.com/armstrongnd/armstrongnd>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/armstrongnd/armstrongnd>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 00:15:55 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/armstrongnd/armstrongnd>; rel="timegate",
+<http://web.archive.org/web/20201005001555/https://secure.anedot.com/armstrongnd/armstrongnd>; rel="first memento"; datetime="Mon, 05 Oct 2020 00:15:55 GMT",
+<http://web.archive.org/web/20201212181613/https://secure.anedot.com/armstrongnd/armstrongnd>; rel="memento"; datetime="Sat, 12 Dec 2020 18:16:13 GMT",
+<http://web.archive.org/web/20210414073621/https://secure.anedot.com/armstrongnd/armstrongnd>; rel="memento"; datetime="Wed, 14 Apr 2021 07:36:21 GMT",
+<http://web.archive.org/web/20210509041722/https://secure.anedot.com/armstrongnd/armstrongnd>; rel="memento"; datetime="Sun, 09 May 2021 04:17:22 GMT",

@@ -1,0 +1,4 @@
+<https://politics.raisethemoney.com/cbernstein>; rel="original",
+<http://web.archive.org/web/timemap/link/https://politics.raisethemoney.com/cbernstein>; rel="self"; type="application/link-format"; from="Sun, 13 Dec 2020 06:50:23 GMT",
+<http://web.archive.org/web/https://politics.raisethemoney.com/cbernstein>; rel="timegate",
+<http://web.archive.org/web/20201213065023/https://politics.raisethemoney.com/cbernstein>; rel="first memento"; datetime="Sun, 13 Dec 2020 06:50:23 GMT",

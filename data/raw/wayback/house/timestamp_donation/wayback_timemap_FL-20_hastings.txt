@@ -1,0 +1,4 @@
+<https://act.myngp.com/Forms/4586072895058345984>; rel="original",
+<http://web.archive.org/web/timemap/link/https://act.myngp.com/Forms/4586072895058345984>; rel="self"; type="application/link-format"; from="Sat, 12 Dec 2020 22:10:54 GMT",
+<http://web.archive.org/web/https://act.myngp.com/Forms/4586072895058345984>; rel="timegate",
+<http://web.archive.org/web/20201212221054/https://act.myngp.com/Forms/4586072895058345984>; rel="first memento"; datetime="Sat, 12 Dec 2020 22:10:54 GMT",

@@ -1,0 +1,5 @@
+<https://secure.anedot.com/kevin-brady-for-congress/general-fund-cbd6700dbd2c89f877de6>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/kevin-brady-for-congress/general-fund-cbd6700dbd2c89f877de6>; rel="self"; type="application/link-format"; from="Sat, 12 Dec 2020 19:05:47 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/kevin-brady-for-congress/general-fund-cbd6700dbd2c89f877de6>; rel="timegate",
+<http://web.archive.org/web/20201212190547/https://secure.anedot.com/kevin-brady-for-congress/general-fund-cbd6700dbd2c89f877de6>; rel="first memento"; datetime="Sat, 12 Dec 2020 19:05:47 GMT",
+<http://web.archive.org/web/20210509034242/https://secure.anedot.com/kevin-brady-for-congress/general-fund-cbd6700dbd2c89f877de6>; rel="memento"; datetime="Sun, 09 May 2021 03:42:42 GMT",

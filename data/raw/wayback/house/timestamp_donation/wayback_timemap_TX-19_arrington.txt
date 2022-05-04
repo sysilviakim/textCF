@@ -1,0 +1,6 @@
+<https://secure.anedot.com/texans-for-jodey-arrington/general-fund-c1dd2430920e07d0c7a04>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.anedot.com/texans-for-jodey-arrington/general-fund-c1dd2430920e07d0c7a04>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 01:01:08 GMT",
+<http://web.archive.org/web/https://secure.anedot.com/texans-for-jodey-arrington/general-fund-c1dd2430920e07d0c7a04>; rel="timegate",
+<http://web.archive.org/web/20201005010108/https://secure.anedot.com/texans-for-jodey-arrington/general-fund-c1dd2430920e07d0c7a04>; rel="first memento"; datetime="Mon, 05 Oct 2020 01:01:08 GMT",
+<http://web.archive.org/web/20201212192124/https://secure.anedot.com/texans-for-jodey-arrington/general-fund-c1dd2430920e07d0c7a04>; rel="memento"; datetime="Sat, 12 Dec 2020 19:21:24 GMT",
+<http://web.archive.org/web/20210509033744/https://secure.anedot.com/texans-for-jodey-arrington/general-fund-c1dd2430920e07d0c7a04>; rel="memento"; datetime="Sun, 09 May 2021 03:37:44 GMT",

@@ -1,0 +1,7 @@
+<https://secure.winred.com/JayAllen/donate>; rel="original",
+<http://web.archive.org/web/timemap/link/https://secure.winred.com/JayAllen/donate>; rel="self"; type="application/link-format"; from="Mon, 05 Oct 2020 06:17:32 GMT",
+<http://web.archive.org/web/https://secure.winred.com/JayAllen/donate>; rel="timegate",
+<http://web.archive.org/web/20201005061732/https://secure.winred.com/JayAllen/donate>; rel="first memento"; datetime="Mon, 05 Oct 2020 06:17:32 GMT",
+<http://web.archive.org/web/20201105152630/https://secure.winred.com/JayAllen/donate>; rel="memento"; datetime="Thu, 05 Nov 2020 15:26:30 GMT",
+<http://web.archive.org/web/20201213044207/https://secure.winred.com/JayAllen/donate>; rel="memento"; datetime="Sun, 13 Dec 2020 04:42:07 GMT",
+<http://web.archive.org/web/20210103033404/https://secure.winred.com/jayallen/donate>; rel="memento"; datetime="Sun, 03 Jan 2021 03:34:04 GMT",
