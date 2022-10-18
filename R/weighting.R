@@ -225,7 +225,8 @@ senate_tox_funds_ts <- ggplot(senate_tox_funds_plotting,
   theme_bw() +
   coord_cartesian(ylim = c(0, 18000000)) +
   geom_bar(stat="identity") +
-  labs(x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("Senate Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -243,7 +244,8 @@ senate_nontox_funds_ts <- ggplot(senate_nontox_funds_plotting,
   theme_bw() +
   coord_cartesian(ylim = c(0, 18000000)) +
   geom_bar(stat="identity") +
-  labs(x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("Senate Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -319,7 +321,8 @@ house_tox_imps_ts <- ggplot(hr_tox_imps_plotting,
   theme_bw() +
   coord_cartesian(ylim = c(0, 550000000)) +
   geom_bar(stat="identity") +
-  labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("House Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -336,7 +339,8 @@ house_nontox_imps_ts <- ggplot(hr_nontox_imps_plotting,
   theme_bw() +
   geom_bar(stat="identity") +
   coord_cartesian(ylim = c(0, 550000000)) +
-  labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("House Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -353,7 +357,8 @@ senate_tox_imps_ts <- ggplot(senate_tox_imps_plotting,
   theme_bw() +
   coord_cartesian(ylim = c(0, 550000000)) +
   geom_bar(stat="identity") +
-  labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("Senate Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -370,7 +375,8 @@ senate_nontox_imps_ts <- ggplot(senate_nontox_imps_plotting,
   theme_bw() +
   coord_cartesian(ylim = c(0, 550000000)) +
   geom_bar(stat="identity") +
-  labs(x = "Initial Distribution Date", y = "Total Impressions (Lower Estimate)") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("Senate Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -574,20 +580,11 @@ house_plot <- ggplot(houseplot) +
 
 ### House difference-in-means tests ============================================
 
-# Wilcoxon
-wilcox.test(house_gop_trump$toxicity, 
-            house_gop_notrump$toxicity, 
-            alternative = "two.sided")
-wilcox.test(house_dem_trump$toxicity, 
-            house_dem_notrump$toxicity, 
-            alternative = "two.sided")
+# Law of large numbers, central limit theorem should in theory make the t-test
+# a viable difference-in-means test here...
 
-# T
-housegop <- as.data.frame(rbind(house_gop_trump, house_gop_notrump))
-housedem <- as.data.frame(rbind(house_dem_notrump, house_dem_trump))
-t.test(toxicity ~ trump, data = housegop, var.equal = TRUE)
-t.test(toxicity ~ trump, data = housedem, var.equal = TRUE)
-
+t.test(house_gop_trump$toxicity, house_gop_notrump$toxicity)
+t.test(house_dem_trump$toxicity, house_dem_notrump$toxicity)
 
 ### Senate side -- Trump toxicity ==============================================
 
@@ -687,5 +684,43 @@ ggsave("fig/trump_toxicity.pdf", plot = trump_toxicity,
        width = 10, height = 8)
 
 
-### Senate difference-in-means tests (Wilcoxon) ================================
+### Senate difference-in-means tests (T test) ==================================
 
+# Law of large numbers, central limit theorem should in theory make the t-test
+# a viable difference-in-means test here...
+
+t.test(senate_gop_trump$toxicity, senate_gop_notrump$toxicity)
+t.test(senate_dem_trump$toxicity, senate_dem_notrump$toxicity)
+
+
+### Weighting donor/voter by toxicity for Warnock and Loeffler =================
+
+# Merging weighting variables into fb_senate ===================================
+
+fb_senate <- read_rds("data/tidy/fb_perspective_Senate_20220426.RDS")
+load(here("data", "tidy", "fb_unique.Rda"))
+unique <- fb_unique
+
+# Sanity checks, before we get started...
+assert_that(!any(is.na(fb_senate$ad_creative_body)))
+assert_that(!any(is.na(unique$senate$ad_creative_body)))
+senate_target_weights <- merge(
+  x = fb_senate,
+  y = unique$senate[, c("fb_ad_library_id", "ad_creative_body", 
+                        "financial"
+  )],
+  by = c("fb_ad_library_id", "ad_creative_body"), all.x = TRUE
+)
+loeffler <- senate_target_weights[senate_target_weights$candidate == 
+                                    'kelly loeffler', ]
+warnock <- senate_target_weights[senate_target_weights$candidate == 
+                                    'raphael warnock', ]
+loeffler_donors <- loeffler[loeffler$financial == 'Donor-targeting', ]
+loeffler_voters <- loeffler[loeffler$financial == 'Voter-targeting', ]
+warnock_donors <- warnock[warnock$financial == 'Donor-targeting', ]
+warnock_voters <- warnock[warnock$financial == 'Voter-targeting', ]
+
+mean(loeffler_donors$toxicity) #0.1493359
+mean(loeffler_voters$toxicity) # 0.1317107
+mean(warnock_donors$toxicity) # 0.2353634
+mean(warnock_voters$toxicity) # 0.1431848
