@@ -55,6 +55,8 @@ data/raw/wayback/senate/timestamp_donation/*.txt
 data/raw/wayback/house/timestamp_donation/*.Rda
 data/raw/wayback/senate/timestamp_donation/*.Rda
 
+lit/*
+
 .DS_Store
 
 # Extra training images

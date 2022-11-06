@@ -1,0 +1,417 @@
+
+\begingroup
+\centering
+\begin{tabular}{lc}
+   \tabularnewline \midrule \midrule
+   Dependent Variable:                                & toxicity\\  
+   Model:                                             & (1)\\  
+   \midrule
+   \emph{Variables}\\
+   (Intercept)                                        & 0.4308$^{***}$\\   
+                                                      & (0.1154)\\   
+   partyRepublican                                    & 0.0211$^{***}$\\   
+                                                      & (0.0032)\\   
+   financialDonor-targeting                           & 0.0055$^{**}$\\   
+                                                      & (0.0027)\\   
+   chambersenate                                      & 0.0047\\   
+                                                      & (0.0029)\\   
+   incINCUMBENT                                       & -0.0027\\   
+                                                      & (0.0026)\\   
+   incOPEN                                            & 0.0029\\   
+                                                      & (0.0063)\\   
+   safety                                             & $5.94\times 10^{-5}$\\    
+                                                      & (0.0001)\\   
+   gendermale                                         & -0.0038\\   
+                                                      & (0.0031)\\   
+   min\_ad\_delivery\_start\_time                     & $-1.83\times 10^{-5}$$^{***}$\\    
+                                                      & ($6.29\times 10^{-6}$)\\    
+   state\_poAL                                        & 0.0022\\   
+                                                      & (0.0068)\\   
+   state\_poAR                                        & 0.0181\\   
+                                                      & (0.0205)\\   
+   state\_poAZ                                        & 0.0229$^{***}$\\   
+                                                      & (0.0064)\\   
+   state\_poCA                                        & 0.0328$^{***}$\\   
+                                                      & (0.0078)\\   
+   state\_poCO                                        & -0.0007\\   
+                                                      & (0.0054)\\   
+   state\_poCT                                        & -0.0027\\   
+                                                      & (0.0115)\\   
+   state\_poDE                                        & 0.0257$^{***}$\\   
+                                                      & (0.0036)\\   
+   state\_poFL                                        & 0.0239$^{***}$\\   
+                                                      & (0.0074)\\   
+   state\_poGA                                        & 0.0353$^{***}$\\   
+                                                      & (0.0084)\\   
+   state\_poHI                                        & -0.0267$^{***}$\\   
+                                                      & (0.0061)\\   
+   state\_poIA                                        & 0.0068\\   
+                                                      & (0.0046)\\   
+   state\_poID                                        & -0.0099$^{*}$\\   
+                                                      & (0.0056)\\   
+   state\_poIL                                        & 0.0236$^{***}$\\   
+                                                      & (0.0065)\\   
+   state\_poIN                                        & 0.0260$^{**}$\\   
+                                                      & (0.0122)\\   
+   state\_poKS                                        & -0.0081\\   
+                                                      & (0.0067)\\   
+   state\_poKY                                        & 0.0189$^{**}$\\   
+                                                      & (0.0083)\\   
+   state\_poLA                                        & 0.0145\\   
+                                                      & (0.0127)\\   
+   state\_poMA                                        & 0.0100$^{*}$\\   
+                                                      & (0.0056)\\   
+   state\_poMD                                        & 0.0286$^{**}$\\   
+                                                      & (0.0138)\\   
+   state\_poME                                        & -0.0093\\   
+                                                      & (0.0083)\\   
+   state\_poMI                                        & 0.0006\\   
+                                                      & (0.0056)\\   
+   state\_poMN                                        & 0.0101\\   
+                                                      & (0.0087)\\   
+   state\_poMO                                        & 0.0111\\   
+                                                      & (0.0073)\\   
+   state\_poMS                                        & -0.0025\\   
+                                                      & (0.0031)\\   
+   state\_poMT                                        & 0.0069\\   
+                                                      & (0.0083)\\   
+   state\_poNC                                        & 0.0115$^{*}$\\   
+                                                      & (0.0062)\\   
+   state\_poND                                        & -0.0025\\   
+                                                      & (0.0043)\\   
+   state\_poNE                                        & 0.0097\\   
+                                                      & (0.0080)\\   
+   state\_poNH                                        & 0.0185$^{*}$\\   
+                                                      & (0.0104)\\   
+   state\_poNJ                                        & 0.0065\\   
+                                                      & (0.0056)\\   
+   state\_poNM                                        & 0.0227$^{***}$\\   
+                                                      & (0.0068)\\   
+   state\_poNV                                        & 0.0186$^{***}$\\   
+                                                      & (0.0058)\\   
+   state\_poNY                                        & 0.0195$^{***}$\\   
+                                                      & (0.0075)\\   
+   state\_poOH                                        & 0.0061\\   
+                                                      & (0.0077)\\   
+   state\_poOK                                        & -0.0011\\   
+                                                      & (0.0055)\\   
+   state\_poOR                                        & 0.0299$^{***}$\\   
+                                                      & (0.0100)\\   
+   state\_poPA                                        & 0.0200$^{***}$\\   
+                                                      & (0.0065)\\   
+   state\_poRI                                        & 0.0064\\   
+                                                      & (0.0095)\\   
+   state\_poSC                                        & 0.0103\\   
+                                                      & (0.0068)\\   
+   state\_poSD                                        & -0.0172$^{**}$\\   
+                                                      & (0.0086)\\   
+   state\_poTN                                        & 0.0153\\   
+                                                      & (0.0135)\\   
+   state\_poTX                                        & 0.0204$^{***}$\\   
+                                                      & (0.0061)\\   
+   state\_poUT                                        & 0.0215$^{***}$\\   
+                                                      & (0.0066)\\   
+   state\_poVA                                        & 0.0020\\   
+                                                      & (0.0050)\\   
+   state\_poVT                                        & -0.0242$^{***}$\\   
+                                                      & (0.0047)\\   
+   state\_poWA                                        & -0.0049\\   
+                                                      & (0.0077)\\   
+   state\_poWI                                        & 0.0026\\   
+                                                      & (0.0060)\\   
+   state\_poWV                                        & -0.0061\\   
+                                                      & (0.0059)\\   
+   state\_poWY                                        & 0.0356$^{**}$\\   
+                                                      & (0.0149)\\   
+   partyRepublican $\times$ financialDonor-targeting  & -0.0013\\   
+                                                      & (0.0038)\\   
+   \midrule
+   \emph{Fit statistics}\\
+   Observations                                       & 61,007\\  
+   R$^2$                                              & 0.02776\\  
+   Adjusted R$^2$                                     & 0.02684\\  
+   \midrule \midrule
+   \multicolumn{2}{l}{\emph{Clustered (candidate) standard-errors in parentheses}}\\
+   \multicolumn{2}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+\end{tabular}
+\par\endgroup
+
+
+
+\begingroup
+\centering
+\begin{tabular}{lc}
+   \tabularnewline \midrule \midrule
+   Dependent Variable:                                & toxicity\\  
+   Model:                                             & (1)\\  
+   \midrule
+   \emph{Variables}\\
+   (Intercept)                                        & 0.4308$^{***}$\\   
+                                                      & (0.1154)\\   
+   partyRepublican                                    & 0.0211$^{***}$\\   
+                                                      & (0.0032)\\   
+   financialDonor-targeting                           & 0.0055$^{**}$\\   
+                                                      & (0.0027)\\   
+   chambersenate                                      & 0.0047\\   
+                                                      & (0.0029)\\   
+   incINCUMBENT                                       & -0.0027\\   
+                                                      & (0.0026)\\   
+   incOPEN                                            & 0.0029\\   
+                                                      & (0.0063)\\   
+   safety                                             & $5.94\times 10^{-5}$\\    
+                                                      & (0.0001)\\   
+   gendermale                                         & -0.0038\\   
+                                                      & (0.0031)\\   
+   min\_ad\_delivery\_start\_time                     & $-1.83\times 10^{-5}$$^{***}$\\    
+                                                      & ($6.29\times 10^{-6}$)\\    
+   state\_poAL                                        & 0.0022\\   
+                                                      & (0.0068)\\   
+   state\_poAR                                        & 0.0181\\   
+                                                      & (0.0205)\\   
+   state\_poAZ                                        & 0.0229$^{***}$\\   
+                                                      & (0.0064)\\   
+   state\_poCA                                        & 0.0328$^{***}$\\   
+                                                      & (0.0078)\\   
+   state\_poCO                                        & -0.0007\\   
+                                                      & (0.0054)\\   
+   state\_poCT                                        & -0.0027\\   
+                                                      & (0.0115)\\   
+   state\_poDE                                        & 0.0257$^{***}$\\   
+                                                      & (0.0036)\\   
+   state\_poFL                                        & 0.0239$^{***}$\\   
+                                                      & (0.0074)\\   
+   state\_poGA                                        & 0.0353$^{***}$\\   
+                                                      & (0.0084)\\   
+   state\_poHI                                        & -0.0267$^{***}$\\   
+                                                      & (0.0061)\\   
+   state\_poIA                                        & 0.0068\\   
+                                                      & (0.0046)\\   
+   state\_poID                                        & -0.0099$^{*}$\\   
+                                                      & (0.0056)\\   
+   state\_poIL                                        & 0.0236$^{***}$\\   
+                                                      & (0.0065)\\   
+   state\_poIN                                        & 0.0260$^{**}$\\   
+                                                      & (0.0122)\\   
+   state\_poKS                                        & -0.0081\\   
+                                                      & (0.0067)\\   
+   state\_poKY                                        & 0.0189$^{**}$\\   
+                                                      & (0.0083)\\   
+   state\_poLA                                        & 0.0145\\   
+                                                      & (0.0127)\\   
+   state\_poMA                                        & 0.0100$^{*}$\\   
+                                                      & (0.0056)\\   
+   state\_poMD                                        & 0.0286$^{**}$\\   
+                                                      & (0.0138)\\   
+   state\_poME                                        & -0.0093\\   
+                                                      & (0.0083)\\   
+   state\_poMI                                        & 0.0006\\   
+                                                      & (0.0056)\\   
+   state\_poMN                                        & 0.0101\\   
+                                                      & (0.0087)\\   
+   state\_poMO                                        & 0.0111\\   
+                                                      & (0.0073)\\   
+   state\_poMS                                        & -0.0025\\   
+                                                      & (0.0031)\\   
+   state\_poMT                                        & 0.0069\\   
+                                                      & (0.0083)\\   
+   state\_poNC                                        & 0.0115$^{*}$\\   
+                                                      & (0.0062)\\   
+   state\_poND                                        & -0.0025\\   
+                                                      & (0.0043)\\   
+   state\_poNE                                        & 0.0097\\   
+                                                      & (0.0080)\\   
+   state\_poNH                                        & 0.0185$^{*}$\\   
+                                                      & (0.0104)\\   
+   state\_poNJ                                        & 0.0065\\   
+                                                      & (0.0056)\\   
+   state\_poNM                                        & 0.0227$^{***}$\\   
+                                                      & (0.0068)\\   
+   state\_poNV                                        & 0.0186$^{***}$\\   
+                                                      & (0.0058)\\   
+   state\_poNY                                        & 0.0195$^{***}$\\   
+                                                      & (0.0075)\\   
+   state\_poOH                                        & 0.0061\\   
+                                                      & (0.0077)\\   
+   state\_poOK                                        & -0.0011\\   
+                                                      & (0.0055)\\   
+   state\_poOR                                        & 0.0299$^{***}$\\   
+                                                      & (0.0100)\\   
+   state\_poPA                                        & 0.0200$^{***}$\\   
+                                                      & (0.0065)\\   
+   state\_poRI                                        & 0.0064\\   
+                                                      & (0.0095)\\   
+   state\_poSC                                        & 0.0103\\   
+                                                      & (0.0068)\\   
+   state\_poSD                                        & -0.0172$^{**}$\\   
+                                                      & (0.0086)\\   
+   state\_poTN                                        & 0.0153\\   
+                                                      & (0.0135)\\   
+   state\_poTX                                        & 0.0204$^{***}$\\   
+                                                      & (0.0061)\\   
+   state\_poUT                                        & 0.0215$^{***}$\\   
+                                                      & (0.0066)\\   
+   state\_poVA                                        & 0.0020\\   
+                                                      & (0.0050)\\   
+   state\_poVT                                        & -0.0242$^{***}$\\   
+                                                      & (0.0047)\\   
+   state\_poWA                                        & -0.0049\\   
+                                                      & (0.0077)\\   
+   state\_poWI                                        & 0.0026\\   
+                                                      & (0.0060)\\   
+   state\_poWV                                        & -0.0061\\   
+                                                      & (0.0059)\\   
+   state\_poWY                                        & 0.0356$^{**}$\\   
+                                                      & (0.0149)\\   
+   partyRepublican $\times$ financialDonor-targeting  & -0.0013\\   
+                                                      & (0.0038)\\   
+   \midrule
+   \emph{Fit statistics}\\
+   Observations                                       & 61,007\\  
+   R$^2$                                              & 0.02776\\  
+   Adjusted R$^2$                                     & 0.02684\\  
+   \midrule \midrule
+   \multicolumn{2}{l}{\emph{Clustered (candidate) standard-errors in parentheses}}\\
+   \multicolumn{2}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+\end{tabular}
+\par\endgroup
+
+
+
+\begingroup
+\centering
+\begin{tabular}{lc}
+   \tabularnewline \midrule \midrule
+   Dependent Variable:                                & toxicity\\  
+   Model:                                             & (1)\\  
+   \midrule
+   \emph{Variables}\\
+   (Intercept)                                        & 0.4308$^{***}$\\   
+                                                      & (0.1154)\\   
+   partyRepublican                                    & 0.0211$^{***}$\\   
+                                                      & (0.0032)\\   
+   financialDonor-targeting                           & 0.0055$^{**}$\\   
+                                                      & (0.0027)\\   
+   chambersenate                                      & 0.0047\\   
+                                                      & (0.0029)\\   
+   incINCUMBENT                                       & -0.0027\\   
+                                                      & (0.0026)\\   
+   incOPEN                                            & 0.0029\\   
+                                                      & (0.0063)\\   
+   safety                                             & $5.94\times 10^{-5}$\\    
+                                                      & (0.0001)\\   
+   gendermale                                         & -0.0038\\   
+                                                      & (0.0031)\\   
+   min\_ad\_delivery\_start\_time                     & $-1.83\times 10^{-5}$$^{***}$\\    
+                                                      & ($6.29\times 10^{-6}$)\\    
+   state\_poAL                                        & 0.0022\\   
+                                                      & (0.0068)\\   
+   state\_poAR                                        & 0.0181\\   
+                                                      & (0.0205)\\   
+   state\_poAZ                                        & 0.0229$^{***}$\\   
+                                                      & (0.0064)\\   
+   state\_poCA                                        & 0.0328$^{***}$\\   
+                                                      & (0.0078)\\   
+   state\_poCO                                        & -0.0007\\   
+                                                      & (0.0054)\\   
+   state\_poCT                                        & -0.0027\\   
+                                                      & (0.0115)\\   
+   state\_poDE                                        & 0.0257$^{***}$\\   
+                                                      & (0.0036)\\   
+   state\_poFL                                        & 0.0239$^{***}$\\   
+                                                      & (0.0074)\\   
+   state\_poGA                                        & 0.0353$^{***}$\\   
+                                                      & (0.0084)\\   
+   state\_poHI                                        & -0.0267$^{***}$\\   
+                                                      & (0.0061)\\   
+   state\_poIA                                        & 0.0068\\   
+                                                      & (0.0046)\\   
+   state\_poID                                        & -0.0099$^{*}$\\   
+                                                      & (0.0056)\\   
+   state\_poIL                                        & 0.0236$^{***}$\\   
+                                                      & (0.0065)\\   
+   state\_poIN                                        & 0.0260$^{**}$\\   
+                                                      & (0.0122)\\   
+   state\_poKS                                        & -0.0081\\   
+                                                      & (0.0067)\\   
+   state\_poKY                                        & 0.0189$^{**}$\\   
+                                                      & (0.0083)\\   
+   state\_poLA                                        & 0.0145\\   
+                                                      & (0.0127)\\   
+   state\_poMA                                        & 0.0100$^{*}$\\   
+                                                      & (0.0056)\\   
+   state\_poMD                                        & 0.0286$^{**}$\\   
+                                                      & (0.0138)\\   
+   state\_poME                                        & -0.0093\\   
+                                                      & (0.0083)\\   
+   state\_poMI                                        & 0.0006\\   
+                                                      & (0.0056)\\   
+   state\_poMN                                        & 0.0101\\   
+                                                      & (0.0087)\\   
+   state\_poMO                                        & 0.0111\\   
+                                                      & (0.0073)\\   
+   state\_poMS                                        & -0.0025\\   
+                                                      & (0.0031)\\   
+   state\_poMT                                        & 0.0069\\   
+                                                      & (0.0083)\\   
+   state\_poNC                                        & 0.0115$^{*}$\\   
+                                                      & (0.0062)\\   
+   state\_poND                                        & -0.0025\\   
+                                                      & (0.0043)\\   
+   state\_poNE                                        & 0.0097\\   
+                                                      & (0.0080)\\   
+   state\_poNH                                        & 0.0185$^{*}$\\   
+                                                      & (0.0104)\\   
+   state\_poNJ                                        & 0.0065\\   
+                                                      & (0.0056)\\   
+   state\_poNM                                        & 0.0227$^{***}$\\   
+                                                      & (0.0068)\\   
+   state\_poNV                                        & 0.0186$^{***}$\\   
+                                                      & (0.0058)\\   
+   state\_poNY                                        & 0.0195$^{***}$\\   
+                                                      & (0.0075)\\   
+   state\_poOH                                        & 0.0061\\   
+                                                      & (0.0077)\\   
+   state\_poOK                                        & -0.0011\\   
+                                                      & (0.0055)\\   
+   state\_poOR                                        & 0.0299$^{***}$\\   
+                                                      & (0.0100)\\   
+   state\_poPA                                        & 0.0200$^{***}$\\   
+                                                      & (0.0065)\\   
+   state\_poRI                                        & 0.0064\\   
+                                                      & (0.0095)\\   
+   state\_poSC                                        & 0.0103\\   
+                                                      & (0.0068)\\   
+   state\_poSD                                        & -0.0172$^{**}$\\   
+                                                      & (0.0086)\\   
+   state\_poTN                                        & 0.0153\\   
+                                                      & (0.0135)\\   
+   state\_poTX                                        & 0.0204$^{***}$\\   
+                                                      & (0.0061)\\   
+   state\_poUT                                        & 0.0215$^{***}$\\   
+                                                      & (0.0066)\\   
+   state\_poVA                                        & 0.0020\\   
+                                                      & (0.0050)\\   
+   state\_poVT                                        & -0.0242$^{***}$\\   
+                                                      & (0.0047)\\   
+   state\_poWA                                        & -0.0049\\   
+                                                      & (0.0077)\\   
+   state\_poWI                                        & 0.0026\\   
+                                                      & (0.0060)\\   
+   state\_poWV                                        & -0.0061\\   
+                                                      & (0.0059)\\   
+   state\_poWY                                        & 0.0356$^{**}$\\   
+                                                      & (0.0149)\\   
+   partyRepublican $\times$ financialDonor-targeting  & -0.0013\\   
+                                                      & (0.0038)\\   
+   \midrule
+   \emph{Fit statistics}\\
+   Observations                                       & 61,007\\  
+   R$^2$                                              & 0.02776\\  
+   Adjusted R$^2$                                     & 0.02684\\  
+   \midrule \midrule
+   \multicolumn{2}{l}{\emph{Clustered (candidate) standard-errors in parentheses}}\\
+   \multicolumn{2}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+\end{tabular}
+\par\endgroup
+
+
