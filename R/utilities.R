@@ -33,10 +33,12 @@ library(stargazer)
 library(RColorBrewer)
 library(gender)
 
+# install.packages("devtools")
 ## devtools::install_github("hrbrmstr/wayback")
 library(wayback)
 
 # Non-CRAN packages ============================================================
+# devtools::install_github("sysilviakim/Kmisc")
 library(Kmisc)
 
 # Dictionaries =================================================================
