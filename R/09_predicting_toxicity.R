@@ -117,6 +117,7 @@ plot_notitle(pdf_default(p)) + theme(legend.position = "bottom") +
 dev.off()
 
 # OLS first for reference (simple model) =======================================
+## Clustered model
 fit <- lm(
   toxicity ~
   party * financial + chamber + inc + safety + gender +
@@ -138,6 +139,30 @@ etable(
   fit_se_cluster,
   cluster = "candidate", tex = TRUE,
   file = here("tab", "fit_cand_cluster_toxicity.tex")
+)
+
+## One without interaction term as requested by reviewer
+fit <- lm(
+  toxicity ~
+    party + financial + chamber + inc + safety + gender +
+    min_ad_delivery_start_time + state_po,
+  temp
+)
+summary(fit)
+
+fit_se_cluster <- feols(
+  toxicity ~
+    party + financial + chamber + inc + safety + gender +
+    min_ad_delivery_start_time + state_po,
+  temp
+)
+
+summary(fit_se_cluster, cluster = ~candidate)
+etable(fit_se_cluster, cluster = "candidate")
+etable(
+  fit_se_cluster,
+  cluster = "candidate", tex = TRUE,
+  file = here("tab", "fit_cand_cluster_toxicity_no_interaction.tex")
 )
 
 fit_fe <- feols(
