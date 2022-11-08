@@ -216,6 +216,54 @@ fb_unique %>%
       nrow()
   )
 
+# Manually fixing Senators with missing party affiliation
+fb_unique$senate <- fb_unique$senate %>%
+  mutate(
+    party = case_when(
+      candidate == "deb fischer" ~ "REPUBLICAN",
+      candidate == "john barrasso" ~ "REPUBLICAN",
+      candidate == "rick scott" ~ "REPUBLICAN",
+      candidate == "bernie sanders" ~ "INDEPENDENT",
+      candidate == "patty murray" ~ "DEMOCRAT",
+      candidate == "martin heinrich" ~ "DEMOCRAT",
+      candidate == "mazie hirono" ~ "DEMOCRAT",
+      candidate == "marsha blackburn" ~ "REPUBLICAN",
+      candidate == "patrick leahy" ~ "DEMOCRAT",
+      candidate == "john kennedy" ~ "REPUBLICAN",
+      candidate == "josh hawley" ~ "REPUBLICAN",
+      candidate == "mike braun" ~ "REPUBLICAN",
+      candidate == "chris murphy" ~ "DEMOCRAT",
+      candidate == "mike lee" ~ "REPUBLICAN",
+      candidate == "tammy duckworth" ~ "DEMOCRAT",
+      candidate == "richard blumenthal" ~ "DEMOCRAT",
+      candidate == "tim scott" ~ "REPUBLICAN",
+      candidate == "elizabeth warren" ~ "DEMOCRAT",
+      candidate == "todd young" ~ "REPUBLICAN",
+      candidate == "jacky rosen" ~ "DEMOCRAT",   
+      candidate == "kyrsten sinema" ~ "DEMOCRAT",
+      candidate == "rand paul" ~ "REPUBLICAN",
+      candidate == "ron wyden" ~ "DEMOCRAT",
+      candidate == "michael bennet" ~ "DEMOCRAT",
+      candidate == "brian schatz" ~ "DEMOCRAT",
+      candidate == "marco rubio" ~ "REPUBLICAN",
+      candidate == "sherrod brown" ~ "DEMOCRAT",
+      candidate == "john thune" ~ "REPUBLICAN",
+      candidate == "jon tester" ~ "DEMOCRAT",
+      candidate == "roy blunt" ~ "REPUBLICAN",      
+      candidate == "roger wicker" ~ "REPUBLICAN",
+      candidate == "bob casey" ~ "DEMOCRAT",
+      candidate == "kirsten gillibrand" ~ "DEMOCRAT",
+      candidate == "ted cruz" ~ "REPUBLICAN",
+      candidate == "chris van hollen" ~ "DEMOCRAT",
+      candidate == "tammy baldwin" ~ "DEMOCRAT",
+      candidate == "amy klobuchar" ~ "DEMOCRAT",
+      candidate == "chuck schumer" ~ "DEMOCRAT",
+      candidate == "debbie stabenow" ~ "DEMOCRAT",
+      candidate == "pat toomey" ~ "REPUBLICAN",
+      TRUE ~ party
+    )
+  )
+
 # Saving fb_unique =============================================================
 save(fb_unique, file = here("data", "tidy", "fb_unique.Rda"))
 
