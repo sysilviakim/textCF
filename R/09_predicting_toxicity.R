@@ -8,10 +8,8 @@ load(here("data", "tidy", "fb_unique.Rda"))
 # Bind and merge ===============================================================
 fb <- fb_unique %>% bind_rows(., .id = "chamber")
 
-## Having to do this means that the code needs to be fixed somewhere
-## Incumbency status also missing from somewhere;
-## Currently patched up. Must fix
-merged <- left_join(
+## inner_join to kick out is.na(party) (i.e., non-running Senators)
+merged <- inner_join(
   ## Joining, by = c("candidate", "fb_ad_library_id", "page_name",
   ##                 "ad_creative_body", "ad_creative_link_caption")
   ## Everything in this subsetted df should be matched
@@ -80,6 +78,22 @@ assert_that(!any(is.na(temp$state_po)))
 assert_that(!any(is.na(temp$party)))
 nrow(temp)
 
+# Simple descriptive ===========================================================
+temp %>%
+  group_by(financial) %>%
+  mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
+  summarise(toxic = mean(toxic, na.rm = TRUE))
+
+temp %>%
+  group_by(chamber, financial) %>%
+  mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
+  summarise(toxic = mean(toxic, na.rm = TRUE))
+
+temp %>%
+  group_by(chamber, party, financial) %>%
+  mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
+  summarise(toxic = mean(toxic, na.rm = TRUE))
+
 # Over time plot ===============================================================
 color4_modified <- color4
 names(color4_modified) <- gsub("\n", " ", names(color4_modified))
@@ -135,21 +149,6 @@ fit_fe <- feols(
 summary(fit_fe)
 etable(fit_fe)
 etable(fit_fe, tex = TRUE, file = here("tab", "fit_fe_toxicity.tex"))
-
-# Summary by cand/toxicity =====================================================
-## Just in case that number of ads are skewing the results
-temp2 <- temp %>%
-  group_by(
-    candidate, financial, party, inc, safety, gender, state_po, chamber
-  ) %>%
-  summarise(
-    time = mean(min_ad_delivery_start_time, na.rm = TRUE),
-    toxicity = mean(toxicity, na.rm = TRUE)
-  )
-
-fit_fe2 <- feols(toxicity ~ financial + time | candidate, temp2)
-summary(fit_fe2)
-etable(fit_fe2)
 
 # Very similar ads? ============================================================
 simil_df <- temp %>%
