@@ -411,30 +411,29 @@ ggsave("fig/imps_toxicity_ts.pdf", plot = imps_toxicity,
 # House
 ## Percent of Ads that are Toxic
 nrow(house_tox) / (nrow(house_tox) + nrow(house_nontox))
-### 12.682% of House ads are toxic
+### 1.373% of House ads are toxic
 ## Percent of Funds that go to Toxic ads
 sum(hr_tox_funds$spend_upper) / (sum(hr_tox_funds$spend_upper) + 
                                    sum(hr_nontox_funds$spend_upper))
-### 17.597% of funding goes to toxic ads
+### 2.474% of funding goes to toxic ads
 ## Percent of Impressions that go to Toxic Ads
 sum(hr_tox_imps$impressions_lower) / (sum(hr_tox_imps$impressions_lower) + 
                                    sum(hr_nontox_imps$impressions_lower))
-### 16.749% of impressions go to Toxic ads
+### 2.202% of impressions go to Toxic ads
 
 # Senate
 ## Percent of Ads that are Toxic
 nrow(senate_tox) / (nrow(senate_tox) + nrow(senate_nontox))
-## 12,136/92,746
-### 13.085% of Senate ads (for senators running in 2020) are toxic
+### 1.175% of Senate ads (for senators running in 2020) are toxic
 ## Percent of Funds that go to Toxic ads
 sum(senate_tox_funds$spend_upper) / (sum(senate_tox_funds$spend_upper) + 
                                    sum(senate_nontox_funds$spend_upper))
-### 15.716% of funding goes to toxic ads
+### 0.799% of funding goes to toxic ads...other direction from HR
 ## Percent of Impressions that go to Toxic Ads
 sum(senate_tox_imps$impressions_lower) / (
   sum(senate_tox_imps$impressions_lower) + 
     sum(senate_nontox_imps$impressions_lower))
-### 14.936% of impressions go to Toxic ads
+### 0.909% of impressions go to Toxic ads
 
 # Trump Mentions and Toxicity ==================================================
 
