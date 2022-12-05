@@ -6,6 +6,8 @@ load(here("data", "tidy", "fb_matched.Rda"))
 load(here("data", "tidy", "fb_meta.Rda"))
 
 ## Some assertions for sanity checks
+assert_that(unique_sanity_check(fb_matched$senate, "fb_ad_library_id") == 0)
+assert_that(unique_sanity_check(fb_matched$house, "fb_ad_library_id") == 0)
 assert_that(unique_sanity_check(fb_matched$senate, "party") == 0)
 assert_that(unique_sanity_check(fb_matched$house, "party") == 0)
 assert_that(unique_sanity_check(fb_matched$senate, "inc") == 0)
@@ -18,14 +20,16 @@ fb_unique <- fb_matched %>%
   map(
     ~ .x %>%
       select(
-        candidate,
-        fb_ad_library_id, page_name, party, inc, state_po, pvi, 
+        candidate, fb_ad_library_id, page_name, party, inc, state_po, pvi, 
         gender, proportion_female, contains("state_cd"), 
         ad_creative_body, ad_creative_link_caption, vote_share
       ) %>%
-      distinct() %>%
+      mutate(
+        ## If it is merely two spaces as opposed to one, unify
+        ad_creative_body = trimws(gsub("\\s+", " ", ad_creative_body))
+      ) %>%
+      distinct(candidate, ad_creative_body, .keep_all = TRUE) %>%
       ## No need to have distinct `ad_creative_link_caption` or `page_name`
-      
       filter(ad_creative_body != "") %>%
       ## Antonio Delgado duplicates appear (House, with wrong PID)
       ## Drop these rows
@@ -66,13 +70,7 @@ fb_unique <- fb_matched %>%
 
 fb_unique %>% map_dbl(nrow)
 # senate  house
-#  26113  43949 ---> 26108  43862
-
-## Check nonclassified ad creative links
-# temp1 <- fb_unique$senate %>% filter(is.na(type))
-# View(sort(table(temp1$ad_creative_link_caption)))
-# temp2 <- fb_unique$house %>% filter(is.na(type))
-# View(sort(table(temp2$ad_creative_link_caption)))
+#  24860  40375
 
 ## Compare with ad_creative_body keyword
 table(fb_unique$senate$type, fb_unique$senate$donate, useNA = "ifany")
