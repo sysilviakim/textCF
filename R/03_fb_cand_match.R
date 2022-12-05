@@ -395,6 +395,7 @@ fb_simple <- fb_matched %>%
   )
 assert_that(length(setdiff(tolower(state.abb), names(fb_simple$senate))) == 0)
 
+## Grouped by candidate and ad_creative_body!
 ## The list(mean, sd), .names = "{.col}.fn{.fn}" approach didn't work;
 ## Not sure why; but since I also need na.rm = TRUE, just use the agg. approach
 fb_meta <- fb_simple %>%
