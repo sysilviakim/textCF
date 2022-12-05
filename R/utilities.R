@@ -2414,3 +2414,12 @@ present_table <- function(tab, lengthen_table = TRUE) {
     tab, "\n\\end{center}\n"
   ), collapse = "")
 }
+
+unique_sanity_check <- function(x, var) {
+  x %>%
+    select(candidate, !!as.name(var)) %>% 
+    distinct() %>%
+    group_by(candidate) %>%
+    filter(n() > 1) %>% 
+    nrow() 
+}

@@ -5,6 +5,14 @@ source(here::here("R", "utilities.R"))
 load(here("data", "tidy", "fb_matched.Rda"))
 load(here("data", "tidy", "fb_meta.Rda"))
 
+## Some assertions for sanity checks
+assert_that(unique_sanity_check(fb_matched$senate, "party") == 0)
+assert_that(unique_sanity_check(fb_matched$house, "party") == 0)
+assert_that(unique_sanity_check(fb_matched$senate, "inc") == 0)
+assert_that(unique_sanity_check(fb_matched$house, "inc") == 0)
+assert_that(unique_sanity_check(fb_matched$senate, "pvi") == 0)
+assert_that(unique_sanity_check(fb_matched$house, "pvi") == 0)
+
 # Deduplicated, simplified ad data =============================================
 fb_unique <- fb_matched %>%
   map(
@@ -12,17 +20,12 @@ fb_unique <- fb_matched %>%
       select(
         candidate,
         fb_ad_library_id, page_name, party, inc, state_po, pvi, 
-        gender, proportion_female,
-        contains("state_cd"), ad_creative_body, ad_creative_link_caption,
-        vote_share ## ,
-        ## contains("ad_"), contains("spend_"), contains("potential_"),
-        ## contains("impressions_"),
-        ## matches(
-        ##   paste0("^", tolower(state.abb) %>% paste(collapse = "$|^"), "$")
-        ## ),
-        ## contains("male_"), contains("female_"), contains("unknown_"),
+        gender, proportion_female, contains("state_cd"), 
+        ad_creative_body, ad_creative_link_caption, vote_share
       ) %>%
       distinct() %>%
+      ## No need to have distinct `ad_creative_link_caption` or `page_name`
+      
       filter(ad_creative_body != "") %>%
       ## Antonio Delgado duplicates appear (House, with wrong PID)
       ## Drop these rows
