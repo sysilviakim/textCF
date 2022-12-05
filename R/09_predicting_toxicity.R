@@ -70,6 +70,8 @@ temp <- merged %>%
   ) %>%
   select(financial, everything())
 
+write_rds(temp, file = here("data", "tidy", "toxicity.RDS"))
+
 ## Assertions for sanity check
 assert_that(!any(is.na(temp$inc)))
 assert_that(!any(is.na(temp$pvi)))

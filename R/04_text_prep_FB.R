@@ -31,6 +31,7 @@ fb_unique <- fb_matched %>%
       distinct(candidate, ad_creative_body, .keep_all = TRUE) %>%
       ## No need to have distinct `ad_creative_link_caption` or `page_name`
       filter(ad_creative_body != "") %>%
+      filter(ad_creative_body != "{{product.brand}}") %>%
       ## Antonio Delgado duplicates appear (House, with wrong PID)
       ## Drop these rows
       filter(!(page_name == "Antonio Delgado" & party == "REPUBLICAN")) %>%
@@ -72,6 +73,13 @@ fb_unique %>% map_dbl(nrow)
 # senate  house
 #  24860  40375
 
+## assertions? 
+## Can't, because Mike Lee and Ted Cruz had a joint campaign, same text
+## Similarly, some cross-candidate overlapping text
+## That's okay, because we want to see *within* candidate variation
+fb_unique$senate %>% group_by(ad_creative_body) %>% filter(n() > 1) %>% View()
+fb_unique$house %>% group_by(ad_creative_body) %>% filter(n() > 1) %>% View()
+
 ## Compare with ad_creative_body keyword
 table(fb_unique$senate$type, fb_unique$senate$donate, useNA = "ifany")
 table(fb_unique$house$type, fb_unique$house$donate, useNA = "ifany")
@@ -102,41 +110,13 @@ fb_unique <- fb_unique %>%
         word_trump = case_when(
           str_detect(str_to_lower(ad_creative_body), "trump") ~ 1,
           !is.na(ad_creative_body) ~ 0
-        ),
-        word_biden = case_when(
-          str_detect(str_to_lower(ad_creative_body), "biden") ~ 1,
-          !is.na(ad_creative_body) ~ 0
-        ),
-        word_covid = case_when(
-          str_detect(
-            str_to_lower(ad_creative_body),
-            paste(
-              c(
-                "covid", "#covid", "covid-19", "#covid19",
-                "coronavirus", "virus",
-                "infection", "infected",
-                "vaccine", "vaccines"
-              ),
-              collapse = "|"
-            )
-          ) ~ 1,
-          !is.na(ad_creative_body) ~ 0
-        ),
-        ## Ended up not using for the first project
-        word_chinese = case_when(
-          str_detect(str_to_lower(ad_creative_body), "chinese|china") ~ 1,
-          !is.na(ad_creative_body) ~ 0
         )
       ) %>%
       ungroup()
   )
 
-prop(fb_unique$senate, vars = "word_trump") ## 16.6%
-prop(fb_unique$house, vars = "word_trump") ## 15.7%
-prop(fb_unique$senate, vars = "word_biden") ## 1.0%
-prop(fb_unique$house, vars = "word_biden") ## 0.9%
-prop(fb_unique$senate, vars = "word_covid") ## 3.0%
-prop(fb_unique$house, vars = "word_covid") ## 4.4%
+prop(fb_unique$senate, vars = "word_trump") ## 15.4%
+prop(fb_unique$house, vars = "word_trump") ## 15.8%
 
 # Paste meta data ==============================================================
 fb_unique_raw <- fb_unique

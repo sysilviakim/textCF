@@ -55,13 +55,7 @@ temp <- fb_unique %>%
       summarise(
         mean_trump = mean(word_trump),
         sd_trump = sd(word_trump),
-        se_trump = sd_trump / sqrt(n()),
-        mean_biden = mean(word_biden),
-        sd_biden = sd(word_biden),
-        se_biden = sd_biden / sqrt(n()),
-        mean_covid = mean(word_covid),
-        sd_covid = sd(word_covid),
-        se_covid = sd_covid / sqrt(n())
+        se_trump = sd_trump / sqrt(n())
       ),
     .id = "chamber"
   ) %>%
@@ -74,21 +68,6 @@ pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(fb_mention_plot(
   temp,
   xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
-))
-dev.off()
-
-## So small that it seems unimportant
-pdf(here("fig", "mention_biden_by_type_chamber.pdf"), width = 6, height = 2.8)
-print(fb_mention_plot(
-  temp,
-  xvar = "mean_biden", se = "se_biden", xlab = "Mentions Biden"
-))
-dev.off()
-
-pdf(here("fig", "mention_covid_by_type_chamber.pdf"), width = 6, height = 2.8)
-print(fb_mention_plot(
-  temp,
-  xvar = "mean_covid", se = "se_covid", xlab = "Mentions COVID-19"
 ))
 dev.off()
 
@@ -232,14 +211,10 @@ top_list %>%
 # # A tibble: 12 x 5
 # topn     case           party          perc chamber
 # <chr>    <chr>          <chr>         <dbl> <chr>
-#   1 top_1000 trump_unique   Democrat   0.130    Senate
+# 1 top_1000 trump_unique   Democrat   0.130    Senate
 # 2 top_1000 trump_unique   Republican 0.205    Senate
 # 3 top_1000 trump_unique   Democrat   0.151    House
 # 4 top_1000 trump_unique   Republican 0.158    House
-# 5 top_1000 covid_unique   Democrat   0.0388   Senate
-# 6 top_1000 covid_unique   Republican 0.0466   Senate
-# 7 top_1000 covid_unique   Democrat   0.0566   House
-# 8 top_1000 covid_unique   Republican 0.0416   House
 
 # Topic modeling ===============================================================
 temp <- dfm_FB_ad %>%
