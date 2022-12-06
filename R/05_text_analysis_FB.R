@@ -35,12 +35,12 @@ temp_fxn <- function(x) {
 ## Note that candidate is the group-level marker, not page_name
 ## e.g., Luke Letlow For Congress != Luke Letlow, but same candidate
 assert_that(
-  length(unique(fb_unique$senate$page_name)) != ## 79
-    length(unique(fb_unique$senate$candidate)) ## 69
+  length(unique(fb_unique$senate$page_name)) != ## 121
+    length(unique(fb_unique$senate$candidate)) ## 110
 )
 assert_that(
-  length(unique(fb_unique$house$page_name)) != ## 767
-    length(unique(fb_unique$house$candidate)) ## 652
+  length(unique(fb_unique$house$page_name)) != ## 763
+    length(unique(fb_unique$house$candidate)) ## 651
 )
 
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
@@ -90,7 +90,7 @@ for (topn in c(10, 20, 30, 1000)) {
     temp_fxn()
   top_all <- temp_fxn(top_all)
 
-  temp <- cross2(c("trump", "covid"), c("unique", "all")) %>%
+  temp <- cross2(c("trump"), c("unique", "all")) %>%
     set_names(., nm = {
       .
     } %>% map_chr(~ paste(.x, collapse = "_"))) %>%
@@ -131,16 +131,8 @@ for (topn in c(10, 20, 30, 1000)) {
             ),
           type = .x[[2]],
           var = var,
-          lab0 = case_when(
-            .x[[1]] == "trump" ~ "Does Not Mention Trump",
-            .x[[1]] == "covid" ~ "Does Not Mention COVID-19",
-            .x[[1]] == "chinese" ~ "Does Not Mention China"
-          ),
-          lab1 = case_when(
-            .x[[1]] == "trump" ~ "Mentions Trump",
-            .x[[1]] == "covid" ~ "Mentions COVID-19",
-            .x[[1]] == "chinese" ~ "Mentions China"
-          )
+          lab0 = "Does Not Mention Trump",
+          lab1 = "Mentions Trump"
         )
       }
     )

@@ -6,7 +6,7 @@ batch_size <- 1e2
 
 # Estimate House/Senate data with perspective API ==============================
 for (chamber in vec) {
-  df <- fb_unique[[chamber]] %>% 
+  df <- fb_unique[[chamber]] %>%
     mutate(persp_id = row_number()) %>%
     select(
       persp_id, candidate, fb_ad_library_id, ad_creative_body,
@@ -27,10 +27,10 @@ for (chamber in vec) {
         languages = "en",
         score_model = c("TOXICITY", "OBSCENE")
       )
-    
+
     print(paste0(i, "-th batch finished for ", chamber, "."))
     Sys.sleep(30) ## prevent HTTP 429 resource exhausted error
-    
+
     save(
       batch_list,
       file = here(
@@ -60,6 +60,7 @@ for (chamber in vec) {
     )
 }
 
+## Reads in the most recent rendering
 df <- vec %>%
   map(
     ~ base::readRDS(
@@ -75,4 +76,9 @@ df <- vec %>%
   bind_rows(., .id = "chamber")
 
 ## Without metadata; just bare minimum for perspective matching
-save(df, file = here("output", "persp_final_results.Rda"))
+save(
+  df,
+  file = here(
+    "output", "persp_final_results_", format(Sys.Date(), "%Y%m%d"), ".Rda"
+  )
+)
