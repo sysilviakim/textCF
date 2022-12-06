@@ -25,11 +25,15 @@ pair_df <- pair_indices %>%
     body1 = df$ad_creative_body[i1],
     body2 = df$ad_creative_body[i2],
     toxic1 = df$toxicity[i1],
-    toxic2 = df$toxicity[i2]
+    toxic2 = df$toxicity[i2],
+    answer = case_when(
+      df$toxicity[i1] > df$toxicity[i2] ~ 1,
+      TRUE ~ 2
+    )
   )
 
 pair_noanswer <- pair_df %>% select(-toxic1, -toxic2) %>% mutate(choice = "")
-write_csv(pair_noanswer, file = here("output", "pair_noanswer.csv"))
+write_excel_csv(pair_noanswer, file = here("output", "pair_noanswer.csv"))
 
 # Import RA human answers ======================================================
 
