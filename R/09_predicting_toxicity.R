@@ -2,27 +2,11 @@ source(here::here("R", "utilities.R"))
 library(fixest)
 
 # Load data ====================================================================
-load(here("output", "persp_final_results.Rda"))
-load(here("data", "tidy", "fb_unique.Rda"))
-
-# Bind and merge ===============================================================
-fb <- fb_unique %>% bind_rows(., .id = "chamber")
-
-## inner_join to kick out is.na(party) (i.e., non-running Senators)
-merged <- inner_join(
-  ## Joining, by = c("candidate", "fb_ad_library_id", "page_name",
-  ##                 "ad_creative_body", "ad_creative_link_caption")
-  ## Everything in this subsetted df should be matched
-  df %>%
-    clean_names() %>%
-    dedup() %>%
-    clean_candidate() %>%
-    filter(candidate != "michael san nicolas"),
-  fb %>%
-    select(-n) %>%
-    filter(party %in% c("DEMOCRAT", "REPUBLICAN") & !is.na(party)) %>%
-    dedup()
-) %>%
+load(here("data", "tidy", "df_unique_unique.Rda"))
+df_unique <- df_unique %>%
+  clean_names() %>%
+  clean_candidate() %>%
+  filter(candidate != "michael san nicolas") %>%
   dedup() %>%
   mutate(
     mean_ad_delivery_start_time =
@@ -38,28 +22,29 @@ merged <- inner_join(
     max_ad_delivery_stop_time =
       as.Date(round(max_ad_delivery_stop_time), origin = "1970-01-01"),
     safety = case_when(
-      party == "DEMOCRAT" ~ pvi,
-      party == "REPUBLICAN" ~ -pvi
+      party == "Democrat" ~ pvi,
+      party == "Republican" ~ -pvi
     )
-  )
+  ) %>%
+  filter(!(is.na(party) | party == "NANA" | party == "Independent"))
 
 ## Only non-running Senators
 assert_that(
-  merged %>%
+  df_unique %>%
     filter(
       is.na(state_po) & chamber != "senate" & candidate != "tracy jennings"
     ) %>%
     nrow() == 0
 )
 assert_that(
-  merged %>%
+  df_unique %>%
     filter(
       is.na(party) & chamber != "senate" & candidate != "tracy jennings"
     ) %>%
     nrow() == 0
 )
 
-temp <- merged %>%
+temp <- df_unique %>%
   filter(!is.na(party) & !is.na(state_po) & party != "INDEPENDENT") %>%
   party_factor(., outvar = "Type") %>%
   mutate(
@@ -146,7 +131,7 @@ etable(
 ## One without interaction term as requested by reviewer
 fit <- lm(
   toxicity ~
-    party + financial + chamber + inc + safety + gender +
+  party + financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
   temp
 )
@@ -154,7 +139,7 @@ summary(fit)
 
 fit_se_cluster <- feols(
   toxicity ~
-    party + financial + chamber + inc + safety + gender +
+  party + financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
   temp
 )
@@ -186,7 +171,7 @@ nrow(simil_df) / nrow(temp) * 100 ## 94.2% of ads preserved
 
 fit_se_cluster2 <- feols(
   toxicity ~
-    party * financial + chamber + inc + safety + gender +
+  party * financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
   simil_df
 )
@@ -201,7 +186,7 @@ etable(
 
 fit_fe2 <- feols(
   toxicity ~
-    financial + min_ad_delivery_start_time | candidate,
+  financial + min_ad_delivery_start_time | candidate,
   simil_df
 )
 
@@ -216,7 +201,7 @@ fe_loo_list <- cand_list %>%
   map(
     ~ feols(
       toxicity ~
-        financial + min_ad_delivery_start_time | candidate,
+      financial + min_ad_delivery_start_time | candidate,
       temp %>% filter(candidate != .x)
     )
   )
@@ -258,7 +243,7 @@ load(here("output", "fb_quanteda.Rda"))
 ##   ---> gives allocate vector error (18.2 Gb)
 
 if (!file.exists(here("output", "simil_corr_list.Rda"))) {
-  simil_cosine_list <- simil_corr_list <- 
+  simil_cosine_list <- simil_corr_list <-
     vector("list", length = nrow(dfm_FB_ad))
   for (i in seq(nrow(dfm_FB_ad))) {
     ## Default = correlation
@@ -267,7 +252,7 @@ if (!file.exists(here("output", "simil_corr_list.Rda"))) {
     simil_cosine_list[[i]] <-
       textstat_simil(dfm_FB_ad[i, ], dfm_FB_ad, method = "cosine")
     message(paste0(i, "-th similarity computed."))
-    
+
     if ((i %% 100 == 0) | nrow(dfm_FB_ad) == i) {
       save(simil_corr_list, file = here("output", "simil_corr_list.Rda"))
       save(simil_cosine_list, file = here("output", "simil_cosine_list.Rda"))
