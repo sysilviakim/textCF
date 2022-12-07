@@ -1404,6 +1404,7 @@ fb_short <- function(id, token,
   return(list(query = query, resp = resp, tbl = out))
 }
 
+## misnamed
 simplify_ad_body <- function(df) {
   df %>%
     mutate(
@@ -1775,16 +1776,13 @@ summ_df_fxn <- function(df, full = FALSE) {
   out <- df %>%
     filter(party %in% c("Democrat", "Republican")) %>%
     dplyr::summarise(
-      `Toxic` = mean(TOXICITY, na.rm = TRUE),
-      `Obscene` = mean(OBSCENE, na.rm = TRUE),
-      `Identity Attack` = mean(IDENTITY_ATTACK, na.rm = TRUE),
+      `Toxic` = mean(toxicity, na.rm = TRUE),
+      `Obscene` = mean(obscene, na.rm = TRUE),
       n = n(),
-      sd_toxic = sd(TOXICITY, na.rm = TRUE),
-      sd_obscene = sd(OBSCENE, na.rm = TRUE),
-      sd_identity = sd(IDENTITY_ATTACK, na.rm = TRUE),
+      sd_toxic = sd(toxicity, na.rm = TRUE),
+      sd_obscene = sd(obscene, na.rm = TRUE),
       se_toxic = sd_toxic / sqrt(n),
-      se_obscene = sd_obscene / sqrt(n),
-      se_identity = sd_identity / sqrt(n)
+      se_obscene = sd_obscene / sqrt(n)
     )
   if (full == FALSE) {
     out %>%

@@ -1,17 +1,67 @@
 source(here::here("R", "utilities.R"))
 
 # Load data ====================================================================
-fb_house <- read_rds("data/tidy/fb_perspective_House.RDS")
-fb_senate <- read_rds("data/tidy/fb_perspective_Senate.RDS")
+load(here("data", "tidy", "fb_matched.Rda"))
+load(here("data", "tidy", "fb_unique.Rda"))
+fb_matched <- fb_matched %>%
+  map(
+    ~ .x %>%
+      select(
+        candidate, fb_ad_library_id, page_name, party, inc, state_po, pvi, 
+        gender, proportion_female, contains("state_cd"), 
+        ad_creative_body, ad_creative_link_caption, vote_share
+      ) %>%
+      mutate(ad_creative_body = trimws(gsub("\\s+", " ", ad_creative_body))) %>%
+      filter(ad_creative_body != "") %>%
+      filter(ad_creative_body != "{{product.brand}}") %>%
+      filter(!(page_name == "Antonio Delgado" & party == "REPUBLICAN")) %>%
+      mutate(ad_creative_link_caption = tolower(ad_creative_link_caption)) %>%
+      rowwise() %>%
+      simplify_ad_body() %>%
+      simplify_ad_body() %>%
+      mutate(
+        type = case_when(
+          grepl("actblue.com", ad_creative_link_caption) ~ "ActBlue",
+          grepl("winred.com", ad_creative_link_caption) ~ "WinRed",
+          grepl("ngpvan.com|myngp.com", ad_creative_link_caption) ~ "NGP VAN",
+          grepl("anedot.com", ad_creative_link_caption) ~ "Anedot",
+          grepl("victorypassport.com", ad_creative_link_caption) ~
+            "Victory Passport",
+          grepl("fundraiser", ad_creative_link_caption) ~ "Misc.",
+          is.na(ad_creative_link_caption) ~ "Voter-targeting",
+          grepl(
+            "conversation with |town hall|meet |tour stop |iwillvote.com",
+            ad_creative_link_caption
+          ) ~ "Voter-targeting",
+          grepl(".gov", ad_creative_link_caption) ~ "Government Information",
+          grepl("secure.|act.|action.|go.", ad_creative_link_caption) ~
+            "Personal Contribution Link",
+          grepl("facebook.com|fb.me", ad_creative_link_caption) ~
+            "Facebook Page",
+        )
+      ) %>%
+      donate_classify() %>%
+      ungroup()
+  )
+save(fb_matched, file = here("data", "tidy", "fb_matched_wrangled.Rda"))
 
-# Substitute with updated classification =======================================
-fb_house <- fb_house %>% donate_classify()
-fb_senate <- fb_senate %>% donate_classify()
+load(
+  max(
+    list.files(
+      here("output"),
+      pattern = "persp_final_results_", full.names = TRUE
+    )
+  )
+)
 
-# Wrangle summary dataset ======================================================
-df <- bind_rows(
-  fb_house %>% mutate(chamber = "House"),
-  fb_senate %>% mutate(chamber = "Senate")
+df <- df %>% select(candidate, ad_creative_body, chamber, toxicity, obscene)
+
+# Merge data ===================================================================
+df_unique <- bind_rows(
+  left_join(fb_unique$senate, df %>% filter(chamber == "senate")) %>%
+    mutate(chamber = "Senate"),
+  left_join(fb_unique$house, df %>% filter(chamber == "house")) %>%
+    mutate(chamber = "House")
 ) %>%
   rowwise() %>%
   mutate(
@@ -19,10 +69,45 @@ df <- bind_rows(
     financial = simple_cap(tolower(financial))
   ) %>%
   ungroup()
+assert_that(!any(is.na(df_unique$toxicity)))
+save(df_unique, file = here("data", "tidy", "merged_unique.Rda"))
 
-summ_df <- summ_df_fxn(df %>% group_by(party, financial, chamber))
-summ_df_full <- summ_df_fxn(
-  df %>%
+df_all <- bind_rows(
+  left_join(fb_matched$senate, df %>% filter(chamber == "senate")) %>%
+    mutate(chamber = "Senate"),
+  left_join(fb_matched$house, df %>% filter(chamber == "house")) %>%
+    mutate(chamber = "House")
+) %>%
+  rowwise() %>%
+  mutate(
+    party = simple_cap(tolower(party)),
+    financial = simple_cap(tolower(financial))
+  ) %>%
+  ungroup()
+assert_that(!any(is.na(df_all$toxicity)))
+save(df_all, file = here("data", "tidy", "merged_all.Rda"))
+
+# Wrangle summary dataset ======================================================
+summ_unique <- summ_df_fxn(df_unique %>% group_by(party, financial, chamber))
+summ_all <- summ_df_fxn(df_all %>% group_by(party, financial, chamber))
+
+summ_donor_unique <- summ_df_fxn(
+  df_unique %>%
+    filter(financial == "Donor-targeting") %>%
+    mutate(
+      type = case_when(
+        type %in% c("WinRed", "ActBlue") ~ type,
+        type != "WinRed" & party == "Republican" ~ "Other Rep.\nPlatform",
+        type != "ActBlue" & party == "Democrat" ~ "Other Dem.\nPlatform"
+      )
+    ) %>%
+    filter(!is.na(type)) %>%
+    group_by(chamber, type),
+  full = TRUE
+)
+
+summ_donor_all <- summ_df_fxn(
+  df_all %>%
     filter(financial == "Donor-targeting") %>%
     mutate(
       type = case_when(
@@ -38,13 +123,13 @@ summ_df_full <- summ_df_fxn(
 
 # T-tests ======================================================================
 ## An example for when we'd need them in the main text
-df %>%
+df_unique %>%
   filter(chamber == "House" & party == "Democrat") %>%
-  t.test(TOXICITY ~ financial, data = .)
+  t.test(toxicity ~ financial, data = .)
 
-# Level of Language OOO by Facebook Ad Type ====================================
+# Level of Toxicity by Facebook Ad Type ========================================
 p1 <- fb_perspective_plot(
-  summ_df,
+  summ_unique,
   xvar = "Toxic", se = "se_toxic",
   xlab = paste0(
     "Average Probability that Ad Text Would Be\n",
@@ -53,88 +138,53 @@ p1 <- fb_perspective_plot(
 )
 
 pdf(
-  here("fig", "fb_toxic_means_by_type_chamber.pdf"), width = 6, height = 2.8)
+  here("fig", "fb_toxic_means_by_type_chamber.pdf"),
+  width = 6, height = 2.8
+)
 print(p1)
 dev.off()
 
 p2 <- fb_perspective_plot(
-  summ_df,
-  xvar = "Obscene", se = "se_obscene",
-  xlab = paste0(
-    "Average Probability that Ad Text Would Be\n",
-    "Perceived as Obscene"
-  )
-)
-
-pdf(
-  here("fig", "fb_obscene_means_by_type_chamber.pdf"), width = 6, height = 2.8)
-print(p2)
-dev.off()
-
-p3 <- fb_perspective_plot(
-  summ_df,
-  xvar = "Identity Attack", se = "se_identity",
-  xlab = paste0(
-    "Average Probability that Ad Text Would Be\n",
-    "Perceived as an Identity Attack"
-  )
-)
-
-pdf(
-  here("fig", "fb_identity_means_by_type_chamber.pdf"), width = 6, height = 2.8)
-print(p3)
-dev.off()
-
-# Subtypes within financial ads ================================================
-p4 <- fb_perspective_plot(
-  summ_df_full,
-  full = TRUE,
+  summ_all,
   xvar = "Toxic", se = "se_toxic",
   xlab = paste0(
     "Average Probability that Ad Text Would Be\n",
     "Perceived as Rude/Disrespectful/Toxic"
   )
 )
-pdf(here("fig", "fb_toxic_financial_subtypes.pdf"), width = 6, height = 2.8)
-print(p4)
+
+pdf(
+  here("fig", "fb_toxic_means_by_type_chamber_all.pdf"),
+  width = 6, height = 2.8
+)
+print(p2)
 dev.off()
 
-p5 <- fb_perspective_plot(
-  summ_df_full,
-  full = TRUE,
-  xvar = "Obscene", se = "se_obscene",
-  xlab = paste0(
-    "Average Probability that Ad Text Would Be\n",
-    "Perceived as Obscene"
-  )
-)
-pdf(here("fig", "fb_obscene_financial_subtypes.pdf"), width = 6, height = 2.8)
-print(p5)
-dev.off()
-
-p6 <- fb_perspective_plot(
-  summ_df_full,
-  full = TRUE,
-  xvar = "Identity Attack", se = "se_identity",
-  xlab = paste0(
-    "Average Probability that Ad Text Would Be\n",
-    "Perceived as an Identity Attack"
-  )
-)
-pdf(here("fig", "fb_identity_financial_subtypes.pdf"), width = 6, height = 2.8)
-print(p6)
-dev.off()
+# Subtypes within financial ads ================================================
+# p3 <- fb_perspective_plot(
+#   summ_donor_unique,
+#   full = TRUE,
+#   xvar = "Toxic", se = "se_toxic",
+#   xlab = paste0(
+#     "Average Probability that Ad Text Would Be\n",
+#     "Perceived as Rude/Disrespectful/Toxic"
+#   )
+# )
+# pdf(here("fig", "fb_toxic_financial_subtypes.pdf"), width = 6, height = 2.8)
+# print(p3)
+# dev.off()
 
 # By party =====================================================================
-candidate_Tox <- fb_house %>%
+candidate_Tox <- df %>%
+  filter(chamber == "House") %>%
   group_by(candidate, party) %>%
   dplyr::summarise(
-    `Avg. prob. toxic` = mean(TOXICITY),
+    `Avg. prob. toxic` = mean(toxicity),
     N = n()
   )
 
 toxDEMcand <- candidate_Tox %>%
-  filter(party == "DEMOCRAT") %>%
+  filter(party == "Democrat") %>%
   filter(N >= 20) %>%
   ggplot(aes(x = `Avg. prob. toxic`)) +
   geom_histogram() +
@@ -158,7 +208,7 @@ toxDEMcand <- candidate_Tox %>%
   theme(plot.title = element_text(hjust = 0.5))
 
 toxREPcand <- candidate_Tox %>%
-  filter(party == "REPUBLICAN") %>%
+  filter(party == "Republican") %>%
   filter(N >= 20) %>%
   ggplot(aes(x = `Avg. prob. toxic`)) +
   geom_histogram() +
@@ -189,11 +239,11 @@ ggarrange(toxDEMcand, toxREPcand) %>%
       face = "bold", size = 14
     )
   )
-ggsave("fig/fig2_house_candidate_averages.pdf", width = 8, height = 5)
+ggsave(here("fig/fig2_house_candidate_averages.pdf"), width = 8, height = 5)
 
 candidate_Tox %>%
   filter(N >= 20) %>%
-  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  filter(party %in% c("Democrat", "Republican")) %>%
   ggplot(
     aes(
       y = party,
@@ -206,7 +256,7 @@ candidate_Tox %>%
   geom_jitter(height = .25) +
   scale_color_brewer(palette = "Set1", direction = -1) +
   labs(y = "")
-ggsave("fig/fig2B_house_candidate_averages.pdf", width = 8, height = 4)
+ggsave(here("fig/fig2B_house_candidate_averages.pdf"), width = 8, height = 4)
 
 # Keeping a type if N>100 for any party group:
 keepPostType <- fb_house %>%
@@ -216,15 +266,9 @@ keepPostType <- fb_house %>%
   pull(post)
 
 fb_house %>%
-  # filter(type %in% c("ActBlue","Winred","Voter-targeting",
-  #                    "Personal Contribution Link")) %>%
   mutate(post = glue("{type} posted by {party}")) %>%
   filter(post %in% keepPostType) %>%
-  ggplot(aes(
-    y = post,
-    x = TOXICITY,
-    fill = post
-  )) +
+  ggplot(aes(y = post, x = toxicity, fill = post)) +
   ggridges::geom_density_ridges() +
   xlim(c(0, .3)) +
   theme(legend.position = "none") +
@@ -234,71 +278,70 @@ fb_house %>%
     title = "US House",
     subtitle = "Type shown if at least 100 posts of a given type exists"
   )
-ggsave("fig/ridges_by_type.pdf", width = 8, height = 6)
+ggsave(here("fig/ridges_by_type.pdf"), width = 8, height = 6)
 
 # Substantial interpretations ==================================================
-percentage_calc("Donor", "House") ## 19.89255
-percentage_calc("Donor", "Senate") ## 11.57267
+percentage_calc("Donor", "House") ## 31.2
+percentage_calc("Donor", "Senate") ## 15.7
 
-percentage_calc("Voter", "House") ## 19.54972
-percentage_calc("Voter", "Senate") ## 21.81272
+percentage_calc("Voter", "House") ## 33.6
+percentage_calc("Voter", "Senate") ## 28.8
 
-percentage_calc(c = "House", p = "Democrat") ## 5.716507
-percentage_calc(c = "House", p = "Republican") ## 6.019665
+percentage_calc(c = "House", p = "Democrat") ## 35.3
+percentage_calc(c = "House", p = "Republican") ## 32.9
 
-percentage_calc(c = "Senate", p = "Democrat") ## 0.4045184
-percentage_calc(c = "Senate", p = "Republican") ## -8.035872
+percentage_calc(c = "Senate", p = "Democrat") ## 29.4
+percentage_calc(c = "Senate", p = "Republican") ## 16.2
 
 # Example of Toxic Ads =========================================================
-
 ## Dem
 fb_house %>%
-  filter(TOXICITY >= .75) %>%
-  filter(party == "DEMOCRAT") %>%
+  filter(toxicity >= .75) %>%
+  filter(party == "Democrat") %>%
   pull(ad_creative_body)
 
 ## Rep
 fb_house %>%
-  filter(TOXICITY >= .75) %>%
-  filter(party == "REPUBLICAN") %>%
+  filter(toxicity >= .75) %>%
+  filter(party == "Republican") %>%
   pull(ad_creative_body)
 
 fb_house %>%
-  ggplot(aes(x = TOXICITY)) +
+  ggplot(aes(x = toxicity)) +
   geom_histogram() +
-  geom_vline(aes(xintercept = mean(TOXICITY)), col = "red", size = 1.5)
+  geom_vline(aes(xintercept = mean(toxicity)), col = "red", size = 1.5)
 
 tox_dem <- fb_house %>%
-  filter(party == "DEMOCRAT") %>%
-  ggplot(aes(x = TOXICITY)) +
+  filter(party == "Democrat") %>%
+  ggplot(aes(x = toxicity)) +
   geom_histogram() +
   labs(
     x = "", y = "Number of ads",
     title = "Democrats"
   ) +
-  geom_vline(aes(xintercept = mean(TOXICITY)), col = "blue", size = 1.5) +
+  geom_vline(aes(xintercept = mean(toxicity)), col = "blue", size = 1.5) +
   geom_text(
     aes(
-      x = mean(TOXICITY) + .2,
+      x = mean(toxicity) + .2,
       y = 1000,
-      label = paste0("Mean:", mean(TOXICITY) %>% round(2))
+      label = paste0("Mean:", mean(toxicity) %>% round(2))
     )
   )
 
 tox_rep <- fb_house %>%
-  filter(party == "REPUBLICAN") %>%
-  ggplot(aes(x = TOXICITY)) +
+  filter(party == "Republican") %>%
+  ggplot(aes(x = toxicity)) +
   geom_histogram() +
   labs(
     x = "", y = "Number of ads",
     title = "Republicans"
   ) +
-  geom_vline(aes(xintercept = mean(TOXICITY)), col = "red", size = 1.5) +
+  geom_vline(aes(xintercept = mean(toxicity)), col = "red", size = 1.5) +
   geom_text(
     aes(
-      x = mean(TOXICITY) + .15,
+      x = mean(toxicity) + .15,
       y = 1000,
-      label = paste0("Mean:", mean(TOXICITY) %>% round(2))
+      label = paste0("Mean:", mean(toxicity) %>% round(2))
     )
   )
 
@@ -309,24 +352,17 @@ ggarrange(tox_rep, tox_dem) %>%
     ),
     bottom = text_grob("Prob(Ad text is toxic)")
   )
-ggsave("fig/SI_ad_level_toxicity.pdf", width = 8, height = 5)
+ggsave(here("fig/SI_ad_level_toxicity.pdf"), width = 8, height = 5)
 
 # Initial analysis =============================================================
 fb_house %>%
   group_by(party) %>%
-  dplyr::summarise(
-    `Toxic` = mean(TOXICITY),
-    `Identity attack` = mean(IDENTITY_ATTACK),
-    `Obscene` = mean(IDENTITY_ATTACK),
-    `Number of ads` = n()
-  )
+  dplyr::summarise(`Toxic` = mean(toxicity), `Number of ads` = n())
 
 fb_house %>%
   group_by(type) %>%
   dplyr::summarise(
-    `Toxic` = mean(TOXICITY),
-    `Identity attack` = mean(IDENTITY_ATTACK),
-    `Obscene` = mean(IDENTITY_ATTACK),
+    `Toxic` = mean(toxicity),
     `Number of ads` = n()
   ) %>%
   dplyr::arrange(-Toxic) %>%
@@ -335,40 +371,33 @@ fb_house %>%
 fb_house %>%
   group_by(party, type) %>%
   dplyr::summarise(
-    `Toxic` = mean(TOXICITY),
-    # `Identity attack` = mean(IDENTITY_ATTACK),
-    `Obscene` = mean(IDENTITY_ATTACK),
-    N = n()
+    `Toxic` = mean(toxicity), `Obscene` = mean(obscene), N = n()
   ) %>%
   filter(N >= 100, type != "") %>%
   mutate(post = glue("{type} posted by {party}")) %>%
   pivot_longer(cols = c(Toxic, `Obscene`)) %>%
-  ggplot(
-    aes(
-      y = post,
-      x = value,
-      color = name
-    )
-  ) +
+  ggplot(aes(y = post, x = value, color = name)) +
   geom_point() +
   facet_grid(~name)
 
 temp0notext <- candidate_Tox %>%
   filter(N >= 10) %>%
-  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
-  ggplot(aes(
-    y = party,
-    x = `Avg. prob. toxic`,
-    color = party,
-    label = candidate
-  )) +
+  filter(party %in% c("Democrat", "Republican")) %>%
+  ggplot(
+    aes(
+      y = party,
+      x = `Avg. prob. toxic`,
+      color = party,
+      label = candidate
+    )
+  ) +
   geom_jitter() +
   scale_color_brewer(palette = "Set1", direction = -1) +
   labs(y = "")
 
 temp1 <- candidate_Tox %>%
   filter(N >= 10) %>%
-  filter(party %in% c("DEMOCRAT", "REPUBLICAN")) %>%
+  filter(party %in% c("Democrat", "Republican")) %>%
   ggplot(
     aes(
       y = party,
@@ -386,7 +415,7 @@ ggarrange(temp0notext, temp1, ncol = 1)
 fb_house %>%
   group_by(candidate, party) %>%
   dplyr::summarise(
-    `Avg. prob. toxic` = mean(TOXICITY),
+    `Avg. prob. toxic` = mean(toxicity),
     N = n()
   ) %>%
   dplyr::arrange(-`Avg. prob. toxic`) %>%
