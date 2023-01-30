@@ -1,10 +1,32 @@
 source(here::here("R", "utilities.R"))
+
+# Import; will deal with descriptives ==========================================
 df <- read_rds(here("data", "tidy", "toxicity.RDS")) %>%
   select(
     candidate, chamber, ad_creative_body, toxicity, party, inc, financial, 
     everything()
   )
 summary(df$toxicity)
+
+# Pick some examples from random sample for Table 1 ============================
+## Among these, picked the most illustrious
+set.seed(123)
+df %>%
+  group_by(party, financial) %>%
+  select(party, financial, toxicity, ad_creative_body, candidate, state) %>%
+  sample_n(5) %>%
+  View()
+
+df %>%
+  group_by(party, financial) %>%
+  select(party, financial, toxicity, ad_creative_body, candidate, state) %>%
+  sample_n(5) %>%
+  View()
+
+## does length 
+df %>%
+  group_by(party, financial) %>%
+  summarise(mean = mean(nchar(ad_creative_body)))
 
 # Create combinations ==========================================================
 set.seed(12345)
