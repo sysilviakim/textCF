@@ -29,7 +29,8 @@ pair_df <- pair_indices %>%
     answer = case_when(
       df$toxicity[i1] > df$toxicity[i2] ~ 1,
       TRUE ~ 2
-    )
+    ),
+    answer = factor(answer, levels = c(1, 2))
   )
 
 pair_noanswer <- pair_df %>% select(-toxic1, -toxic2) %>% mutate(choice = "")

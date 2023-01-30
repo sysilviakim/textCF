@@ -69,17 +69,17 @@ nrow(temp)
 temp %>%
   group_by(financial) %>%
   mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
-  summarise(toxic = mean(toxic, na.rm = TRUE))
+  summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
 
 temp %>%
   group_by(chamber, financial) %>%
   mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
-  summarise(toxic = mean(toxic, na.rm = TRUE))
+  summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
 
 temp %>%
   group_by(chamber, party, financial) %>%
   mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
-  summarise(toxic = mean(toxic, na.rm = TRUE))
+  summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
 
 # Over time plot ===============================================================
 color4_modified <- color4
