@@ -11,7 +11,8 @@ fb_corpus <- corpus(
     financial = df_unique$financial,
     candidate = df_unique$candidate,
     party = df_unique$party,
-    vote_share = df_unique$vote_share
+    vote_share = df_unique$vote_share,
+    chamber = df_unique$chamber
   )
 )
 
