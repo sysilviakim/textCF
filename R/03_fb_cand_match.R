@@ -18,7 +18,7 @@ cand_list <- vec %>%
   ) %>%
   map(dedup)
 
-cong_complete <- loadRData("data/tidy/cong_complete.Rda") %>%
+cong_complete <- loadRData(here("data/tidy/cong_complete.Rda")) %>%
   map(
     ~ .x %>%
       clean_names() %>%
