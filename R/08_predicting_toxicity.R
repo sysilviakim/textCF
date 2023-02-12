@@ -82,6 +82,7 @@ temp %>%
   summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
 
 # Over time plot ===============================================================
+## (Ended up not using)
 color4_modified <- color4
 names(color4_modified) <- gsub("\n", " ", names(color4_modified))
 p <- temp %>%
@@ -98,7 +99,7 @@ p <- temp %>%
   scale_x_date(breaks = "3 months", date_labels = "%Y\n%b") +
   scale_y_continuous(labels = scales::comma)
 
-pdf(here("fig", "n_unique_ads_over_time.pdf"), width = 4.0, height = 3.2)
+pdf(here("fig", "n_unique_ads_over_time.pdf"), width = 5, height = 3.5)
 plot_notitle(pdf_default(p)) + theme(legend.position = "bottom") +
   guides(colour = guide_legend(nrow = 2))
 dev.off()
@@ -107,7 +108,7 @@ dev.off()
 ## Clustered model
 fit <- lm(
   toxicity ~
-  party * financial + chamber + inc + safety + gender +
+    party * financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
   temp
 )
@@ -115,7 +116,7 @@ summary(fit)
 
 fit_se_cluster <- feols(
   toxicity ~
-  party * financial + chamber + inc + safety + gender +
+    party * financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
   temp
 )
@@ -131,7 +132,7 @@ etable(
 ## One without interaction term as requested by reviewer
 fit <- lm(
   toxicity ~
-  party + financial + chamber + inc + safety + gender +
+    party + financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
   temp
 )
@@ -139,7 +140,7 @@ summary(fit)
 
 fit_se_cluster <- feols(
   toxicity ~
-  party + financial + chamber + inc + safety + gender +
+    party + financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
   temp
 )
@@ -154,10 +155,50 @@ etable(
 
 fit_fe <- feols(
   toxicity ~
-  financial + min_ad_delivery_start_time | candidate,
+    financial + min_ad_delivery_start_time | candidate,
   temp
 )
 
 summary(fit_fe)
 etable(fit_fe)
 etable(fit_fe, tex = TRUE, file = here("tab", "fit_fe_toxicity.tex"))
+
+# Toxicity of Trump-mentioning ads across chambers =============================
+temp <- temp %>%
+  mutate(
+    Trump = case_when(
+      word_trump == 0 & party == "Democrat" ~ "Dem.,\nNo",
+      word_trump == 1 & party == "Democrat" ~ "Dem.,\nYes",
+      word_trump == 0 & party == "Republican" ~ "Rep.,\nNo",
+      word_trump == 1 & party == "Republican" ~ "Rep.,\nYes"
+    ),
+    Trump = factor(
+      Trump,
+      levels = c(
+        "Dem.,\nNo", "Dem.,\nYes",
+        "Rep.,\nNo", "Rep.,\nYes"
+      )
+    )
+  )
+
+p <- ggplot(temp) +
+  aes(x = Trump, y = toxicity, group = Trump, fill = Trump, color = NULL) +
+  ## geom_boxplot(fill = "#0c4c8a") +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(x = "Party and Trump Mentions", y = "Toxicity") +
+  facet_wrap(~chamber) +
+  scale_fill_manual(
+    values = c(
+      `Dem.,\nNo` = "#67a9cf",
+      `Dem.,\nYes` = "#2166ac",
+      `Rep.,\nNo` = "#ef8a62",
+      `Rep.,\nYes` = "#b2182b"
+    )
+  )
+
+plot_nolegend(pdf_default(p))
+ggsave(
+  here("fig", "toxicity_by_party_trump_chamber.pdf"),
+  width = 6, height = 4
+)
