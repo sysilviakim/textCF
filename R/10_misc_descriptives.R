@@ -1,12 +1,54 @@
 source(here::here("R", "utilities.R"))
+options(digits = 3, scipen = 999)
 
 # Import; will deal with descriptives ==========================================
+load(here("data", "tidy", "merged_unique.Rda"))
+load(here("data", "tidy", "merged_all.Rda"))
+
+## This is the main dataset
 df <- read_rds(here("data", "tidy", "toxicity.RDS")) %>%
   select(
     candidate, chamber, ad_creative_body, toxicity, party, inc, financial,
     everything()
   )
+
+# Number of rows ===============================================================
+nrow(df)
+## 56585
+
+table(df$chamber)
+# House Senate
+# 40217  16368
+
+## Alexandria Ocasio-Cortez example
+df %>%
+  filter(candidate == "alexandria ocasio cortez") %>%
+  nrow()
+## 498
+
+df_all %>%
+  filter(candidate == "alexandria ocasio cortez") %>%
+  nrow()
+## 48169
+
+# Summary of toxicity and top toxic posts ======================================
 summary(df$toxicity)
+mean(df$toxicity, na.rm = TRUE)
+
+df %>%
+  group_by(party) %>%
+  arrange(desc(toxicity)) %>%
+  slice_head(n = 10) %>%
+  arrange(chamber, desc(toxicity)) %>%
+  View()
+
+# Impressions by party =========================================================
+df %>%
+  group_by(chamber) %>%
+  summarise(
+    impressions_lower = mean(min_impressions_lower, na.rm = TRUE),
+    impressions_upper = mean(max_impressions_upper, na.rm = TRUE)
+  )
 
 # Pick some examples from random sample for Table 1 ============================
 ## Among these, picked the most illustrious
