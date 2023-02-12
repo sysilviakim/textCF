@@ -32,19 +32,18 @@ temp_fxn <- function(x) {
 ## Note that candidate is the group-level marker, not page_name
 ## e.g., Luke Letlow For Congress != Luke Letlow, but same candidate
 assert_that(
-  length(unique(fb_unique$senate$page_name)) != ## 121
-    length(unique(fb_unique$senate$candidate)) ## 110
+  length(unique(fb_unique$senate$page_name)) != ## 81
+    length(unique(fb_unique$senate$candidate)) ## 70
 )
 assert_that(
-  length(unique(fb_unique$house$page_name)) != ## 763
-    length(unique(fb_unique$house$candidate)) ## 651
+  length(unique(fb_unique$house$page_name)) != ## 761
+    length(unique(fb_unique$house$candidate)) ## 650
 )
 
 ## Based on the number of diverse ads or total ads (not accounting for breadth)
 fb_unique <- temp_fxn(fb_unique)
 
-# Specific keywords ============================================================
-## By type ---------------------------------------------------------------------
+# Mention of Trump =============================================================
 temp <- fb_unique %>%
   map_dfr(
     ~ .x %>%
