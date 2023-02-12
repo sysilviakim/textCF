@@ -4,7 +4,6 @@ source(here::here("R", "utilities.R"))
 ## Text is in "ad_creative_body"
 load(here("data", "tidy", "fb_matched.Rda"))
 load(here("data", "tidy", "fb_unique.Rda"))
-load(here("output", "fb_quanteda.Rda"))
 
 # Adjust candidate labels so that nchar is the same ============================
 ## Define function, adjust later

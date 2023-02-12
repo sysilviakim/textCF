@@ -3,31 +3,10 @@ library(keyATM)
 
 # Load data ====================================================================
 load(here("data", "tidy", "merged_unique.Rda"))
-
-## Corpus creation
-fb_corpus <- corpus(
-  df_unique$ad_creative_body,
-  docvars = tibble(
-    financial = df_unique$financial,
-    candidate = df_unique$candidate,
-    party = df_unique$party,
-    vote_share = df_unique$vote_share,
-    chamber = df_unique$chamber
-  )
-)
+load(here("output", "fb_quanteda.Rda"))
 
 # Tokenize documents ===========================================================
-toks_FB_STEMMED <- tokens(fb_corpus) %>%
-  tokens(
-    remove_url = TRUE,
-    remove_punct = TRUE,
-    include_docvars = TRUE
-  ) %>%
-  tokens_tolower() %>%
-  tokens_remove(stopwords("english")) %>%
-  tokens_remove(stopwords("spanish")) %>%
-  # tokens_remove(c("rt", "amp", "u8")) %>%
-  tokens_remove(letters) %>%
+toks_FB_STEMMED <- toks_FB %>%
   tokens_compound(
     pattern = phrase(c(
       "stock market",
