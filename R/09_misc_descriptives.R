@@ -35,12 +35,36 @@ df_all %>%
 summary(df$toxicity)
 mean(df$toxicity, na.rm = TRUE)
 
+## By-type toxicity summary
+df %>%
+  group_by(financial) %>%
+  summarise(toxicity = mean(toxicity, na.rm = TRUE))
+# financial         toxicity
+# <fct>                <dbl>
+# 1 Voter-targeting   0.0533
+# 2 Donor-targeting   0.0651
+
+## By-party toxicity summary
+df %>%
+  group_by(party) %>%
+  summarise(toxicity = mean(toxicity, na.rm = TRUE))
+# party        toxicity
+# <chr>           <dbl>
+# 1 Democrat     0.0549
+# 2 Republican   0.0656
+
+## By-party top toxic posts
 df %>%
   group_by(party) %>%
   arrange(desc(toxicity)) %>%
-  slice_head(n = 10) %>%
+  slice_head(n = 5) %>%
   arrange(chamber, desc(toxicity)) %>%
   View()
+
+## Party x financial
+df %>%
+  group_by(party, financial, chamber) %>%
+  summarise(toxicity = mean(toxicity, na.rm = TRUE))
 
 # Impressions by party =========================================================
 df %>%
