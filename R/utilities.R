@@ -10,6 +10,7 @@ library(glue)
 library(quanteda)
 library(quanteda.textplots)
 library(quanteda.textstats)
+## devtools::install_github("kbenoit/quanteda.dictionaries") 
 library(quanteda.dictionaries)
 ## https://muellerstefan.net/files/quanteda-cheatsheet.pdf
 library(lingmatch)
@@ -26,6 +27,7 @@ library(xml2)
 library(caret)
 library(RSelenium)
 library(netstat)
+## devtools::install_github("facebookresearch/Radlibrary")
 library(Radlibrary)
 library(knitr)
 library(kableExtra)
@@ -38,7 +40,7 @@ library(gender)
 library(wayback)
 
 # Non-CRAN packages ============================================================
-# devtools::install_github("sysilviakim/Kmisc")
+## devtools::install_github("sysilviakim/Kmisc")
 library(Kmisc)
 
 # Dictionaries =================================================================
