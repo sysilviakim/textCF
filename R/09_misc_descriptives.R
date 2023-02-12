@@ -66,6 +66,22 @@ df %>%
   group_by(party, financial, chamber) %>%
   summarise(toxicity = mean(toxicity, na.rm = TRUE))
 
+# Binary toxicity ==============================================================
+df %>%
+  group_by(financial) %>%
+  mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
+  summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
+
+df %>%
+  group_by(chamber, financial) %>%
+  mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
+  summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
+
+df %>%
+  group_by(chamber, party, financial) %>%
+  mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
+  summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
+
 # Impressions by party =========================================================
 df %>%
   group_by(chamber) %>%
@@ -181,3 +197,58 @@ textplot_wordcloud(
   color = RColorBrewer::brewer.pal(9, "Blues")[4:9]
 )
 dev.off()
+
+# Loeffler vs. Warnock summaries ===============================================
+df %>%
+  filter(candidate == "kelly loeffler" | candidate == "raphael warnock") %>%
+  group_by(candidate, financial) %>%
+  summarise(toxicity = mean(toxicity))
+
+# candidate       financial       toxicity
+# <chr>           <fct>              <dbl>
+# 1 kelly loeffler  Voter-targeting   0.0603
+# 2 kelly loeffler  Donor-targeting   0.0686
+# 3 raphael warnock Voter-targeting   0.100 
+# 4 raphael warnock Donor-targeting   0.223 
+
+# Various t-tests ==============================================================
+## Within party x chamber, Trump-mentioning ads more toxic? --------------------
+t.test(
+  df %>%
+    filter(chamber == "House" & party == "Republican" & word_trump == 1) %>%
+    .$toxicity,
+  df %>%
+    filter(chamber == "House" & party == "Republican" & word_trump == 0) %>%
+    .$toxicity
+)
+
+t.test(
+  df %>%
+    filter(chamber == "House" & party == "Democrat" & word_trump == 1) %>%
+    .$toxicity,
+  df %>%
+    filter(chamber == "House" & party == "Democrat" & word_trump == 0) %>%
+    .$toxicity
+)
+
+## Not significant
+t.test(
+  df %>%
+    filter(chamber == "Senate" & party == "Republican" & word_trump == 1) %>%
+    .$toxicity,
+  df %>%
+    filter(chamber == "Senate" & party == "Republican" & word_trump == 0) %>%
+    .$toxicity
+)
+
+t.test(
+  df %>%
+    filter(chamber == "Senate" & party == "Democrat" & word_trump == 1) %>%
+    .$toxicity,
+  df %>%
+    filter(chamber == "Senate" & party == "Democrat" & word_trump == 0) %>%
+    .$toxicity
+)
+
+
+
