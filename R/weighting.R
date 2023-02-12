@@ -1,10 +1,7 @@
 source(here::here("R", "utilities.R"))
 
 # Load data ====================================================================
-fb_house <- read_rds("data/tidy/fb_perspective_House_20220426.RDS")
-fb_senate <- read_rds("data/tidy/fb_perspective_Senate_20220426.RDS")
-load(here("data", "tidy", "fb_matched.Rda"))
-matched <- fb_matched
+load(here("data", "tidy", "merged_unique.Rda"))
 
 # Merging weighting variables into fb_house ====================================
 
@@ -17,16 +14,16 @@ matched <- fb_matched
 
 # Sanity checks, before we get started...
 assert_that(!any(is.na(fb_house$ad_creative_body))) # True
-# assert_that(!any(is.na(matched$house$ad_creative_body))) # NOT True
+# assert_that(!any(is.na(df_unique$house$ad_creative_body))) # NOT True
 ## As this is about ad texts, we will drop rows where creative body is NA
-matched$house <- matched$house[!is.na(
-  matched$house$ad_creative_body
+df_unique$house <- df_unique$house[!is.na(
+  df_unique$house$ad_creative_body
 ), ]
-assert_that(!any(is.na(matched$house$ad_creative_body))) # True
+assert_that(!any(is.na(df_unique$house$ad_creative_body))) # True
 
 house_weights <- merge(
   x = fb_house,
-  y = matched$house[, c(
+  y = df_unique$house[, c(
     "fb_ad_library_id", "ad_creative_body",
     "ad_creation_time",
     "impressions_lower", "impressions_upper",
@@ -45,7 +42,7 @@ assert_that(!any(duplicated(house_weights)))
 # check about this step
 house_weights <- house_weights[!duplicated(house_weights), ]
 # Number of rows goes significantly down with this...before, though, it was
-# greater than the number of rows in fb_matched$house, which didn't make sense
+# greater than the number of rows in fb_df_unique$house, which didn't make sense
 
 # Adding toxic classifier -- 0.2 threshold? Can change as needed
 ## What was
@@ -65,16 +62,16 @@ assert_that(!any(is.na(house_weights$impressions_lower))) # True
 
 # Sanity checks, before we get started...
 assert_that(!any(is.na(fb_senate$ad_creative_body)))
-# assert_that(!any(is.na(matched$senate$ad_creative_body)))
+# assert_that(!any(is.na(df_unique$senate$ad_creative_body)))
 ## Not True...since this is about the ad texts, we'll remove ones without the
 ## ad creative body
-matched$senate <- matched$senate[!is.na(
-  matched$senate$ad_creative_body
+df_unique$senate <- df_unique$senate[!is.na(
+  df_unique$senate$ad_creative_body
 ), ]
-assert_that(!any(is.na(matched$senate$ad_creative_body))) # True now
+assert_that(!any(is.na(df_unique$senate$ad_creative_body))) # True now
 senate_weights <- merge(
   x = fb_senate,
-  y = matched$senate[, c(
+  y = df_unique$senate[, c(
     "fb_ad_library_id", "ad_creative_body",
     "ad_creation_time",
     "impressions_lower", "impressions_upper",
