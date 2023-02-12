@@ -2,31 +2,21 @@ source(here::here("R", "utilities.R"))
 library(keyATM)
 
 # Load data ====================================================================
-load(here("data", "tidy", "fb_unique.Rda"))
+load(here("data", "tidy", "merged_unique.Rda"))
 
-fb_corpus <- fb_unique %>%
-  imap(
-    ~ corpus(
-      .x$ad_creative_body,
-      docvars = tibble(
-        financial = .x$financial,
-        candidate = .x$candidate,
-        party = .x$party,
-        vote_share = .x$vote_share,
-        chamber = .y
-      )
-    )
+## Corpus creation
+fb_corpus <- corpus(
+  df_unique$ad_creative_body,
+  docvars = tibble(
+    financial = df_unique$financial,
+    candidate = df_unique$candidate,
+    party = df_unique$party,
+    vote_share = df_unique$vote_share
   )
-
-## Rename the documents, adding by-chamber prefix:
-docnames(fb_corpus$house) <- paste0("house_", 1:ndoc(fb_corpus$house))
-docnames(fb_corpus$senate) <- paste0("senate_", 1:ndoc(fb_corpus$senate))
-
-## Combine two chambers
-corp_FB <- fb_corpus$senate + fb_corpus$house
+)
 
 # Tokenize documents ===========================================================
-toks_FB_STEMMED <- tokens(corp_FB) %>%
+toks_FB_STEMMED <- tokens(fb_corpus) %>%
   tokens(
     remove_url = TRUE,
     remove_punct = TRUE,
@@ -178,24 +168,7 @@ key_dfm <- keyATM_read(
   keep_docnames = TRUE
 ) # Will merge based on docnames later!
 
-# House only:
-# dfmHouse <- dfm_FB_ad_stemmed %>%
-#   dfm_subset(chamber == "house")
-# 
-# # Necessary to drop non-textual matrix rows:
-# dfmHouseAnalaysis <- dfm_subset(dfmHouse, ntoken(dfmHouse) > 0)
-# 
-# # Add IDs to the matrix
-# dfmHouseAnalaysis$tempID <- 1:nrow(dfmHouseAnalaysis)
-# 
-# # Prep keyATM object:
-# key_dfm_House <- keyATM_read(
-#   texts = dfmHouseAnalaysis,
-#   keep_docnames = TRUE
-# )
-
 # Base model ===================================================================
-
 out_stemmed <- keyATM(
   docs = key_dfm,
   no_keyword_topics = 5,
@@ -203,12 +176,6 @@ out_stemmed <- keyATM(
   model = "base",
   options = list(seed = 81477)
 )
-
-# out_stemmed_house <- keyATM(docs  = key_dfm_House,
-#                       no_keyword_topics = 5,
-#                       keywords          = keywords_stemmed,
-#                       model             = "base",
-#                       options           = list(seed = 81477))
 
 # Extract top topics
 TOPICS_base <- top_topics(out_stemmed)
@@ -251,7 +218,6 @@ merged <- merged %>%
       Rank1 == "7_President" ~ "Trump",
       !is.na(Rank1) ~ "Various other / mixed"
     ),
-
     # Different bunching of categories:
     topic_Redefined = case_when(
       Rank1 == "1_Economy" ~ "Economy and jobs",

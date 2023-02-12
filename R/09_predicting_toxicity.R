@@ -2,7 +2,7 @@ source(here::here("R", "utilities.R"))
 library(fixest)
 
 # Load data ====================================================================
-load(here("data", "tidy", "df_unique_unique.Rda"))
+load(here("data", "tidy", "merged_unique.Rda"))
 df_unique <- df_unique %>%
   clean_names() %>%
   clean_candidate() %>%
