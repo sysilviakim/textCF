@@ -249,6 +249,3 @@ t.test(
     filter(chamber == "Senate" & party == "Democrat" & word_trump == 0) %>%
     .$toxicity
 )
-
-
-
