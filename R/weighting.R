@@ -44,14 +44,14 @@ house_weights <- house_weights[!duplicated(house_weights), ]
 # Number of rows goes significantly down with this...before, though, it was
 # greater than the number of rows in fb_df_unique$house, which didn't make sense
 
-# Adding toxic classifier -- 0.2 threshold? Can change as needed
-## What was
+# Adding toxic classifier -- originally 0.2, changed to 0.5
+## What was 
 house_weights <- house_weights %>%
   mutate(toxic = case_when(
-    toxicity >= 0.2 ~ "toxic",
-    toxicity < 0.2 ~ "nontoxic"
+    toxicity >= 0.5 ~ "toxic",
+    toxicity < 0.5 ~ "nontoxic"
   ))
-sum(house_weights$toxic == "toxic") # 18,321/144,464...12.682%
+sum(house_weights$toxic == "toxic") # 1984/144464...1.373%
 assert_that(!any(is.na(house_weights$toxic))) # True
 assert_that(!any(is.na(house_weights$spend_lower))) # True
 assert_that(!any(is.na(house_weights$spend_upper))) # True
@@ -93,13 +93,13 @@ assert_that(!any(duplicated(senate_weights)))
 senate_weights <- senate_weights[!duplicated(senate_weights), ]
 assert_that(!any(duplicated(senate_weights)))
 
-# Adding toxic classifier -- 0.2 for the time being
+# Adding toxic classifier -- originally 0.2, changed to 0.5
 senate_weights <- senate_weights %>%
   mutate(toxic = case_when(
-    toxicity >= 0.2 ~ "toxic",
-    toxicity < 0.2 ~ "nontoxic"
+    toxicity >= 0.5 ~ "toxic",
+    toxicity < 0.5 ~ "nontoxic"
   ))
-sum(senate_weights$toxic == "toxic") # 16,783/147,929...11.345%
+sum(senate_weights$toxic == "toxic") # 1617/147929...1.093%
 assert_that(!any(is.na(senate_weights$toxic))) # True
 assert_that(!any(is.na(senate_weights$spend_lower))) # True
 assert_that(!any(is.na(senate_weights$spend_upper))) # True
@@ -128,6 +128,9 @@ assert_that(nrow(house_tox) + nrow(house_nontox) == nrow(house_weights)) # True
 # re-election
 senate_weights <- senate_weights[!is.na(senate_weights$party), ]
 # Down to 92,746
+## NOTE: 1090/92746: 1.175%
+## Since we're focusing on folks who were candidates here, this is the one
+## to use
 
 # Senate Toxic
 senate_tox <- subset(senate_weights, toxic == "toxic")
@@ -209,12 +212,10 @@ house_tox_funds_ts <- ggplot(hr_tox_funds_plotting, aes(
   y = spend_upper
 )) +
   theme_bw() +
-  coord_cartesian(ylim = c(0, 18000000)) +
-  geom_bar(stat = "identity") +
-  labs(
-    x = "Initial Distribution Date",
-    y = "Total Funds Spent (Upper Estimate)"
-  ) +
+ coord_cartesian(ylim = c(0, 20000000)) +
+  geom_bar(stat="identity") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("House Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -236,11 +237,9 @@ house_nontox_funds_ts <- ggplot(
   )
 ) +
   theme_bw() +
-  coord_cartesian(ylim = c(0, 18000000)) +
-  geom_bar(stat = "identity") +
-  labs(
-    x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)"
-  ) +
+  coord_cartesian(ylim = c(0, 20000000)) +
+  geom_bar(stat="identity") +
+  labs(x = "Initial Distribution Date", y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("House Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -262,12 +261,10 @@ senate_tox_funds_ts <- ggplot(
   )
 ) +
   theme_bw() +
-  coord_cartesian(ylim = c(0, 18000000)) +
-  geom_bar(stat = "identity") +
-  labs(
-    x = "Initial Distribution Date",
-    y = "Total Funds Spent (Upper Estimate)"
-  ) +
+  coord_cartesian(ylim = c(0, 20000000)) +
+  geom_bar(stat="identity") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("Senate Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -289,12 +286,10 @@ senate_nontox_funds_ts <- ggplot(
   )
 ) +
   theme_bw() +
-  coord_cartesian(ylim = c(0, 18000000)) +
-  geom_bar(stat = "identity") +
-  labs(
-    x = "Initial Distribution Date",
-    y = "Total Funds Spent (Upper Estimate)"
-  ) +
+  coord_cartesian(ylim = c(0, 20000000)) +
+  geom_bar(stat="identity") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Funds Spent (Upper Estimate)") +
   ggtitle("Senate Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -394,12 +389,10 @@ house_tox_imps_ts <- ggplot(
   )
 ) +
   theme_bw() +
-  coord_cartesian(ylim = c(0, 550000000)) +
-  geom_bar(stat = "identity") +
-  labs(
-    x = "Initial Distribution Date",
-    y = "Total Impressions (Lower Estimate)"
-  ) +
+  coord_cartesian(ylim = c(0, 600000000)) +
+  geom_bar(stat="identity") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("House Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -420,12 +413,10 @@ house_nontox_imps_ts <- ggplot(
   )
 ) +
   theme_bw() +
-  geom_bar(stat = "identity") +
-  coord_cartesian(ylim = c(0, 550000000)) +
-  labs(
-    x = "Initial Distribution Date",
-    y = "Total Impressions (Lower Estimate)"
-  ) +
+  geom_bar(stat="identity") +
+  coord_cartesian(ylim = c(0, 600000000)) +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("House Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -446,12 +437,10 @@ senate_tox_imps_ts <- ggplot(
   )
 ) +
   theme_bw() +
-  coord_cartesian(ylim = c(0, 550000000)) +
-  geom_bar(stat = "identity") +
-  labs(
-    x = "Initial Distribution Date",
-    y = "Total Impressions (Lower Estimate)"
-  ) +
+  coord_cartesian(ylim = c(0, 600000000)) +
+  geom_bar(stat="identity") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("Senate Toxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -472,12 +461,10 @@ senate_nontox_imps_ts <- ggplot(
   )
 ) +
   theme_bw() +
-  coord_cartesian(ylim = c(0, 550000000)) +
-  geom_bar(stat = "identity") +
-  labs(
-    x = "Initial Distribution Date",
-    y = "Total Impressions (Lower Estimate)"
-  ) +
+  coord_cartesian(ylim = c(0, 600000000)) +
+  geom_bar(stat="identity") +
+  labs(x = "Initial Distribution Date", 
+       y = "Total Impressions (Lower Estimate)") +
   ggtitle("Senate Nontoxic Advertisements") +
   theme(
     axis.text.x = element_text(angle = 30, hjust = 1),
@@ -516,30 +503,29 @@ ggsave("fig/imps_toxicity_ts.pdf",
 # House
 ## Percent of Ads that are Toxic
 nrow(house_tox) / (nrow(house_tox) + nrow(house_nontox))
-### 12.682% of House ads are toxic
+### 1.373% of House ads are toxic
 ## Percent of Funds that go to Toxic ads
-sum(hr_tox_funds$spend_upper) / (sum(hr_tox_funds$spend_upper) +
-  sum(hr_nontox_funds$spend_upper))
-### 17.597% of funding goes to toxic ads
+sum(hr_tox_funds$spend_upper) / (sum(hr_tox_funds$spend_upper) + 
+                                   sum(hr_nontox_funds$spend_upper))
+### 2.474% of funding goes to toxic ads
 ## Percent of Impressions that go to Toxic Ads
-sum(hr_tox_imps$impressions_lower) / (sum(hr_tox_imps$impressions_lower) +
-  sum(hr_nontox_imps$impressions_lower))
-### 16.749% of impressions go to Toxic ads
+sum(hr_tox_imps$impressions_lower) / (sum(hr_tox_imps$impressions_lower) + 
+                                   sum(hr_nontox_imps$impressions_lower))
+### 2.202% of impressions go to Toxic ads
 
 # Senate
 ## Percent of Ads that are Toxic
 nrow(senate_tox) / (nrow(senate_tox) + nrow(senate_nontox))
-## 12,136/92,746
-### 13.085% of Senate ads (for senators running in 2020) are toxic
+### 1.175% of Senate ads (for senators running in 2020) are toxic
 ## Percent of Funds that go to Toxic ads
-sum(senate_tox_funds$spend_upper) / (sum(senate_tox_funds$spend_upper) +
-  sum(senate_nontox_funds$spend_upper))
-### 15.716% of funding goes to toxic ads
-## Percent of Impressions that go to Toxic Ads
+sum(senate_tox_funds$spend_upper) / (sum(senate_tox_funds$spend_upper) + 
+                                   sum(senate_nontox_funds$spend_upper))
+### 0.799% of funding goes to toxic ads...other direction from HR
+  ## Percent of Impressions that go to Toxic Ads
 sum(senate_tox_imps$impressions_lower) / (
   sum(senate_tox_imps$impressions_lower) +
     sum(senate_nontox_imps$impressions_lower))
-### 14.936% of impressions go to Toxic ads
+### 0.909% of impressions go to Toxic ads
 
 # Trump Mentions and Toxicity ==================================================
 load(here("data", "tidy", "fb_unique.Rda"))
