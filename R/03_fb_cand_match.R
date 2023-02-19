@@ -18,7 +18,7 @@ cand_list <- vec %>%
   ) %>%
   map(dedup)
 
-cong_complete <- loadRData("data/tidy/cong_complete.Rda") %>%
+cong_complete <- loadRData(here("data/tidy/cong_complete.Rda")) %>%
   map(
     ~ .x %>%
       clean_names() %>%
@@ -391,6 +391,9 @@ fb_simple <- fb_matched %>%
             "^", tolower(state.abb) %>% paste(collapse = "$|^"), "$"
           )
         )
+      )%>%
+      mutate(
+        ad_creative_body = trimws(gsub("\\s+", " ", ad_creative_body))
       )
   )
 assert_that(length(setdiff(tolower(state.abb), names(fb_simple$senate))) == 0)
