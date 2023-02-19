@@ -58,6 +58,8 @@ data/raw/wayback/senate/timestamp_donation/*.Rda
 lit/*
 doc/*
 R/persp.R
+fig/dup/*
+data/tidy/old/*
 
 .DS_Store
 
