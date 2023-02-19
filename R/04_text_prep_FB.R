@@ -125,7 +125,10 @@ save(fb_unique_raw, file = here("data", "tidy", "fb_unique_raw.Rda"))
 fb_unique <- c(senate = "senate", house = "house") %>%
   map(
     function(x) {
-      left_join(clean_candidate(fb_unique[[x]]), fb_meta[[x]]) %>%
+      left_join(
+        clean_candidate(fb_unique_raw[[x]]), 
+        fb_meta[[x]]
+      ) %>%
         mutate(n = row_number()) %>%
         group_by(n) %>%
         group_split() %>%
@@ -153,6 +156,8 @@ fb_unique <- c(senate = "senate", house = "house") %>%
   map(~ .x %>% select(candidate, party, financial, in_district, everything()))
 assert_that(nrow(fb_unique_raw$senate) == nrow(fb_unique$senate))
 assert_that(nrow(fb_unique_raw$house) == nrow(fb_unique$house))
+assert_that(!any(is.na(fb_unique$senate$min_ad_delivery_start_time)))
+assert_that(!any(is.na(fb_unique$house$min_ad_delivery_start_time)))
 
 ## Some verification that "Voter-targeting" are targeting in-district
 temp <- fb_unique %>%
