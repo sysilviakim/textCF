@@ -2,6 +2,12 @@ source(here::here("R", "utilities.R"))
 
 # Load data ====================================================================
 load(here("data", "tidy", "merged_unique.Rda"))
+## Because of existing format, splitting df_unique into list
+df_unique <- split(df_unique, f = df_unique$chamber) # Split data
+names(df_unique) = c("house","senate")
+
+load(here("data", "tidy", "fb_house_merged.Rda"))
+load(here("data", "tidy", "fb_senate_merged.Rda"))
 
 # Merging weighting variables into fb_house ====================================
 
@@ -528,33 +534,45 @@ sum(senate_tox_imps$impressions_lower) / (
 ### 0.909% of impressions go to Toxic ads
 
 # Trump Mentions and Toxicity ==================================================
-load(here("data", "tidy", "fb_unique.Rda"))
+### Split into House/Senate, GOP/Dem, mention/non-mention
+house_gop_trump <- df_unique$house[df_unique$house$word_trump == 1 &
+                                   df_unique$house$party == "Republican", ]
+house_gop_notrump <- df_unique$house[df_unique$house$word_trump == 0 &
+                                     df_unique$house$party == "Republican", ]
+house_dem_trump <- df_unique$house[df_unique$house$word_trump == 1 &
+                                     df_unique$house$party == "Democrat", ]
+house_dem_notrump <- df_unique$house[df_unique$house$word_trump == 0 &
+                                       df_unique$house$party == "Democrat", ]
+senate_gop_trump <- df_unique$senate[df_unique$senate$word_trump == 1 &
+                                     df_unique$senate$party == "Republican", ]
+senate_gop_notrump <- df_unique$senate[df_unique$senate$word_trump == 0 &
+                                       df_unique$senate$party == "Republican", ]
+senate_dem_trump <- df_unique$senate[df_unique$senate$word_trump == 1 &
+                                     df_unique$senate$party == "Democrat", ]
+senate_dem_notrump <- df_unique$senate[df_unique$senate$word_trump == 0 &
+                                       df_unique$senate$party == "Democrat", ]
 
-### House side -- Trump Toxicity ===============================================
-# House Republican ads that mention Trump
-mean(house_gop_trump$toxicity)
-## 0.149
-quantile(house_gop_trump$toxicity)
-## 0%        25%        50%        75%       100%
-## 0.02042444 0.07955136 0.11062716 0.16951741 0.94808560
+### Difference-in-Means Tests
+# House GOP
+t.test(house_gop_trump$toxicity, house_gop_notrump$toxicity)
+# House Dems
+t.test(house_dem_trump$toxicity, house_dem_notrump$toxicity)
+# Senate GOP
+t.test(senate_gop_trump$toxicity, senate_gop_notrump$toxicity)
+# Senate Dems
+t.test(senate_dem_trump$toxicity, senate_dem_notrump$toxicity)
 
-# House Republican ads that don't mention Trump
-mean(house_gop_notrump$toxicity)
-## 0.126
-quantile(house_gop_notrump$toxicity)
-## 0%          25%          50%          75%         100%
-## 0.0006077258 0.0630457630 0.0918971150 0.1508413650 0.9593848600
+# Loeffler and Warnock Means ===================================================
+loeffler <- df_unique$senate[df_unique$senate$candidate ==
+                                    "kelly loeffler", ]
+warnock <- df_unique$senate[df_unique$senate$candidate ==
+                                   "raphael warnock", ]
+loeffler_donors <- loeffler[loeffler$financial == "Donor-targeting", ]
+loeffler_voters <- loeffler[loeffler$financial == "Voter-targeting", ]
+warnock_donors <- warnock[warnock$financial == "Donor-targeting", ]
+warnock_voters <- warnock[warnock$financial == "Voter-targeting", ]
 
-# House Democrat ads that mention Trump
-mean(house_dem_trump$toxicity)
-# 0.159
-quantile(house_dem_trump$toxicity)
-## 0%        25%        50%        75%       100%
-## 0.02162239 0.08445841 0.11997437 0.18356327 0.75283150
-
-# House Democrat ads that don't mention Trump
-mean(house_dem_notrump$toxicity)
-# 0.102
-quantile(house_dem_notrump$toxicity)
-# 0%          25%          50%          75%         100%
-# 3.799359e-05 0.05551384 0.07691913 0.1138114 0.9560496
+mean(loeffler_donors$toxicity) # 0.06855473
+mean(loeffler_voters$toxicity) # 0.06029068
+mean(warnock_donors$toxicity) # 0.222693
+mean(warnock_voters$toxicity) # 0.1004144
