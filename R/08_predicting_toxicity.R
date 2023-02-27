@@ -106,10 +106,10 @@ fit_se_cluster <- feols(
 )
 
 summary(fit_se_cluster, cluster = ~candidate)
-etable(fit_se_cluster, cluster = "candidate")
+etable(fit_se_cluster, cluster = "candidate", replace = TRUE)
 etable(
   fit_se_cluster,
-  cluster = "candidate", tex = TRUE,
+  cluster = "candidate", tex = TRUE, replace = TRUE,
   file = here("tab", "fit_cand_cluster_toxicity.tex")
 )
 
@@ -130,10 +130,10 @@ fit_se_cluster <- feols(
 )
 
 summary(fit_se_cluster, cluster = ~candidate)
-etable(fit_se_cluster, cluster = "candidate")
+etable(fit_se_cluster, cluster = "candidate", replace = TRUE)
 etable(
   fit_se_cluster,
-  cluster = "candidate", tex = TRUE,
+  cluster = "candidate", tex = TRUE, replace = TRUE,
   file = here("tab", "fit_cand_cluster_toxicity_no_interaction.tex")
 )
 
@@ -144,8 +144,12 @@ fit_fe <- feols(
 )
 
 summary(fit_fe)
-etable(fit_fe)
-etable(fit_fe, tex = TRUE, file = here("tab", "fit_fe_toxicity.tex"))
+etable(fit_fe, replace = TRUE)
+etable(
+  fit_fe,
+  tex = TRUE, replace = TRUE,
+  file = here("tab", "fit_fe_toxicity.tex")
+)
 
 # Toxicity of Trump-mentioning ads across chambers =============================
 temp <- temp %>%
