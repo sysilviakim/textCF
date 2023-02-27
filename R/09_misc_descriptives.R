@@ -51,9 +51,23 @@ df %>%
     )
   )
 #   chamber impressions_lower impressions_upper
-#   <chr>   <chr>             <chr>            
-# 1 House   10634.8           33066.7          
-# 2 Senate  12916.3           61451.4          
+#   <chr>   <chr>             <chr>
+# 1 House   10634.8           33066.7
+# 2 Senate  12916.3           61451.4
+
+# In-state proportion by type ==================================================
+df %>%
+  group_by(financial) %>%
+  summarise(
+    in_district = formatC(
+      mean(in_district, na.rm = TRUE) * 100,
+      digits = 1, format = "f"
+    )
+  )
+#   financial       in_district
+#   <fct>           <chr>      
+# 1 Voter-targeting 91.3       
+# 2 Donor-targeting 62.0
 
 # Summary of toxicity and top toxic posts ======================================
 summary(df$toxicity)
