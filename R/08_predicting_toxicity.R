@@ -84,8 +84,10 @@ p <- temp %>%
   scale_y_continuous(labels = scales::comma)
 
 pdf(here("fig", "n_unique_ads_over_time.pdf"), width = 5, height = 3.5)
-plot_notitle(pdf_default(p)) + theme(legend.position = "bottom") +
-  guides(colour = guide_legend(nrow = 2))
+print(
+  plot_notitle(pdf_default(p)) + theme(legend.position = "bottom") +
+    guides(colour = guide_legend(nrow = 2))
+)
 dev.off()
 
 # OLS first for reference (simple model) =======================================
