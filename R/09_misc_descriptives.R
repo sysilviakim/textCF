@@ -31,6 +31,30 @@ df_all %>%
   nrow()
 ## 48169
 
+# Impressions by chamber =========================================================
+df %>%
+  group_by(chamber) %>%
+  summarise(
+    impressions_lower = formatC(
+      mean(
+        min_impressions_lower[is.finite(min_impressions_lower)],
+        na.rm = TRUE
+      ),
+      digits = 1, format = "f"
+    ),
+    impressions_upper = formatC(
+      mean(
+        max_impressions_upper[is.finite(max_impressions_upper)],
+        na.rm = TRUE
+      ),
+      digits = 1, format = "f"
+    )
+  )
+#   chamber impressions_lower impressions_upper
+#   <chr>   <chr>             <chr>            
+# 1 House   10634.8           33066.7          
+# 2 Senate  12916.3           61451.4          
+
 # Summary of toxicity and top toxic posts ======================================
 summary(df$toxicity)
 mean(df$toxicity, na.rm = TRUE)
@@ -81,14 +105,6 @@ df %>%
   group_by(chamber, party, financial) %>%
   mutate(toxic = case_when(toxicity > 0.5 ~ 1, TRUE ~ 0)) %>%
   summarise(toxic = mean(toxic, na.rm = TRUE) * 100)
-
-# Impressions by party =========================================================
-df %>%
-  group_by(chamber) %>%
-  summarise(
-    impressions_lower = mean(min_impressions_lower, na.rm = TRUE),
-    impressions_upper = mean(max_impressions_upper, na.rm = TRUE)
-  )
 
 # Pick some examples from random sample for Table 1 ============================
 ## Among these, picked the most illustrious
@@ -208,8 +224,8 @@ df %>%
 # <chr>           <fct>              <dbl>
 # 1 kelly loeffler  Voter-targeting   0.0603
 # 2 kelly loeffler  Donor-targeting   0.0686
-# 3 raphael warnock Voter-targeting   0.100 
-# 4 raphael warnock Donor-targeting   0.223 
+# 3 raphael warnock Voter-targeting   0.100
+# 4 raphael warnock Donor-targeting   0.223
 
 # Various t-tests ==============================================================
 ## Within party x chamber, Trump-mentioning ads more toxic? --------------------
