@@ -1,7 +1,7 @@
 source(here::here("R", "utilities.R"))
 library(fixest)
 
-# Load data ====================================================================
+# Load and filter/clean data ===================================================
 load(here("data", "tidy", "merged_unique.Rda"))
 df_unique <- df_unique %>%
   clean_names() %>%
@@ -55,6 +55,8 @@ temp <- df_unique %>%
   ) %>%
   select(financial, everything())
 
+# Export =======================================================================
+## This is the main output of the analysis
 write_rds(temp, file = here("data", "tidy", "toxicity.RDS"))
 
 ## Assertions for sanity check
