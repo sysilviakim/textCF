@@ -667,6 +667,33 @@ percentage_calc <- function(f, c, p = TRUE) {
   return((x1 - x2) / x2 * 100)
 }
 
+summ_emo <- function(x) {
+  x %>%
+    summarise(
+      mean_anger = mean(anger / Dic, na.rm = TRUE),
+      mean_disgust = mean(disgust / Dic, na.rm = TRUE),
+      mean_fear = mean(fear / Dic, na.rm = TRUE),
+      se_anger = sd(anger / Dic, na.rm = TRUE) / sqrt(n()),
+      se_disgust = sd(disgust / Dic, na.rm = TRUE) / sqrt(n()),
+      se_fear = sd(fear / Dic, na.rm = TRUE) / sqrt(n()),
+      any_anger = mean(anger > 0, na.rm = TRUE),
+      any_disgust = mean(disgust > 0, na.rm = TRUE),
+      any_fear = mean(fear > 0, na.rm = TRUE)
+    ) %>%
+    ungroup()
+}
+
+ttest_short <- function(df, v) {
+  out <- t.test(
+    df[[v]][df$financial == "Donor-targeting"] /
+      df$Dic[df$financial == "Donor-targeting"],
+    df[[v]][df$financial == "Voter-targeting"] /
+      df$Dic[df$financial == "Voter-targeting"]
+  )
+  print(out)
+  print(out$statistic)
+}
+
 # Other options ================================================================
 fb_fields <- c(
   # "ad_data", "demographic_data", "region_data",

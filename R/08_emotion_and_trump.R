@@ -1,160 +1,123 @@
 source(here::here("R", "utilities.R"))
+options(digits = 3, scipen = 999)
 
 # Load data ====================================================================
-## Text is in "ad_creative_body"
-load(here("data", "tidy", "fb_matched.Rda"))
-load(here("data", "tidy", "fb_unique.Rda"))
-
-# Adjust candidate labels so that nchar is the same ============================
-## Define function, adjust later
-temp_fxn <- function(x) {
-  x %>%
-    map(
-      ~ .x %>%
-        rowwise() %>%
-        mutate(
-          candidate = str_pad(
-            simple_cap(tolower(candidate)),
-            side = "left",
-            width = fb_unique %>% map_dbl(~ max(nchar(.x$candidate))) %>% max()
-          ),
-          party = simple_cap(tolower(party))
-        ) %>%
-        ungroup() %>%
-        ## For now
-        filter(party != "Independent") %>%
-        filter(!is.na(party)) %>%
-        filter(party != "NANA") ## Accidental pasting of NA values
+## Party is already filtered and labeled; no need to repeat the process
+fb_unique <- read_rds(here("data", "tidy", "toxicity.RDS")) %>%
+  ## Adjust candidate labels so that nchar is the same
+  rowwise() %>%
+  mutate(
+    candidate = str_pad(
+      simple_cap(tolower(candidate)),
+      side = "left",
+      width = max(nchar(.$candidate))
     )
-}
+  )
 
-# Top diverse ads or number of ads =============================================
 ## Note that candidate is the group-level marker, not page_name
 ## e.g., Luke Letlow For Congress != Luke Letlow, but same candidate
 assert_that(
-  length(unique(fb_unique$senate$page_name)) != ## 81
-    length(unique(fb_unique$senate$candidate)) ## 70
-)
-assert_that(
-  length(unique(fb_unique$house$page_name)) != ## 761
-    length(unique(fb_unique$house$candidate)) ## 650
+  length(unique(fb_unique$page_name)) != ## 842
+    length(unique(fb_unique$candidate)) ## 720
 )
 
-## Based on the number of diverse ads or total ads (not accounting for breadth)
-fb_unique <- temp_fxn(fb_unique)
-
-# Mention of Trump =============================================================
-temp <- fb_unique %>%
-  map_dfr(
-    ~ .x %>%
-      group_by(party, financial) %>%
-      summarise(
-        mean_trump = mean(word_trump),
-        sd_trump = sd(word_trump),
-        se_trump = sd_trump / sqrt(n())
-      ),
-    .id = "chamber"
-  ) %>%
-  party_factor(., outvar = "Party") %>%
-  rowwise() %>%
-  mutate(chamber = simple_cap(chamber)) %>%
-  ungroup()
-
-pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 6, height = 2.8)
-print(fb_mention_plot(
-  temp,
-  xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
-))
-dev.off()
-
-## T-tests
-t.test(
-  fb_unique$senate %>%
-    filter(party == "Republican" & financial == "Donor-targeting") %>%
-    .$word_trump,
-  fb_unique$senate %>%
-    filter(party == "Republican" & financial == "Voter-targeting") %>%
-    .$word_trump
-)
+# Create party x target x chamber split corpuses ===============================
+fb_corpus_list <- fb_unique %>%
+  group_by(chamber, financial, party)
+temp <- group_keys(fb_corpus_list) %>%
+  unite(group_name, chamber, party, financial, sep = ", ") %>%
+  .$group_name
+fb_corpus_list <- fb_corpus_list %>%
+  group_split() %>%
+  set_names(., temp) %>%
+  map(~ corpus(.x, text_field = "ad_creative_body"))
 
 # Emotionally charged rhetoric =================================================
-fb_corpus_list <- list(
-  ## Not a great practice; will try to fix later
-  senate_rep_f = fb_unique$senate %>%
-    filter(party == "Republican" & financial == "Donor-targeting") %>%
-    corpus(., text_field = "ad_creative_body"),
-  senate_rep_n = fb_unique$senate %>%
-    filter(party == "Republican" & financial == "Voter-targeting") %>%
-    corpus(., text_field = "ad_creative_body"),
-  senate_dem_f = fb_unique$senate %>%
-    filter(party == "Democrat" & financial == "Donor-targeting") %>%
-    corpus(., text_field = "ad_creative_body"),
-  senate_dem_n = fb_unique$senate %>%
-    filter(party == "Democrat" & financial == "Voter-targeting") %>%
-    corpus(., text_field = "ad_creative_body"),
-  house_rep_f = fb_unique$house %>%
-    filter(party == "Republican" & financial == "Donor-targeting") %>%
-    corpus(., text_field = "ad_creative_body"),
-  house_rep_n = fb_unique$house %>%
-    filter(party == "Republican" & financial == "Voter-targeting") %>%
-    corpus(., text_field = "ad_creative_body"),
-  house_dem_f = fb_unique$house %>%
-    filter(party == "Democrat" & financial == "Donor-targeting") %>%
-    corpus(., text_field = "ad_creative_body"),
-  house_dem_n = fb_unique$house %>%
-    filter(party == "Democrat" & financial == "Voter-targeting") %>%
-    corpus(., text_field = "ad_creative_body")
-)
-
 lexi_list <- fb_corpus_list %>%
   map(~ liwcalike(.x, dictionary = NRC))
 save(lexi_list, file = here("output", "lexi_list.Rda"))
 
-lexi_plots <- lexi_list %>%
-  imap(
-    ~ emotion_plot(
-      .x,
-      title = paste0(
-        simple_cap(str_match_all(.y, "_(.*?)_")[[1]][1, 2]), ", ",
-        ifelse(
-          grepl("f", str_match_all(.y, "_(.*?)$")[[1]][1, 2]),
-          "Donor-targeting", "Voter-targeting"
-        )
-      )
+emotion_df <- lexi_list %>%
+  imap(~ .x %>% select(Dic, anger, disgust, fear)) %>%
+  bind_rows(.id = "type") %>%
+  separate(type, into = c("chamber", "party", "financial"), sep = ", ") %>%
+  party_factor(., outvar = "type")
+
+emotion_summ <- emotion_df %>%
+  group_by(type, chamber) %>%
+  summ_emo()
+
+## In-text descriptives --------------------------------------------------------
+emotion_df %>%
+  group_by(financial) %>%
+  summ_emo() %>%
+  print(width = 1e6)
+
+#   financial       mean_anger mean_disgust mean_fear se_anger
+#   <chr>                <dbl>        <dbl>     <dbl>    <dbl>
+# 1 Donor-targeting     0.0746       0.0393    0.0747 0.000459
+# 2 Voter-targeting     0.0588       0.0376    0.0644 0.000454
+#   se_disgust  se_fear any_anger any_disgust any_fear
+#        <dbl>    <dbl>     <dbl>       <dbl>    <dbl>
+# 1   0.000371 0.000499     0.600       0.400    0.576
+# 2   0.000414 0.000535     0.496       0.345    0.475
+
+emotion_df <- emotion_df %>%
+  mutate(
+    any_anger = as.numeric(anger > 0),
+    any_disgust = as.numeric(disgust > 0),
+    any_fear = as.numeric(fear > 0)
+  ) %>%
+  mutate(
+    any_negative = case_when(
+      any_anger == 1 | any_disgust == 1 | any_fear == 1 ~ 1,
+      TRUE ~ 0
+    ),
+    all_negative = case_when(
+      any_anger == 1 & any_disgust == 1 & any_fear == 1 ~ 1,
+      TRUE ~ 0
     )
   )
 
-temp <- lexi_list %>%
-  imap_dfr(~ .x %>% select(Dic, anger, disgust, fear), .id = "type") %>%
-  mutate(
-    chamber = case_when(
-      grepl("senate", type) ~ "Senate", TRUE ~ "House"
-    ),
-    party = case_when(
-      grepl("rep", type) ~ "Republican", TRUE ~ "Democrat"
-    ),
-    financial = case_when(
-      grepl("_f", type) ~ "Donor-targeting", TRUE ~ "Voter-targeting"
-    )
-  ) %>%
-  party_factor(., outvar = "type")
+# 29.3\% of donor-targeting ads linked to all three emotions
+# 20.7\% of voter-targeting ads
+emotion_df %>%
+  group_by(financial) %>%
+  count(all_negative) %>%
+  mutate(perc = n / sum(n) * 100)
 
-emo_temp <- temp %>%
-  group_by(type, chamber) %>%
-  summarise(
-    mean_anger = mean(anger / Dic, na.rm = TRUE),
-    mean_disgust = mean(disgust / Dic, na.rm = TRUE),
-    mean_fear = mean(fear / Dic, na.rm = TRUE),
-    se_anger = sd(anger / Dic, na.rm = TRUE) / sqrt(n()),
-    se_disgust = sd(disgust / Dic, na.rm = TRUE) / sqrt(n()),
-    se_fear = sd(fear / Dic, na.rm = TRUE) / sqrt(n())
-  ) %>%
-  ungroup()
+# 74.1\% of donor-targeting ads linked to any of the three emotions
+# 68.4\% of voter-targeting ads
+emotion_df %>%
+  group_by(financial) %>%
+  count(any_negative) %>%
+  mutate(perc = n / sum(n) * 100)
 
+## In-text t-tests -------------------------------------------------------------
+## anger: 7.5\% vs. 5.9\%, t-statistic = 24.1
+ttest_short(emotion_df, "anger")
+
+## fear: 7.5\% vs. 6.4\%, t-statistic = 13.9
+ttest_short(emotion_df, "fear")
+
+## disgust: 3.9\% vs. 3.8\%, t-statistic = 2.96
+ttest_short(emotion_df, "disgust")
+
+## Binary for any presence
+## anger: 2.9\% vs. 1.9\%, t-statistic = 44.1
+ttest_short(emotion_df, "any_anger")
+
+## fear: 2.8\% vs. 2.0\%, t-statistic = 33.3
+ttest_short(emotion_df, "any_fear")
+
+## disgust: 1.9\% vs. 1.4\%, t-statistic = 20.3
+ttest_short(emotion_df, "any_disgust")
+
+## Figure export ---------------------------------------------------------------
 pdf(here("fig", "anger_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(
   fb_mention_plot(
-    emo_temp %>% rename(Party = type),
+    emotion_summ %>% rename(Party = type),
     xvar = "mean_anger", se = "se_anger", xlab = ""
   ) +
     scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
@@ -164,7 +127,7 @@ dev.off()
 pdf(here("fig", "disgust_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(
   fb_mention_plot(
-    emo_temp %>% rename(Party = type),
+    emotion_summ %>% rename(Party = type),
     xvar = "mean_disgust", se = "se_disgust", xlab = ""
   ) +
     scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
@@ -174,9 +137,74 @@ dev.off()
 pdf(here("fig", "fear_by_type_chamber.pdf"), width = 6, height = 2.8)
 print(
   fb_mention_plot(
-    emo_temp %>% rename(Party = type),
+    emotion_summ %>% rename(Party = type),
     xvar = "mean_fear", se = "se_fear", xlab = ""
   ) +
     scale_x_continuous(limits = c(0, 0.09), labels = scales::percent)
 )
 dev.off()
+
+# Mention of Trump =============================================================
+trump_df <- fb_unique %>%
+  group_by(party, financial, chamber) %>%
+  summarise(
+    mean_trump = mean(word_trump),
+    sd_trump = sd(word_trump),
+    se_trump = sd_trump / sqrt(n())
+  ) %>%
+  ungroup() %>%
+  party_factor(., outvar = "Party")
+
+## Figure export ---------------------------------------------------------------
+pdf(here("fig", "mention_trump_by_type_chamber.pdf"), width = 6, height = 2.8)
+print(
+  fb_mention_plot(
+    trump_df,
+    xvar = "mean_trump", se = "se_trump", xlab = "Mentions Trump"
+  )
+)
+dev.off()
+
+## In-text t-tests -------------------------------------------------------------
+t.test(
+  fb_unique %>%
+    filter(party == "Republican" & financial == "Donor-targeting") %>%
+    .$word_trump,
+  fb_unique %>%
+    filter(party == "Republican" & financial == "Voter-targeting") %>%
+    .$word_trump
+)
+
+# Jan's PID difference code (unused in text) ===================================
+lexi_pid <- fb_unique %>%
+  group_by(party) %>%
+  group_split() %>%
+  `names<-`({.} %>% map(~ .x$party[1]) %>% unlist()) %>%
+  map(~ corpus(.x, text_field = "ad_creative_body")) %>%
+  map(~ liwcalike(.x, dictionary = NRC)) %>%
+  imap(~ .x %>% select(Dic, anger, disgust, fear)) %>%
+  bind_rows(.id = "party")
+
+# anger
+t.test(
+  lexi_pid$anger[lexi_pid$party == "Republican"] /
+    lexi_pid$Dic[lexi_pid$party == "Republican"],
+  lexi_pid$anger[lexi_pid$party == "Democrat"] /
+    lexi_pid$Dic[lexi_pid$party == "Democrat"]
+)
+
+# disgust
+t.test(
+  lexi_pid$disgust[lexi_pid$party == "Republican"] /
+    lexi_pid$Dic[lexi_pid$party == "Republican"],
+  lexi_pid$disgust[lexi_pid$party == "Democrat"] /
+    lexi_pid$Dic[lexi_pid$party == "Democrat"]
+)
+
+# fear
+t.test(
+  lexi_pid$fear[lexi_pid$party == "Republican"] /
+    lexi_pid$Dic[lexi_pid$party == "Republican"],
+  lexi_pid$fear[lexi_pid$party == "Democrat"] /
+    lexi_pid$Dic[lexi_pid$party == "Democrat"]
+)
