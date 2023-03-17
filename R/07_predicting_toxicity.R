@@ -93,65 +93,93 @@ print(
 dev.off()
 
 # OLS first for reference (simple model) =======================================
+temp2 <- temp %>%
+  rename(Toxicity = toxicity, Candidate = candidate)
+
+varlabel <- c(
+  "partyRepublican" = "Republican",
+  "financialDonor-targeting" = "Donor-targeting",
+  "chamberSenate" = "Senate",
+  "incINCUMBENT" = "Incumbent",
+  "incOPEN" = "Open Seat",
+  "safety" = "Electoral safety",
+  "gendermale" = "Male",
+  "min_ad_delivery_start_time" = "First ad delivery date"
+)
+
 ## Clustered model
 fit <- lm(
-  toxicity ~
+  Toxicity ~
     party * financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
-  temp
+  temp2
 )
 summary(fit)
 
 fit_se_cluster <- feols(
-  toxicity ~
+  Toxicity ~
     party * financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
-  temp
+  temp2
 )
 
-summary(fit_se_cluster, cluster = ~candidate)
-etable(fit_se_cluster, cluster = "candidate", replace = TRUE)
+summary(fit_se_cluster, cluster = ~Candidate)
 etable(
   fit_se_cluster,
-  cluster = "candidate", tex = TRUE, replace = TRUE,
+  cluster = "Candidate", replace = TRUE, dict = varlabel,
+  drop = c("Constant", "state_po")
+)
+etable(
+  fit_se_cluster,
+  cluster = "Candidate", tex = TRUE, replace = TRUE, dict = varlabel,
+  drop = c("Constant", "state_po"),
   file = here("tab", "fit_cand_cluster_toxicity.tex")
 )
 
 ## One without interaction term as requested by reviewer
 fit <- lm(
-  toxicity ~
+  Toxicity ~
     party + financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
-  temp
+  temp2
 )
 summary(fit)
 
 fit_se_cluster <- feols(
-  toxicity ~
+  Toxicity ~
     party + financial + chamber + inc + safety + gender +
     min_ad_delivery_start_time + state_po,
-  temp
+  temp2
 )
 
-summary(fit_se_cluster, cluster = ~candidate)
-etable(fit_se_cluster, cluster = "candidate", replace = TRUE)
+summary(fit_se_cluster, cluster = ~Candidate)
 etable(
   fit_se_cluster,
-  cluster = "candidate", tex = TRUE, replace = TRUE,
+  cluster = "Candidate", replace = TRUE, dict = varlabel,
+  drop = c("Constant", "state_po")
+)
+etable(
+  fit_se_cluster,
+  cluster = "Candidate", tex = TRUE, replace = TRUE, dict = varlabel,
+  drop = c("Constant", "state_po"),
   file = here("tab", "fit_cand_cluster_toxicity_no_interaction.tex")
 )
 
 fit_fe <- feols(
-  toxicity ~
-    financial + min_ad_delivery_start_time | candidate,
-  temp
+  Toxicity ~
+    financial + min_ad_delivery_start_time | Candidate,
+  temp2
 )
 
 summary(fit_fe)
-etable(fit_fe, replace = TRUE)
+etable(
+  fit_fe, replace = TRUE, 
+  dict = varlabel, drop = c("Constant", "state_po")
+)
 etable(
   fit_fe,
-  tex = TRUE, replace = TRUE,
+  tex = TRUE, replace = TRUE, headers = NA, float = FALSE,
+  dict = varlabel, drop = c("Constant", "state_po"),
   file = here("tab", "fit_fe_toxicity.tex")
 )
 
