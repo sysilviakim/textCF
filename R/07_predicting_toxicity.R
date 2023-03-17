@@ -101,7 +101,7 @@ varlabel <- c(
   "financialDonor-targeting" = "Donor-targeting",
   "chamberSenate" = "Senate",
   "incINCUMBENT" = "Incumbent",
-  "incOPEN" = "Open Seat",
+  "incOPEN" = "Open seat",
   "safety" = "Electoral safety",
   "gendermale" = "Male",
   "min_ad_delivery_start_time" = "First ad delivery date"
