@@ -74,13 +74,7 @@ summary(df$toxicity)
 mean(df$toxicity, na.rm = TRUE)
 
 ## By-type toxicity summary
-df %>%
-  group_by(financial) %>%
-  summarise(toxicity = mean(toxicity, na.rm = TRUE))
-# financial         toxicity
-# <fct>                <dbl>
-# 1 Voter-targeting   0.0533
-# 2 Donor-targeting   0.0651
+ttest_short(df, "toxicity", emo_prevalence = FALSE)
 
 ## By-party toxicity summary
 df %>%
@@ -91,6 +85,28 @@ df %>%
 # 1 Democrat     0.0549
 # 2 Republican   0.0656
 
+df %>% 
+  filter(chamber == "Senate") %>%
+  group_by(party, financial) %>%
+  summarise(toxicity = mean(toxicity, na.rm = TRUE))
+#   party      financial       toxicity
+#   <chr>      <fct>              <dbl>
+# 1 Democrat   Voter-targeting   0.0470
+# 2 Democrat   Donor-targeting   0.0609
+# 3 Republican Voter-targeting   0.0606
+# 4 Republican Donor-targeting   0.0704
+
+df %>% 
+  filter(chamber == "House") %>%
+  group_by(party, financial) %>%
+  summarise(toxicity = mean(toxicity, na.rm = TRUE))
+#   party      financial       toxicity
+#   <chr>      <fct>              <dbl>
+# 1 Democrat   Voter-targeting   0.0448
+# 2 Democrat   Donor-targeting   0.0606
+# 3 Republican Voter-targeting   0.0598
+# 4 Republican Donor-targeting   0.0795
+
 ## By-party top toxic posts
 df %>%
   group_by(party) %>%
@@ -100,9 +116,19 @@ df %>%
   View()
 
 ## Party x financial
-df %>%
-  group_by(party, financial, chamber) %>%
-  summarise(toxicity = mean(toxicity, na.rm = TRUE))
+temp <- df %>%
+  group_by(chamber, party)
+temp2 <- group_keys(temp) %>%
+  unite(group_name, chamber, party, sep = ", ") %>%
+  .$group_name
+temp <- temp %>%
+  group_split() %>%
+  set_names(., temp2)
+
+ttest_short(temp$`House, Democrat`, "toxicity", emo_prevalence = FALSE)
+ttest_short(temp$`House, Republican`, "toxicity", emo_prevalence = FALSE)
+ttest_short(temp$`Senate, Democrat`, "toxicity", emo_prevalence = FALSE)
+ttest_short(temp$`Senate, Republican`, "toxicity", emo_prevalence = FALSE)
 
 # Binary toxicity ==============================================================
 df %>%
