@@ -81,27 +81,42 @@ emotion_df <- emotion_df %>%
 
 # 29.3\% of donor-targeting ads linked to all three emotions
 # 20.7\% of voter-targeting ads
-emotion_df %>%
-  group_by(financial) %>%
-  count(all_negative) %>%
-  mutate(perc = n / sum(n) * 100)
+ttest_short(emotion_df, "all_negative", emo_prevalence = FALSE)
 
 # 74.1\% of donor-targeting ads linked to any of the three emotions
 # 68.4\% of voter-targeting ads
-emotion_df %>%
-  group_by(financial) %>%
-  count(any_negative) %>%
-  mutate(perc = n / sum(n) * 100)
+ttest_short(emotion_df, "any_negative", emo_prevalence = FALSE)
 
 ## In-text t-tests -------------------------------------------------------------
+by_chamber_party <- emotion_df %>%
+  group_by(chamber, party)
+temp <- group_keys(by_chamber_party) %>%
+  unite(group_name, chamber, party, sep = ", ") %>%
+  .$group_name
+by_chamber_party <- by_chamber_party %>%
+  group_split() %>%
+  set_names(., temp)
+
 ## anger: 7.5\% vs. 5.9\%, t-statistic = 24.1
 ttest_short(emotion_df, "anger")
+ttest_short(by_chamber_party$`House, Democrat`, "anger")
+ttest_short(by_chamber_party$`House, Republican`, "anger")
+ttest_short(by_chamber_party$`Senate, Democrat`, "anger")
+ttest_short(by_chamber_party$`Senate, Republican`, "anger")
 
 ## fear: 7.5\% vs. 6.4\%, t-statistic = 13.9
 ttest_short(emotion_df, "fear")
+ttest_short(by_chamber_party$`House, Democrat`, "fear")
+ttest_short(by_chamber_party$`House, Republican`, "fear")
+ttest_short(by_chamber_party$`Senate, Democrat`, "fear")
+ttest_short(by_chamber_party$`Senate, Republican`, "fear")
 
 ## disgust: 3.9\% vs. 3.8\%, t-statistic = 2.96
 ttest_short(emotion_df, "disgust")
+ttest_short(by_chamber_party$`House, Democrat`, "disgust")
+ttest_short(by_chamber_party$`House, Republican`, "disgust")
+ttest_short(by_chamber_party$`Senate, Democrat`, "disgust")
+ttest_short(by_chamber_party$`Senate, Republican`, "disgust")
 
 ## Binary for any presence
 ## anger: 2.9\% vs. 1.9\%, t-statistic = 44.1

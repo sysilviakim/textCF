@@ -683,15 +683,25 @@ summ_emo <- function(x) {
     ungroup()
 }
 
-ttest_short <- function(df, v) {
-  out <- t.test(
-    df[[v]][df$financial == "Donor-targeting"] /
-      df$Dic[df$financial == "Donor-targeting"],
-    df[[v]][df$financial == "Voter-targeting"] /
+ttest_short <- function(df, v, emo_prevalence = TRUE) {
+  if (emo_prevalence) {
+    donor <- df[[v]][df$financial == "Donor-targeting"] /
+      df$Dic[df$financial == "Donor-targeting"]
+    voter <- df[[v]][df$financial == "Voter-targeting"] /
       df$Dic[df$financial == "Voter-targeting"]
-  )
+  } else {
+    donor <- df[[v]][df$financial == "Donor-targeting"]
+    voter <- df[[v]][df$financial == "Voter-targeting"]
+  }
+  out <- t.test(donor, voter)
   print(out)
   print(out$statistic)
+  print(
+    paste0(
+      "Difference is ", mean(donor, na.rm = TRUE) - mean(voter, na.rm = TRUE)
+    )
+  )
+  print(out$conf.int)
 }
 
 # Other options ================================================================
