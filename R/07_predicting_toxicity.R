@@ -1,5 +1,4 @@
 source(here::here("R", "utilities.R"))
-library(fixest)
 
 # Load and filter/clean data ===================================================
 load(here("data", "tidy", "merged_unique.Rda"))

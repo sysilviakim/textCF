@@ -1,4 +1,3 @@
-library(peRspective)
 source(here::here("R", "utilities.R"))
 load(here("data", "tidy", "fb_unique.Rda"))
 vec <- c(senate = "senate", house = "house")

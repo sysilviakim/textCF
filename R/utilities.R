@@ -34,10 +34,11 @@ library(kableExtra)
 library(stargazer)
 library(RColorBrewer)
 library(gender)
-
+library(fixest)
+library(peRspective)
 # install.packages("devtools")
 ## devtools::install_github("hrbrmstr/wayback")
-library(wayback)
+## library(wayback)
 
 # Non-CRAN packages ============================================================
 ## devtools::install_github("sysilviakim/Kmisc")
