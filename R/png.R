@@ -37,6 +37,23 @@ print(
 )
 dev.off()
 
+p_list <- c("anger", "fear", "disgust") %>%
+  set_names() %>%
+  purrr::map(
+    ~ fb_mention_plot(
+      emotion_summ %>% rename(Party = type),
+      xvar = paste0("mean_", .x), se = paste0("se_", .x), xlab = ""
+    ) +
+      scale_x_continuous(limits = c(0, 0.09), labels = scales::percent) + 
+      ggtitle(paste0("Words Associated with ", str_to_title(.x)))
+  )
+
+## Patchworks
+library(patchwork)
+## Single column, three rows
+p_list$anger / p_list$fear / p_list$disgust
+ggsave(here("fig", "emotion_by_type_chamber.png"), width = 6, height = 8)
+
 png(
   here("fig", "wordcloud_dem_donor.png"),
   width = 4 * 300, height = 2.5 * 300, res = 300
