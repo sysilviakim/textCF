@@ -210,5 +210,33 @@ dwnom <- read_csv(here("data", "raw", "data_congress", "HS117_members.csv")) %>%
 
 ## Merge
 fb_merged <- left_join(fb_unique, dwnom) %>%
-  filter(!is.na(nominate_dim1))
+  filter(!is.na(nominate_dim1)) %>%
+  rename(Toxicity = toxicity, Candidate = candidate)
+
+varlabel <- c(
+  "partyRepublican" = "Republican",
+  "financialDonor-targeting" = "Donor-targeting",
+  "chamberSenate" = "Senate",
+  "incINCUMBENT" = "Incumbent",
+  "incOPEN" = "Open seat",
+  "safety" = "Electoral safety",
+  "gendermale" = "Male",
+  "min_ad_delivery_start_time" = "First ad delivery date",
+  "nominate_dim1" = "DW-NOMINATE (1st dim.)"
+)
+
+fit_se_cluster <- feols(
+  Toxicity ~
+    party + financial + chamber + inc + safety + gender +
+    min_ad_delivery_start_time + state_po + nominate_dim1,
+  fb_merged
+)
+
+summary(fit_se_cluster, cluster = ~Candidate)
+etable(
+  fit_se_cluster,
+  cluster = "Candidate", replace = TRUE, dict = varlabel,
+  drop = c("Constant", "state_po"),
+  file = here("tab", "fit_cand_cluster_toxicity_dwnom_added.tex")
+)
 
